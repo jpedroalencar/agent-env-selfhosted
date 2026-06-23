@@ -201,11 +201,11 @@
           <mxGeometry x="960" y="40" width="200" height="20" as="geometry" />
         </mxCell>
 
-        <mxCell id="legend-trusted" value="🟩 Trusted Infrastructure" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontColor=#1B5E20;" vertex="1" parent="1">
+        <mxCell id="legend-host" value="🟧 Host VPS Boundary" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontColor=#E65100;" vertex="1" parent="1">
           <mxGeometry x="960" y="70" width="180" height="20" as="geometry" />
         </mxCell>
 
-        <mxCell id="legend-container" value="🟨 Container Boundary" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontColor=#2E7D32;" vertex="1" parent="1">
+        <mxCell id="legend-container" value="🟩 LXD Container Boundary" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontColor=#2E7D32;" vertex="1" parent="1">
           <mxGeometry x="960" y="95" width="180" height="20" as="geometry" />
         </mxCell>
 
