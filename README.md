@@ -120,10 +120,10 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 │   ├── personas/         # Specialist agent persona definitions
 │   └── skills/           # Reusable skill definitions
 ├── apps/                 # Application definitions built on the platform
-├── artifacts/            # Curated deliverables and generated outputs
-│   ├── index.md          # Append-only artifact registry
-│   ├── research-analyst/ # Research reports and market analysis
-│   ├── financial-analyst/# Investment research and valuation reports
+├── artifacts/            # Knowledge Vault — curated deliverables and generated outputs
+│   ├── index.md          # Vault index with metadata schema (title, persona, status, tags, freshness, summary, path)
+│   ├── research-analyst/ # Research reports, competitive intelligence, literature reviews
+│   ├── financial-analyst/# Investment research, valuation reports, earnings reviews
 │   ├── dev/              # Technical plans and architecture documents
 │   └── operations-manager/ # Operational runbooks and procedures
 ├── diagrams/             # Architecture and infrastructure diagrams (SVG, Excalidraw)
@@ -133,10 +133,20 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 │   ├── configuration.md  # Configuration reference
 │   ├── deployment.md     # VPS provisioning and deployment
 │   ├── operations.md     # Maintainer runbook and SOPs
-│   └── security.md       # Threat model, access control, network defenses
+│   ├── security.md       # Threat model, access control, network defenses
+│   ├── reviews/          # Capability review documents
+│   │   └── knowledge-vault-phase1-review.md  # Phase 1 validation results
+│   └── workflows/        # Agent workflow definitions
+│       ├── artifact-pipeline.md   # Artifact generation and storage workflow
+│       ├── knowledge-vault.md     # Knowledge Vault retrieval-before-research workflow
+│       └── research-pipeline.md   # Research Analyst execution sequence
 ├── infra/                # Infrastructure configuration (Not yet populated)
 ├── logs/                 # Operational telemetry and logs (gitignored)
 ├── scripts/              # Automation and utility scripts
+│   ├── backup-container.sh    # LXD container backup
+│   ├── generate-artifact.sh   # Artifact generation and storage
+│   ├── register-artifact.sh   # Knowledge Vault registration with metadata validation
+│   └── restore-container.sh   # LXD container restore
 ├── screenshots/          # Platform screenshots and diagrams
 ├── workspaces/           # Temporary agent workspaces (gitignored contents)
 ├── .gitignore            # Security-hardened exclusion rules
@@ -158,6 +168,7 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 | GitHub Integration | ✅ Complete | Dedicated automation account |
 | Repository Structure | ✅ Complete | This repository |
 | Secret Management | ✅ Complete | Local secrets file, no Bitwarden |
+| Knowledge Vault | ✅ Complete | Phase 1 — filesystem-based knowledge reuse layer. 5 artifacts registered across Research Analyst, Financial Analyst, and Dev personas. Retrieval-before-research workflow operational. See [docs/workflows/knowledge-vault.md](docs/workflows/knowledge-vault.md). |
 | Backup Procedures | ⬜ Not Started | |
 | Recovery Procedures | ⬜ Not Started | |
 
@@ -165,8 +176,16 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 
 ## Roadmap
 
-### Phase 2 – Access Layer (Planned)
+### Phase 2 — Knowledge Vault & Access Layer (Planned)
 
+**Knowledge Vault:**
+- Extend vault to Dev and Operations Manager personas
+- Cross-session vault awareness (auto-load index at session start)
+- Auto-compute index statistics
+- Cron-based stale artifact checking
+- Staleness-aware automatic refresh for fast-moving topics
+
+**Access Layer:**
 - Caddy reverse proxy
 - HTTPS termination (Let's Encrypt / ACME)
 - OAuth authentication
