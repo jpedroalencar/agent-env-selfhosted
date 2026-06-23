@@ -121,6 +121,7 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 │   └── skills/           # Reusable skill definitions
 ├── apps/                 # Application definitions built on the platform
 ├── artifacts/            # Curated deliverables and generated outputs
+│   ├── index.md          # Append-only artifact registry
 │   ├── research-analyst/ # Research reports and market analysis
 │   ├── financial-analyst/# Investment research and valuation reports
 │   ├── dev/              # Technical plans and architecture documents
