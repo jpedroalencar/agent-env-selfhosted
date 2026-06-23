@@ -1,4 +1,39 @@
-# OS & Editor generated files
+# ──────────────────────────────────────────────
+# Secrets & Credentials
+# ──────────────────────────────────────────────
+.env
+.env.*
+*.env
+secrets.env
+.envrc
+.git-credentials
+.aws/credentials
+.aws/config
+.gcloud/
+.netrc
+netrc
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.pub
+**/secrets/**
+!**/secrets/**.md
+
+# ──────────────────────────────────────────────
+# Cache & Runtime
+# ──────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+tmp/
+temp/
 .DS_Store
 .DS_Store?
 ._*
@@ -6,26 +41,132 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+*.swp
+*.swo
+*.swn
+*.bak
+
+# ──────────────────────────────────────────────
+# Python Environments
+# ──────────────────────────────────────────────
+.venv/
+venv/
+env/
+venv.bak/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.whl
+*.egg
+
+# ──────────────────────────────────────────────
+# Editor & IDE
+# ──────────────────────────────────────────────
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
 
-# Large Backup & Export Files 
+# ──────────────────────────────────────────────
+# Storage & Logs
+# ──────────────────────────────────────────────
+logs/
+*.log
+memory.db
+vectorstore/
+chroma/
+qdrant/
+embeddings/
+pinecone/
+weaviate/
+milvus/
+lancedb/
+*.sqlite
+*.sqlite3
+*.db
+!**/schema*.sql
+
+# ──────────────────────────────────────────────
+# Build Artifacts
+# ──────────────────────────────────────────────
+build/
+dist/
+coverage/
+*.egg-info/
+.coverage
+htmlcov/
+.coverage.*
+*.so
+*.dylib
+*.dll
+junit/
+test-results/
+
+# ──────────────────────────────────────────────
+# Node
+# ──────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# ──────────────────────────────────────────────
+# Large Archives & Backups
+# ──────────────────────────────────────────────
 *.tar.gz
 *.tar.xz
+*.tar.bz2
 *.zip
+*.7z
+*.rar
 *.bak
-*.swp
 /backups/
 
-# Secrets & Credentials
-.env
-.env.*
-*.pem
-*.key
-id_rsa
-id_rsa.pub
-id_ed25519
-id_ed25519.pub
+# ──────────────────────────────────────────────
+# Platform-Specific (Hermes Agent)
+# ──────────────────────────────────────────────
+# Runtime memory and session state must never be committed
+**/agent/memory/runtime/
+**/agent/memory/embeddings/
+**/agent/memory/vectors/
+# Hermes local cache
+.hermes/
+!.hermes/skills/
+!.hermes/personas/
+!.hermes/config.yaml
+# Cron job artifacts
+hermes-cron/
+# Output from scheduled tasks
+cron-output/
 
-# Logs
-*.log
+# ──────────────────────────────────────────────
+# Operating System
+# ──────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+thumbs.db
+$RECYCLE.BIN/
+
+# ──────────────────────────────────────────────
+# Terraform & IaC
+# ──────────────────────────────────────────────
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+
+# ──────────────────────────────────────────────
+# Docker
+# ──────────────────────────────────────────────
+.docker/
+docker-compose.override.yml
