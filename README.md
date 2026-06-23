@@ -126,7 +126,8 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 │   ├── build-log.md      # Project decisions, lessons learned, milestones
 │   ├── configuration.md  # Configuration reference
 │   ├── deployment.md     # VPS provisioning and deployment
-│   └── security.md       # Security controls and hardening
+│   ├── operations.md     # Maintainer runbook and SOPs
+│   └── security.md       # Threat model, access control, network defenses
 ├── infra/                # Infrastructure configuration (Not yet populated)
 ├── logs/                 # Operational telemetry and logs (gitignored)
 ├── scripts/              # Automation and utility scripts
