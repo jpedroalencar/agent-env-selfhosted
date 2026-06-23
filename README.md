@@ -119,7 +119,12 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 │   ├── memory/           # Memory schemas, templates, and prompt definitions
 │   ├── personas/         # Specialist agent persona definitions
 │   └── skills/           # Reusable skill definitions
+├── apps/                 # Application definitions built on the platform
 ├── artifacts/            # Curated deliverables and generated outputs
+│   ├── research-analyst/ # Research reports and market analysis
+│   ├── financial-analyst/# Investment research and valuation reports
+│   ├── dev/              # Technical plans and architecture documents
+│   └── operations-manager/ # Operational runbooks and procedures
 ├── diagrams/             # Architecture and infrastructure diagrams (SVG, Excalidraw)
 ├── docs/                 # Platform documentation
 │   ├── architecture.md   # System architecture and design decisions
