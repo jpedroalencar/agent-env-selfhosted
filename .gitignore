@@ -170,3 +170,4 @@ crash.*.log
 # ──────────────────────────────────────────────
 .docker/
 docker-compose.override.yml
+artifacts/operations-manager/host-validation/backup-evidence-*.md

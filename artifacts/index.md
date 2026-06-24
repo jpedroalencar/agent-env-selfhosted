@@ -29,9 +29,6 @@
 
 ---
 
-
-
-
 ## Statistics
 
 | Metric | Value |
@@ -50,9 +47,6 @@
 | `verified` artifacts | 2 |
 
 ---
-
-
-
 
 ## Quick Reference
 
