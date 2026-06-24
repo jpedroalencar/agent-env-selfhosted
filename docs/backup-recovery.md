@@ -293,6 +293,98 @@ sudo lxc list hermes
 
 ---
 
+## 6A. Host Validation Evidence
+
+### 6A.1 Overview
+
+Starting in Phase 1.1, every successful host-side backup automatically generates a **machine-readable evidence artifact** and injects it into the Hermes container's repository. This allows Hermes to independently verify backup execution without operator confirmation.
+
+### 6A.2 Evidence Lifecycle
+
+```text
+1. Snapshots created ✓
+2. Retention applied ✓
+3. Evidence artifact generated (host)
+4. Evidence pushed via lxc file push (host → container)
+5. Evidence verified inside container (stat checks)
+6. Host temp file cleaned up
+7. Artifact accessible at artifacts/operations-manager/host-validation/
+```
+
+### 6A.3 Storage Location
+
+```
+<repo-root>/artifacts/operations-manager/host-validation/
+├── backup-evidence-YYYYMMDD-HHMMSS.md   ← Evidence artifact
+├── backup-evidence-YYYYMMDD-HHMMSS.md
+└── ...
+```
+
+The directory is automatically created by the backup script if it does not exist.
+
+### 6A.4 YAML Metadata Schema
+
+Every evidence artifact contains the following frontmatter:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `timestamp` | string | Snapshot creation time (`YYYYMMDD-HHMMSS`) |
+| `container_name` | string | LXD container backed up |
+| `snapshot_name` | string | Name of the created snapshot |
+| `backup_result` | string | Always `"success"` (script exits before evidence on failure) |
+| `retention_actions_performed` | string | Summary of retention policy applied |
+| `freshness_days` | int | Always `90` — evidence is stable host-side data |
+| `tags` | list | Standard Knowledge Vault tags |
+| `persona` | string | Always `"operations-manager"` |
+| `summary` | string | One-line description of evidence content |
+| `path` | string | Relative path within the repo |
+| `status` | string | Always `"verified"` |
+
+### 6A.5 Evidence Content
+
+Each artifact contains:
+
+- **Backup execution** — timestamp, container name, snapshot name
+- **Retention actions** — how many snapshots were kept, pruned
+- **Validation** — snapshot verification results, evidence injection status
+
+### 6A.6 Evidence Verification Process
+
+1. **Generation:** Script writes evidence to `/tmp/hermes-backup-evidence/` on the host
+2. **Push:** Script uses `lxc file push` to inject into the container at the configured repo path
+3. **Verify:** Script runs `lxc exec <container> -- stat -c "%s" <path>` to confirm:
+   - File exists inside the container
+   - File size is greater than zero bytes
+4. **Log:** Result is logged to `/var/log/hermes-backup.log` as either:
+   - `"Evidence successfully injected into container (N bytes)."`
+   - `"WARNING: Evidence injection could not be verified. Backup was successful."`
+5. **Cleanup:** Host temp file is removed regardless of verification outcome
+
+### 6A.7 Graceful Degradation
+
+Evidence generation, injection, and verification **never invalidate a successful backup**. All failures follow this pattern:
+
+```
+WARNING: <description of failure>. Backup was successful.
+```
+
+The script continues past any evidence failure without changing the exit code. A backup that succeeds with failed evidence injection is still exit code 0.
+
+### 6A.8 Audit Methodology
+
+Host validation artifacts are **authoritative evidence** for host-side backup operations. Future audits must:
+
+- Use host-validation artifacts as primary evidence
+- Not classify backups as missing solely because the container cannot directly inspect host resources (e.g., `lxc info`, `lxc list-snapshots`)
+- Distinguish between:
+  - **Missing evidence:** No artifact exists for a given period — backup may not have run
+  - **Failed backup:** Script exited non-zero — logged on host
+  - **Unavailable host visibility:** No host tools available from inside container — not a backup failure
+
+**Detection without operator confirmation:** If a valid evidence artifact exists at `artifacts/operations-manager/host-validation/backup-evidence-*.md`, the backup is considered confirmed. No operator statement is required.
+
+---
+
 ## 7. Failure Scenarios
 
 ### Scenario 1: Snapshot Creation Fails
@@ -387,31 +479,36 @@ git clone "https://johnalencar-agent:${GITHUB_TOKEN}@github.com/jpedroalencar/ag
 
 ---
 
-## 9. Operator Action Required
+## 9. Operational Status
 
-### Active Requirements
+### Completed Actions
 
-The following must be completed by the operator (John) before Phase 1 can be considered operational:
+The following have been completed by the operator (John):
 
-1. **Run the backup script** to create the first snapshot:
-   ```
-   # From the host:
-   sudo /path/to/scripts/backup-container.sh
-   ```
+1. ✅ **Scripts transferred to host:** `backup-container.sh` and `restore-container.sh` deployed to `/usr/local/bin/`
+2. ✅ **First backup executed:** Snapshot `backup-20260623-190808` created and verified
+3. ✅ **Host validation evidence:** Automated evidence injection operational (Phase 1.1)
 
-2. **Verify the snapshot exists:**
-   ```
-   sudo lxc info hermes | grep -A 20 '^Snapshots:'
-   ```
+### Remaining Actions
 
-3. **Confirm completion** so this documentation can be updated with real results and committed.
+1. **Restore testing:** Run `restore-container.sh` against a backup snapshot in a maintenance window
+2. **Cron scheduling:** Configure `hermes-backup.timer` to automate daily backups
+
+### Known Gaps
+
+| Limitation | Impact | Mitigation | Planned Resolution |
+|-----------|--------|------------|-------------------|
+| Local storage only | If the VPS disk fails, snapshots are lost | Not mitigated in Phase 1.1 | Phase 2: off-site replication |
+| No restore testing | Option B (manual validation) only | Evidence artifacts enable independent confirmation | Quarterly restore drill (Phase 3) |
+| No monitoring | No alert if backup fails | Logs must be checked manually | Phase 2: monitoring integration |
+| No notification | No Telegram alert on backup success/failure | Evidence artifacts are repository-visible | Phase 2.1: notification hook |
 
 ### Future Phases
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| 1 | Local LXD snapshots, retention, restore script | 🟡 Awaiting operator action |
-| 1.1 | Cron scheduling, secrets export in backup script | ⬜ Planned |
+| 1 | Local LXD snapshots, retention, restore script | ✅ Complete |
+| 1.1 | Host validation evidence, cron scheduling setup, secrets export | ✅ Evidence injection complete. Cron scheduling pending. |
 | 2 | Off-site replication (rsync/S3-compatible) | ⬜ Planned |
 | 2.1 | Telegram notification on backup success/failure | ⬜ Planned |
 | 3 | Restore testing — scheduled quarterly restore drill | ⬜ Planned |

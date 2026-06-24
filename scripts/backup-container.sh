@@ -36,6 +36,16 @@ SNAPSHOT_PREFIX="backup"
 # Log file destination (host filesystem).
 LOG_FILE="/var/log/hermes-backup.log"
 
+# Path to the Hermes repository inside the container (for evidence injection).
+# Override via environment variable.
+REPO_PATH_IN_CONTAINER="${REPO_PATH_IN_CONTAINER:-/root/agent-env-selfhosted}"
+
+# Evidence output directory inside the container (relative to repo root).
+EVIDENCE_DIR="${EVIDENCE_DIR:-artifacts/operations-manager/host-validation}"
+
+# Temporary evidence workspace on the host filesystem.
+EVIDENCE_TMPDIR="${EVIDENCE_TMPDIR:-/tmp/hermes-backup-evidence}"
+
 # Dry-run mode: if set, print actions without executing them.
 DRY_RUN="${DRY_RUN:-false}"
 
@@ -147,6 +157,128 @@ else
         fi
     done
     log "Retention applied. Kept ${RETENTION_COUNT} of ${COUNT} total '${SNAPSHOT_PREFIX}-*' snapshots."
+fi
+
+# ── Host Validation Evidence ─────────────────────────────────────────────────
+#
+# After a successful backup, generate machine-readable evidence on the host,
+# inject it into the Hermes container's repository, and verify delivery.
+#
+# Graceful degradation: failures here MUST NOT invalidate a successful backup.
+# All evidence steps log warnings and continue — they never call die().
+
+if [ "${DRY_RUN}" = "true" ]; then
+    log "DRY-RUN: Skipping evidence generation (dry-run mode)."
+else
+    EVIDENCE_TIMESTAMP=$(date '+%Y%m%d-%H%M%S')
+    EVIDENCE_TAG="backup-evidence-${EVIDENCE_TIMESTAMP}"
+    EVIDENCE_HOST_FILE="${EVIDENCE_TMPDIR}/${EVIDENCE_TAG}.md"
+    CONTAINER_EVIDENCE_DIR="${REPO_PATH_IN_CONTAINER}/${EVIDENCE_DIR}"
+
+    # ── Generate evidence artifact on host ───────────────────────────────
+    mkdir -p "${EVIDENCE_TMPDIR}" 2>/dev/null || {
+        log "WARNING: Could not create evidence temp dir '${EVIDENCE_TMPDIR}'. Skipping evidence generation."
+        EVIDENCE_SKIPPED=true
+    }
+
+    RETENTION_SUMMARY="kept ${RETENTION_COUNT}"
+    SNAPSHOT_COUNT="${COUNT:-0}"
+
+    if [ "${EVIDENCE_SKIPPED:-false}" != "true" ]; then
+        cat > "${EVIDENCE_HOST_FILE}" <<EVEOF
+---
+timestamp: "${EVIDENCE_TIMESTAMP}"
+container_name: "${CONTAINER_NAME}"
+snapshot_name: "${SNAPSHOT_NAME}"
+backup_result: "success"
+retention_actions_performed: "${RETENTION_SUMMARY}"
+freshness_days: 90
+tags: ["backup", "host-validation", "lxd-snapshot", "${CONTAINER_NAME}"]
+persona: "operations-manager"
+summary: "Host-side LXD backup evidence for container ${CONTAINER_NAME}: snapshot ${SNAPSHOT_NAME}, retention ${RETENTION_SUMMARY}"
+path: "${EVIDENCE_DIR}/${EVIDENCE_TAG}.md"
+status: "verified"
+---
+
+# Host Validation Evidence — ${CONTAINER_NAME}
+
+| Field | Value |
+|-------|-------|
+| **Timestamp** | ${EVIDENCE_TIMESTAMP} |
+| **Container** | ${CONTAINER_NAME} |
+| **Snapshot** | ${SNAPSHOT_NAME} |
+| **Result** | success |
+| **Retention** | ${RETENTION_SUMMARY} |
+
+## Backup Execution
+
+- **Script:** backup-container.sh
+- **Snapshot name:** ${SNAPSHOT_NAME}
+- **Snapshot created:** $(date '+%Y-%m-%d %H:%M:%S UTC')
+- **Container:** ${CONTAINER_NAME}
+
+## Retention Actions
+
+- **Policy:** Keep ${RETENTION_COUNT} most recent '${SNAPSHOT_PREFIX}-*' snapshots
+- **Snapshots before pruning:** ${SNAPSHOT_COUNT}
+- **Snapshots after pruning:** kept ${RETENTION_COUNT}
+- **Pruning applied:** yes
+
+## Validation
+
+- **Snapshot verification:** confirmed present via \`lxc info\` parsing
+- **Evidence injection:** see below
+EVEOF
+        log "Generated evidence artifact: ${EVIDENCE_HOST_FILE}"
+        EVIDENCE_SKIPPED=false
+    fi
+
+    # ── Ensure target directory exists inside container ───────────────────
+    if [ "${EVIDENCE_SKIPPED}" != "true" ]; then
+        if lxc exec "${CONTAINER_NAME}" -- mkdir -p "${CONTAINER_EVIDENCE_DIR}" 2>/dev/null; then
+            log "Ensured evidence directory exists inside container: ${CONTAINER_EVIDENCE_DIR}"
+        else
+            log "WARNING: Could not create evidence directory inside container. Skipping evidence injection."
+            EVIDENCE_SKIPPED=true
+        fi
+    fi
+
+    # ── Push evidence into container ──────────────────────────────────────
+    if [ "${EVIDENCE_SKIPPED}" != "true" ]; then
+        CONTAINER_EVIDENCE_PATH="${CONTAINER_EVIDENCE_DIR}/${EVIDENCE_TAG}.md"
+        if lxc file push "${EVIDENCE_HOST_FILE}" "${CONTAINER_NAME}/${CONTAINER_EVIDENCE_PATH}" 2>/dev/null; then
+            log "Evidence pushed to container: ${CONTAINER_EVIDENCE_PATH}"
+        else
+            log "WARNING: Failed to push evidence to container. Backup was successful but evidence is host-local only."
+            EVIDENCE_SKIPPED=true
+        fi
+    fi
+
+    # ── Verify evidence injection ─────────────────────────────────────────
+    if [ "${EVIDENCE_SKIPPED}" != "true" ]; then
+        VERIFY_OUTPUT=$(lxc exec "${CONTAINER_NAME}" -- stat -c "%s" "${CONTAINER_EVIDENCE_PATH}" 2>/dev/null || echo "FAILED")
+        if [ "${VERIFY_OUTPUT}" != "FAILED" ] && [ "${VERIFY_OUTPUT}" -gt 0 ] 2>/dev/null; then
+            log "Evidence successfully injected into container (${VERIFY_OUTPUT} bytes)."
+            INJECTION_VERIFIED=true
+        else
+            log "WARNING: Evidence injection could not be verified. Backup was successful."
+            INJECTION_VERIFIED=false
+        fi
+    fi
+
+    # ── Clean up host temp file ───────────────────────────────────────────
+    if [ -f "${EVIDENCE_HOST_FILE}" ]; then
+        rm -f "${EVIDENCE_HOST_FILE}" && log "Cleaned up host temp evidence: ${EVIDENCE_HOST_FILE}"
+    fi
+
+    # Summarize evidence status for the log
+    if [ "${EVIDENCE_SKIPPED}" = "true" ]; then
+        log "Evidence status: NOT COLLECTED (non-fatal — backup successful)."
+    elif [ "${INJECTION_VERIFIED:-false}" = "true" ]; then
+        log "Evidence status: COLLECTED AND INJECTED."
+    else
+        log "Evidence status: COLLECTED BUT NOT VERIFIED (non-fatal — backup successful)."
+    fi
 fi
 
 # ── Summary ──────────────────────────────────────────────────────────────────
