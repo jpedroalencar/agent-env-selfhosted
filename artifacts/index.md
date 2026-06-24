@@ -6,8 +6,8 @@
 
 **Vault Version:** 1
 **Created:** 2026-06-23
-**Last Updated:** 2026-06-23
-**Total Artifacts Registered:** 4
+**Last Updated:** 2026-06-24
+**Total Artifacts Registered:** 5
 
 > [!NOTE]
 > This index is the single source of truth for the Knowledge Vault. Every registered
@@ -24,24 +24,35 @@
 | 2026-06-23 | Telegram Bot Integration Architecture | Dev | `verified` | `architecture`, `telegram`, `gateway`, `messaging` | 90 days | Analysis of the Telegram gateway architecture covering adapter layer, message lifecycle, 10 delivery paths, and display configuration. | [artifacts/dev/2026-06-23_telegram-bot-integration-architecture.md](dev/2026-06-23_telegram-bot-integration-architecture.md) |
 | 2026-06-23 | DeepSeek v4 Flash Provider Analysis | research-analyst | `draft` | `deepseek`, `provider`, `llm`, `api`, `analysis` | 30 days | Analysis of DeepSeek v4 Flash model covering performance benchmarks, pricing, and provider comparison. | [artifacts/research-analyst/2026-06-23_deepseek-v4-flash-provider-analysis.md](artifacts/research-analyst/2026-06-23_deepseek-v4-flash-provider-analysis.md) |
 | 2026-06-23 | LXD vs Docker Comparison | research-analyst | `draft` | `lxd`, ` docker`, ` containerization`, ` comparison`, ` infrastructure` | 90 days | Comparison of LXD system containers vs Docker application containers for agent-hosting workloads. | [artifacts/research-analyst/2026-06-23_lxd-vs-docker-comparison.md](artifacts/research-analyst/2026-06-23_lxd-vs-docker-comparison.md) |
+| 2026-06-24 | Knowledge Vault Phase 2 Validation | dev | `draft` | `test`, ` phase2`, ` validation` | 30 days | Test artifact verifying Phase 2 automatic registration | [artifacts/dev/2026-06-24_knowledge-vault-phase-2-validation.md](artifacts/dev/2026-06-24_knowledge-vault-phase-2-validation.md) |
 | 2026-06-23 | AAPL Q3 FY2026 Earnings Review | financial-analyst | `draft` | `aapl`, `apple`, `earnings`, `valuation`, `services`, `q3-2026` | 30 days | Apple Q3 FY2026 earnings review with revenue beat, Services milestones, and bull/bear case analysis. | [artifacts/financial-analyst/2026-06-23_aapl-q3-2026-earnings-review.md](artifacts/financial-analyst/2026-06-23_aapl-q3-2026-earnings-review.md) |
 <!-- /Index-Table -->
 
 ---
 
+
+
 ## Statistics
 
 | Metric | Value |
 |--------|-------|
-| Research Analyst artifacts | 2 |
-| Financial Analyst artifacts | 1 |
-| Dev artifacts | 2 |
-| Operations Manager artifacts | 0 |
-| Verified artifacts | 2 |
-| Draft artifacts | 3 |
-| Total registered | 5 |
+| Total artifacts | 6 |
+| Last artifact | 2026-06-24 |
+| Oldest artifact | 2026-06-23 |
+| Fresh artifacts | 6 |
+| Stale artifacts | 0 |
+| Avg freshness threshold | 60 days |
+| Most used tag | `architecture` (2) |
+| Unique personas | 4 |
+| Unique tags | 25 || research-analyst artifacts | 2 |
+| financial-analyst artifacts | 1 |
+| dev artifacts | 1 |
+| `draft` artifacts | 4 |
+| `verified` artifacts | 2 |
 
 ---
+
+
 
 ## Quick Reference
 

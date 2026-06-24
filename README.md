@@ -117,7 +117,15 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 ```
 ├── agent/
 │   ├── memory/           # Memory schemas, templates, and prompt definitions
+│   │   ├── decision-log-template.md   # ADR-style decision log template
+│   │   ├── memory-schema.md           # Memory field definitions
+│   │   ├── persona-memory-template.md # Persona-specific memory structure
+│   │   └── project-memory-template.md # Project-level memory structure
 │   ├── personas/         # Specialist agent persona definitions
+│   │   ├── dev.md              # Dev persona scope and boundaries
+│   │   ├── financial-analyst.md # Financial Analyst persona
+│   │   ├── operations-manager.md # Operations Manager persona
+│   │   └── research-analyst.md   # Research Analyst persona
 │   └── skills/           # Reusable skill definitions
 ├── apps/                 # Application definitions built on the platform
 ├── artifacts/            # Knowledge Vault — curated deliverables and generated outputs
@@ -126,7 +134,11 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 │   ├── financial-analyst/# Investment research, valuation reports, earnings reviews
 │   ├── dev/              # Technical plans and architecture documents
 │   └── operations-manager/ # Operational runbooks and procedures
-├── diagrams/             # Architecture and infrastructure diagrams (SVG, Excalidraw)
+│       └── host-validation/  # Host-side backup evidence artifacts
+├── diagrams/             # Architecture and infrastructure diagrams
+│   ├── current-architecture.drawio  # Canonical Draw.io source
+│   ├── current-architecture.md      # Mermaid architecture diagram
+│   └── sequence-research.md         # Research Analyst execution sequence
 ├── docs/                 # Platform documentation
 │   ├── architecture.md   # System architecture and design decisions
 │   ├── build-log.md      # Project decisions, lessons learned, milestones
@@ -134,6 +146,7 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 │   ├── deployment.md     # VPS provisioning and deployment
 │   ├── operations.md     # Maintainer runbook and SOPs
 │   ├── security.md       # Threat model, access control, network defenses
+│   ├── diagram-notes.md  # Architecture diagram assumptions and conventions
 │   ├── reviews/          # Capability review and completion reports
 │   │   ├── backup-phase-completion.md          # Backup Phase 1 + 1.1 completion report
 │   │   └── knowledge-vault-phase1-review.md    # Knowledge Vault Phase 1 validation review
@@ -144,10 +157,15 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 ├── infra/                # Infrastructure configuration (Not yet populated)
 ├── logs/                 # Operational telemetry and logs (gitignored)
 ├── scripts/              # Automation and utility scripts
-│   ├── backup-container.sh    # LXD container backup
+│   ├── backup-container.sh    # LXD container backup with retention and host evidence
+│   ├── freshness-check.sh     # Knowledge Vault freshness evaluation
 │   ├── generate-artifact.sh   # Artifact generation and storage
+│   ├── lookup-artifact.sh     # Structured artifact lookup with relevance ranking
 │   ├── register-artifact.sh   # Knowledge Vault registration with metadata validation
-│   └── restore-container.sh   # LXD container restore
+│   ├── restore-container.sh   # LXD container restore with safety features
+│   ├── reuse-artifact.sh      # Artifact reuse decision framework
+│   ├── stale-check-cron.sh    # Cron-based stale artifact checker
+│   └── update-index-stats.sh  # Auto-compute Knowledge Vault index statistics
 ├── screenshots/          # Platform screenshots and diagrams
 ├── workspaces/           # Temporary agent workspaces (gitignored contents)
 ├── .gitignore            # Security-hardened exclusion rules
@@ -169,21 +187,24 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 | GitHub Integration | ✅ Complete | Dedicated automation account |
 | Repository Structure | ✅ Complete | This repository |
 | Secret Management | ✅ Complete | Local secrets file, no Bitwarden |
-| Knowledge Vault | ✅ Complete | Phase 1 — filesystem-based knowledge reuse layer. 5 artifacts registered across Research Analyst, Financial Analyst, and Dev personas. Retrieval-before-research workflow operational. See [docs/workflows/knowledge-vault.md](docs/workflows/knowledge-vault.md). |
+| Knowledge Vault | ✅ Complete | Phase 1 (retrieval-before-research) + Phase 2 (automated workflows, freshness checks, reuse decisions, cron-based stale detection, auto-registration chain, auto-computed statistics). 6 artifacts registered. See [docs/workflows/knowledge-vault.md](docs/workflows/knowledge-vault.md). |
 | Backup & Recovery | ✅ Complete | Phase 1 + 1.1 — LXD snapshot backup with automated retention, restore script with safety features, and host validation evidence injection. See [docs/backup-recovery.md](docs/backup-recovery.md) and [docs/reviews/backup-phase-completion.md](docs/reviews/backup-phase-completion.md). |
 
 ---
 
 ## Roadmap
 
-### Phase 2 — Knowledge Vault & Access Layer (Planned)
+### Phase 2 — Knowledge Vault & Access Layer (In Progress)
 
-**Knowledge Vault:**
-- Extend vault to Dev and Operations Manager personas
-- Cross-session vault awareness (auto-load index at session start)
-- Auto-compute index statistics
-- Cron-based stale artifact checking
-- Staleness-aware automatic refresh for fast-moving topics
+**Knowledge Vault:** ✅ Complete
+- ✅ Extend vault to Dev and Operations Manager personas
+- ✅ Auto-compute index statistics (`update-index-stats.sh`)
+- ✅ Automatic artifact registration (`generate-artifact.sh` → `register-artifact.sh`)
+- ✅ Structured artifact lookup (`lookup-artifact.sh`)
+- ✅ Freshness evaluation (`freshness-check.sh`)
+- ✅ Reuse decision framework (`reuse-artifact.sh`)
+- ✅ Cron-based stale artifact checking (`stale-check-cron.sh`)
+- ✅ Comprehensive workflow documentation (`docs/workflows/knowledge-vault.md`)
 
 **Access Layer:**
 - Caddy reverse proxy
