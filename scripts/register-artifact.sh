@@ -236,4 +236,13 @@ echo "  Index:    ${INDEX_FILE}"
 echo "  Persona:  ${PERSONA}"
 echo "  Status:   ${STATUS}"
 echo "  Log:      ${LOGFILE}"
+
+# ── Update Index Statistics (Phase 2) ─────────────────────────────────────────
+STATS_SCRIPT="${SCRIPT_DIR}/update-index-stats.sh"
+if [ -f "$STATS_SCRIPT" ]; then
+    echo ""
+    echo "→ Updating vault statistics..."
+    bash "$STATS_SCRIPT" > /dev/null 2>&1 && echo "  Statistics updated." || echo "  [warn] Statistics update failed." >&2
+fi
+
 exit 0

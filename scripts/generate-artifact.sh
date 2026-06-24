@@ -34,6 +34,7 @@ set -euo pipefail
 # ── Configuration ────────────────────────────────────────────────────────────
 
 BASE_DIR="${ARTIFACTS_DIR:-$(cd "$(dirname "$0")/.." && pwd)/artifacts}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VALID_PERSONAS=("research-analyst" "financial-analyst" "dev" "operations-manager")
 
 # ── Arg Parsing ──────────────────────────────────────────────────────────────
@@ -50,6 +51,13 @@ CONTENT_SRC="$3"
 SOURCES="${SOURCES:-}"
 EXECUTIVE_SUMMARY="${EXECUTIVE_SUMMARY:-}"
 AUTHOR="${AUTHOR:-}"
+
+# Auto-registration settings (Phase 2)
+# Set AUTO_REGISTER=false to skip automatic vault registration after generation
+AUTO_REGISTER="${AUTO_REGISTER:-true}"
+REGISTER_STATUS="${REGISTER_STATUS:-draft}"
+REGISTER_TAGS="${REGISTER_TAGS:-}"
+REGISTER_FRESHNESS="${REGISTER_FRESHNESS:-90}"
 
 # Validate persona
 VALID=false
@@ -140,6 +148,41 @@ OUTPUT_PATH="${PERSONA_DIR}/${FILENAME}"
 
 if [ -f "$OUTPUT_PATH" ] && [ -s "$OUTPUT_PATH" ]; then
     echo "$OUTPUT_PATH"
+    
+    # ── Auto-registration (Phase 2) ────────────────────────────────────────────
+    if [ "$AUTO_REGISTER" = "true" ]; then
+        REL_PATH="artifacts/${PERSONA}/${FILENAME}"
+        REG_SCRIPT="${SCRIPT_DIR}/register-artifact.sh"
+        
+        if [ -f "$REG_SCRIPT" ]; then
+            # Auto-generate tags from persona + title keywords if not explicitly set
+            if [ -z "$REGISTER_TAGS" ]; then
+                REGISTER_TAGS=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | tr ' ' ',')
+                REGISTER_TAGS="${PERSONA}, ${REGISTER_TAGS}"
+                REGISTER_TAGS=$(echo "$REGISTER_TAGS" | sed 's/,,*/,/g; s/^,//; s/,$//')
+            fi
+            
+            # Derive summary from EXECUTIVE_SUMMARY or first line of content
+            REG_SUMMARY="${EXECUTIVE_SUMMARY}"
+            if [ -z "$REG_SUMMARY" ]; then
+                REG_SUMMARY=$(echo "$CONTENT" | head -1 | sed 's/^#* //; s/^[[:space:]]*//; s/[[:space:]]*$//')
+                [ ${#REG_SUMMARY} -gt 120 ] && REG_SUMMARY="${REG_SUMMARY:0:117}..."
+            fi
+            
+            echo "→ Auto-registering in Knowledge Vault..."
+            bash "$REG_SCRIPT" \
+                --persona "$PERSONA" \
+                --title "$TITLE" \
+                --status "$REGISTER_STATUS" \
+                --tags "$REGISTER_TAGS" \
+                --freshness "$REGISTER_FRESHNESS" \
+                --summary "$REG_SUMMARY" \
+                --path "$REL_PATH" || echo "  [warn] Registration failed (non-fatal)" >&2
+        else
+            echo "  [warn] Registration script not found: ${REG_SCRIPT}" >&2
+        fi
+    fi
+    
     exit 0
 else
     echo "Error: Failed to write artifact" >&2

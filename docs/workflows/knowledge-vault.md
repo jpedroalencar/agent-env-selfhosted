@@ -1,25 +1,30 @@
 # Knowledge Vault — Workflow
 
-> **Audience:** Research Analyst, Financial Analyst personas (Phase 1).
+> **Audience:** All persona agents (Research Analyst, Financial Analyst, Dev, Operations Manager).
 > **Purpose:** Prevent duplicate research through retrieval-before-research.
-> **Last updated:** 2026-06-23
+> **Phase 2:** Automated workflows, cross-persona vault coverage, auto-registration, freshness checks, reuse decisions, cron-based stale detection.
+> **Last updated:** 2026-06-24
 
 ---
 
 ## Table of Contents
 
 1. [Overview](#1-overview)
-2. [Metadata Schema](#2-metadata-schema)
-3. [Registration Policy](#3-registration-policy)
-4. [Quality Policy](#4-quality-policy)
-5. [Retrieval Policy](#5-retrieval-policy)
-6. [Freshness Rules](#6-freshness-rules)
-7. [Retrieval-Before-Research Workflow](#7-retrieval-before-research-workflow)
-8. [Artifact Reuse Workflow](#8-artifact-reuse-workflow)
-9. [Stale Artifact Refresh Workflow](#9-stale-artifact-refresh-workflow)
-10. [Registration Procedure](#10-registration-procedure)
-11. [Operational Limits](#11-operational-limits)
-12. [Known Gaps (Phase 1)](#12-known-gaps-phase-1)
+2. [Substantive Check → Vault Search → Freshness → Reuse or Research](#2-substantive-check--vault-search--freshness--reuse-or-research)
+3. [Metadata Schema](#3-metadata-schema)
+4. [Registration Policy](#4-registration-policy)
+5. [Quality Policy](#5-quality-policy)
+6. [Retrieval Policy](#6-retrieval-policy)
+7. [Freshness Rules](#7-freshness-rules)
+8. [Retrieval-Before-Research Workflow](#8-retrieval-before-research-workflow)
+9. [Artifact Reuse Workflow](#9-artifact-reuse-workflow)
+10. [Stale Artifact Refresh Workflow](#10-stale-artifact-refresh-workflow)
+11. [Registration Procedure](#11-registration-procedure)
+12. [Phase 2: Automated Workflows](#12-phase-2-automated-workflows)
+13. [Phase 2: Cron-Based Vault Maintenance](#13-phase-2-cron-based-vault-maintenance)
+14. [Phase 2: Script Reference](#14-phase-2-script-reference)
+15. [Operational Limits](#15-operational-limits)
+16. [Known Gaps (Phase 2)](#16-known-gaps-phase-2)
 
 ---
 
@@ -29,23 +34,39 @@ The Knowledge Vault is a lightweight filesystem-based knowledge reuse layer. It 
 
 **Core principle:** Before performing research, analysis, planning, or evaluation, search the vault first. If a relevant and fresh artifact already exists, reuse it instead of performing new work.
 
-**Scope (Phase 1):** Research Analyst and Financial Analyst only. Dev and Operations Manager are excluded from automated retrieval requirements in Phase 1.
+**Phase 1 scope:** Research Analyst and Financial Analyst only.
+**Phase 2 scope:** All personas including Dev and Operations Manager. Automated retrieval workflows, freshness evaluation, and cron-based stale detection.
 
-**Architecture:**
+### Phase 2 Workflow Architecture
 
 ```
-Persona Agent
+User Request / Task
    │
-   ├── 1. Search Knowledge Vault (artifacts/index.md + grep/find)
+   ├── 1. Substantive Check
+   │       └── Is this a task that warrants vault search?
+   │             ├── Yes → Continue
+   │             └── No → Execute normally, skip vault
    │
-   ├── 2. Match found?
-   │      ├── Yes → Evaluate freshness
-   │      │           ├── Fresh → Reuse (cite artifact)
-   │      │           └── Stale → Inform user, offer refresh
-   │      └── No → Perform new research
-   │                 └── Register result as artifact
+   ├── 2. Vault Search (lookup-artifact.sh)
+   │       └── Search by keyword, tag, persona, or full-text
    │
-   └── 3. Deliver response
+   ├── 3. Freshness Evaluation (freshness-check.sh)
+   │       ├── Fresh → Continue to reuse evaluation
+   │       └── Stale → Offer refresh or skip to research
+   │
+   ├── 4. Reuse Decision (reuse-artifact.sh)
+   │       ├── Reuse → Cite artifact, deliver response
+   │       ├── Reuse + Supplement → Cite + targeted research on gaps
+   │       ├── Refresh → Perform refresh, update artifact, re-register
+   │       └── Research → Perform new research
+   │
+   ├── 5. Artifact Generation (generate-artifact.sh)
+   │       ├── Generate artifact file
+   │       └── Auto-register in vault (AUTO_REGISTER=true)
+   │
+   └── 6. Registration (register-artifact.sh)
+             ├── Add to index with metadata
+             └── Auto-compute statistics (update-index-stats.sh)
 ```
 
 ---
@@ -336,7 +357,7 @@ When a relevant but stale artifact is found:
 
 ---
 
-## 10. Registration Procedure
+## 11. Registration Procedure
 
 ### Step-by-Step for Persona Agents
 
@@ -353,6 +374,25 @@ cd /path/to/repo
   --summary "Analysis of DeepSeek v4 Flash model covering performance benchmarks, pricing, and provider comparison." \
   --path "artifacts/research-analyst/2026-06-23_deepseek-v4-flash-analysis.md"
 ```
+
+### Phase 2: Automatic Registration (generate-artifact.sh)
+
+In Phase 2, artifact generation now automatically triggers registration. When using `generate-artifact.sh`, registration happens implicitly:
+
+```bash
+# Generate AND auto-register in one step:
+AUTO_REGISTER=true \
+REGISTER_STATUS=draft \
+REGISTER_TAGS="deepseek, provider, llm" \
+REGISTER_FRESHNESS=30 \
+./scripts/generate-artifact.sh research-analyst "DeepSeek Analysis" /tmp/content.md
+```
+
+After generation and registration, vault statistics are automatically recomputed.
+
+### Phase 2: Automatic Statistics Update
+
+After every successful registration, `update-index-stats.sh` runs automatically to keep the Statistics section in `artifacts/index.md` current. This replaces the Phase 1 manual update requirement.
 
 ### Verification
 
@@ -376,7 +416,202 @@ After running, verify:
 
 ---
 
-## 11. Operational Limits
+## 12. Phase 2: Automated Workflows
+
+### 12.1 Structured Artifact Lookup
+
+The `lookup-artifact.sh` script provides structured search with relevance evaluation and freshness detection.
+
+```bash
+# Search by keyword
+./scripts/lookup-artifact.sh --query "deepseek"
+
+# Search within a persona
+./scripts/lookup-artifact.sh --query "lxd" --persona research-analyst
+
+# Search by tag
+./scripts/lookup-artifact.sh --query "architecture" --tag architecture
+
+# Fresh artifacts only
+./scripts/lookup-artifact.sh --query "earnings" --freshness-only
+
+# List all artifacts with freshness status
+./scripts/lookup-artifact.sh --list-all
+
+# List only stale artifacts
+./scripts/lookup-artifact.sh --list-stale
+
+# Machine-readable JSON output
+./scripts/lookup-artifact.sh --query "aapl" --json
+```
+
+**Output format:** Each result shows:
+- Title, persona, date, status
+- Freshness evaluation: `✅ FRESH (Xd old, threshold Yd)` or `⚠️ STALE (Xd old, threshold Yd)`
+- Tags and summary
+- File path
+
+### 12.2 Freshness Evaluation
+
+The `freshness-check.sh` script evaluates vault freshness across all or targeted artifacts.
+
+```bash
+# Check all artifacts
+./scripts/freshness-check.sh
+
+# Check one persona
+./scripts/freshness-check.sh --persona financial-analyst
+
+# Custom warning threshold (warn 14 days before stale)
+./scripts/freshness-check.sh --warn-days 14
+
+# Brief summary only
+./scripts/freshness-check.sh --summary-only
+
+# JSON for programmatic consumption
+./scripts/freshness-check.sh --json
+
+# Exit code mode (exit 1 if any stale) — for cron alerting
+./scripts/freshness-check.sh --exit-code
+```
+
+**Categorization:**
+| Category | Condition | Action |
+|----------|-----------|--------|
+| ✅ Fresh | `age <= freshness_days` | No action needed |
+| ⚡ Warning | `(freshness_days - age) <= warn_days` | Plan for refresh |
+| ⚠️ Stale | `age > freshness_days` | Refresh recommended |
+
+### 12.3 Reuse Decision Framework
+
+The `reuse-artifact.sh` script takes a lookup result and a user request, evaluates coverage and freshness, and produces a structured decision.
+
+```bash
+# Basic reuse evaluation
+./scripts/reuse-artifact.sh \
+  --artifact-path "artifacts/research-analyst/2026-06-23_deepseek-v4-flash-provider-analysis.md" \
+  --request "Compare DeepSeek v4 Flash pricing against OpenAI"
+
+# Force reuse (skip coverage evaluation)
+./scripts/reuse-artifact.sh \
+  --artifact-path "artifacts/financial-analyst/2026-06-23_aapl-q3-2026-earnings-review.md" \
+  --request "What's Apple's current P/E ratio?" \
+  --force-reuse
+
+# JSON output
+./scripts/reuse-artifact.sh --artifact-path "<path>" --request "<query>" --json
+```
+
+**Decision outcomes:**
+| Decision | Meaning | Action Required |
+|----------|---------|-----------------|
+| `reuse` | Good coverage + fresh | Cite artifact, deliver response |
+| `reuse_with_caution` | Fresh but coverage unclear | Cite artifact, add caveat |
+| `reuse_with_supplement` | Partial coverage + fresh | Cite artifact, research gaps |
+| `refresh` | Good coverage but stale | Refresh artifact, update date |
+| `research` | Poor coverage or stale | Full new research |
+
+### 12.4 Citation Template
+
+When an artifact is reused, agents MUST use this citation format:
+
+```
+[Knowledge Vault — Artifact Reused]
+  Title: <Title>
+  Path: <Relative path from repo root>
+  Persona: <Persona>
+  Freshness: <Age>/<Threshold> days (fresh|stale)
+  Summary: <One-line summary>
+```
+
+---
+
+## 13. Phase 2: Cron-Based Vault Maintenance
+
+### 13.1 Stale Artifact Check
+
+The `stale-check-cron.sh` script is designed to run as a cron job for proactive stale detection.
+
+```bash
+# Default: full human-readable report
+./scripts/stale-check-cron.sh
+
+# Summary only (quiet cron mode)
+./scripts/stale-check-cron.sh --summary-only
+
+# Markdown notification format (for Telegram delivery)
+./scripts/stale-check-cron.sh --notify
+
+# Cron-optimized output (multi-line, no decoration)
+./scripts/stale-check-cron.sh --cron-report
+
+# Custom warning threshold
+./scripts/stale-check-cron.sh --warn-days 14
+```
+
+### 13.2 Cron Job Setup
+
+```bash
+# Weekly stale check (every Monday at 9 AM)
+hermes cron create \
+  --schedule "0 9 * * 1" \
+  --prompt "Run stale check on Knowledge Vault" \
+  --name "vault-stale-check"
+```
+
+Or with the script directly as a cron script job:
+
+```bash
+# Weekly stale check via script
+hermes cron create \
+  --schedule "0 9 * * 1" \
+  --script "scripts/stale-check-cron.sh" \
+  --no-agent true \
+  --name "vault-stale-check"
+```
+
+### 13.3 Automated Artifact Registration Chain
+
+The following automatic chain runs when an artifact is generated:
+
+```
+generate-artifact.sh
+  └── Creates artifact file
+  └── Calls register-artifact.sh (if AUTO_REGISTER=true)
+        └── Injects YAML frontmatter
+        └── Appends index entry
+        └── Logs registration
+        └── Calls update-index-stats.sh
+              └── Recomputes vault statistics
+              └── Updates Statistics section in index.md
+```
+
+---
+
+## 14. Phase 2: Script Reference
+
+| Script | Purpose | Phase | Output |
+|--------|---------|-------|--------|
+| `scripts/generate-artifact.sh` | Create artifact file | Phase 1 + 2 | File path |
+| `scripts/register-artifact.sh` | Register in vault index | Phase 1 + 2 | Registration log |
+| `scripts/lookup-artifact.sh` | Structured vault search | Phase 2 | Ranked results with freshness |
+| `scripts/freshness-check.sh` | Full vault freshness eval | Phase 2 | Stale/fresh/warning counts |
+| `scripts/reuse-artifact.sh` | Reuse decision framework | Phase 2 | Decision + citation stub |
+| `scripts/update-index-stats.sh` | Auto-compute index stats | Phase 2 | Updated Statistics section |
+| `scripts/stale-check-cron.sh` | Cron-based stale detection | Phase 2 | Alert report |
+
+### Persona Coverage
+
+| Persona | Phase 1 | Phase 2 |
+|---------|---------|---------|
+| Research Analyst | ✅ Search + Register | ✅ Lookup + Freshness + Reuse |
+| Financial Analyst | ✅ Search + Register | ✅ Lookup + Freshness + Reuse |
+| Dev | ❌ Excluded | ✅ Full vault workflow |
+| Operations Manager | ❌ Excluded | ✅ Full vault workflow |
+
+---
+
+## 15. Operational Limits
 
 ### Architecture Boundaries (Phase 1)
 
@@ -400,12 +635,13 @@ The Phase 1 design is suitable for:
 
 ---
 
-## 12. Known Gaps (Phase 1)
+## 16. Known Gaps (Phase 2)
 
 | Gap | Impact | Planned Resolution |
 |-----|--------|-------------------|
-| No cross-session artifact awareness | Each session starts cold — agent must read index file to learn about past artifacts | Phase 2: auto-load vault index into context |
-| No automated stale checking | Persona agents must compute freshness manually | Phase 2: cron-based stale check |
-| No Dev/OM Phase 1 integration | Dev and OM won't register or search vault | Phase 2: extend to all personas |
-| No concurrency control | Simultaneous registrations could race | Phase 2: lockfile or atomic write |
-| Manual search (grep) | No structured query language | grep with tags is sufficient for Phase 1 |
+| No cross-session artifact awareness | Each session starts cold — agent must read index file to learn about past artifacts | Phase 3: auto-load vault index into context |
+| No concurrency control | Simultaneous registrations could race | Phase 3: lockfile or atomic write |
+| Manual search (grep) | No structured query language | grep with tags is sufficient for Phase 2 scale |
+| No automated refresh execution | Stale detection works but refresh is manual | Phase 3: AI-driven auto-refresh on cron tick |
+| No notification when artifact is reused | No feedback loop to measure vault effectiveness | Phase 3: reuse audit log |
+| Statistics not recomputed on delete | If artifact is removed, stats become stale | Phase 3: delete workflow with stats update |
