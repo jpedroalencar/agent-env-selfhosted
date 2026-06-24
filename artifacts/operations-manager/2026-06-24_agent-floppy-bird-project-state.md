@@ -1,18 +1,8 @@
----
-title: Project State: agent-floppy-bird
-persona: operations-manager
-created: 2026-06-24
-status: draft
-tags: [project-state, floppy-bird, continuity, deployment, blocker, game]
-freshness_days: 90
-summary: Project continuity state artifact for agent-floppy-bird. Code complete and pushed; deployment blocked by missing workflow scope on johnalencar-agent PAT.
-path: artifacts/operations-manager/2026-06-24_agent-floppy-bird-project-state.md
----
 # Project State: agent-floppy-bird
 
 ## Executive Summary
 
-Floppy Bird is a fully implemented Flappy Bird clone built with Phaser 3, featuring programmatic graphics/audio (zero external assets), medal ranking system, and GitHub Actions deployment workflow. The codebase is complete and pushed to GitHub, but **the GitHub Pages deployment has not completed** because the automation account (`johnalencar-agent`) lacks the `workflow` OAuth scope on its PAT, preventing it from triggering Actions-based Pages deployments.
+Floppy Bird — a complete Flappy Bird clone (Phaser 3, programmatic graphics/audio, medals) — is fully implemented and the code has been pushed to GitHub. The GitHub Pages site is not yet live because the `johnalencar-agent` PAT lacks the `workflow` scope required to push the Actions deployment workflow file.
 
 ## Project Identity
 
@@ -22,7 +12,7 @@ Floppy Bird is a fully implemented Flappy Bird clone built with Phaser 3, featur
 | **Branch** | `main` |
 | **Language/Runtime** | JavaScript (Phaser 3 via CDN), no build step |
 | **GitHub Pages URL** | `https://jpedroalencar.github.io/agent-floppy-bird/` |
-| **Status** | Code complete, live deployment pending |
+| **Status** | Code pushed ✅ — deployment workflow pending PAT scope fix |
 
 ## Code
 
@@ -32,61 +22,63 @@ Floppy Bird is a fully implemented Flappy Bird clone built with Phaser 3, featur
 | `game.js` | Full game implementation (menus, gameplay, scoring, medals, audio) |
 | `README.md` | Project documentation with play link |
 | `LICENSE` | License file |
-| `.github/workflows/deploy.yml` | GitHub Actions workflow for Pages deployment |
+
+The file `.github/workflows/deploy.yml` exists locally but is **not pushed** — requires `workflow` scope on the PAT.
 
 ## Git History
 
 | Hash | Author | Date | Message |
 |------|--------|------|---------|
 | `537e1b0` | John P. Alencar | 2026-06-24 09:33 | Initial commit |
-| `25505a8` | Hermes Agent | 2026-06-24 13:52 | feat: complete Floppy Bird game with Phaser 3, programmatic graphics/audio, medals, and GitHub Actions deployment |
+| `f6acbbf` | Hermes Agent | 2026-06-24 13:52 | feat: complete Floppy Bird game with Phaser 3... |
+| `979a5bd` | Hermes Agent | 2026-06-24 14:29 | chore: add GitHub Actions deploy workflow (local only — not pushed) |
 
 ## Push Status
 
-- **Last push succeeded:** ✅ Yes (via git-credential-store, token not in URL)
-- **Authentication method:** PAT (`johnalencar-agent`) via credential helper
-- **Remote URL:** `https://github.com/jpedroalencar/agent-floppy-bird.git`
+| Aspect | Status | Detail |
+|--------|--------|--------|
+| Game code pushed? | ✅ Yes | `f6acbbf` on `main` at `https://github.com/jpedroalencar/agent-floppy-bird` |
+| Workflow file pushed? | ❌ No | Blocked — `git push` rejected: "refusing to allow a Personal Access Token to create or update workflow... without `workflow` scope" |
+| Authentication | ✅ Working | `git-credential-store` using `johnalencar-agent` PAT |
 
 ## Deployment Status
 
 | Aspect | Status | Evidence |
 |--------|--------|----------|
-| GitHub Pages configured | ✅ Yes | `build_type: workflow`, source `main`, path `/`, public |
-| Previous deployments | ❌ None | 0 deployment records |
-| Pages live URL | ❌ 404 | `https://jpedroalencar.github.io/agent-floppy-bird/` returns GitHub Pages 404 |
-| Workflow runs | ❌ None | 0 workflow runs attempted |
-| Actions accessible to token | ❌ No | 403 Forbidden on `/actions/permissions` |
-| Workflow file in repo | ✅ Yes | `.github/workflows/deploy.yml` exists locally |
+| GitHub Pages configured | ✅ Yes | `build_type: workflow`, source `main`, `/`, public |
+| Deployment completed | ❌ No | 0 deployments, live URL returns 404 |
+| Actions triggered | ❌ No | 0 workflow runs |
 
 ## Blockers
 
-1. **Workflow OAuth scope missing on PAT.** The `johnalencar-agent` PAT has `repo` scope but appears to lack the required `workflow` scope. This prevents:
-   - Triggering Actions workflows on push
-   - Reading workflow files via API
-   - Deploying to GitHub Pages via Actions
+1. **`johnalencar-agent` PAT lacks `workflow` scope.** The current PAT has `repo` scope only. GitHub requires `workflow` scope to push files under `.github/workflows/`. Two fixes:
 
-   **Fix:** Generate a new PAT with the `workflow` scope added, or the repo owner pushes a commit or manually triggers the deploy from the Actions tab.
+   **Option A** — The repo owner (`jpedroalencar`) logs into GitHub → Settings → Developer Settings → Personal Access Tokens → regenerate `johnalencar-agent`'s token with `workflow` scope added. Then update the credential store. Then the pending commit can be pushed.
 
-2. **Actions may need enabling.** If Actions has never been run on this repo, the repo owner (`jpedroalencar`) may need to explicitly enable it under Settings → Actions → General.
+   **Option B** — The repo owner pushes the workflow commit directly using their own credentials:
+   ```bash
+   git push origin 979a5bd:main
+   ```
+   (This bypasses the PAT scope issue entirely — owner's account has full access.)
+
+2. **Actions may need enabling.** If never used on this repo, the repo owner must visit the Actions tab and enable workflows.
 
 ## Next Recommended Action
 
-**1. Enable GitHub Actions deployment.** Either:
+**Enable deployment** via one of these approaches:
 
-   a) **PAT approach:** Regenerate the `johnalencar-agent` PAT with `workflow` scope, update the credential store and secrets.env, then make a trivial commit to trigger the deploy workflow.
+1. **Preferred (fastest):** Repo owner (`jpedroalencar`) pushes the waiting workflow commit:
+   ```bash
+   git fetch origin
+   git push origin 979a5bd:main
+   ```
+   This triggers the Pages deploy automatically on push to main.
 
-   b) **Owner approach:** `jpedroalencar` (repo owner) logs into GitHub, navigates to the repo Actions tab, and explicitly enables workflows. Then they push a trivial commit or use `workflow_dispatch` to trigger the deploy.
+2. **Long-term fix:** Regenerate `johnalencar-agent` PAT with `workflow` scope so future repos with Actions workflows work automatically.
 
-   c) **Manual dispatch:** The repo owner triggers the workflow manually from the GitHub Actions tab → `Deploy to GitHub Pages` → `Run workflow`.
-
-**2. Verify live deployment.** After deployment:
-
-   - Load `https://jpedroalencar.github.io/agent-floppy-bird/` — should show the game
-   - Verify the game loads and is playable
-
-**3. Enable Actions for new repos.** Document in project continuity workflow that new repos using Actions need the automation account's PAT to have `workflow` scope, OR deploys must be triggered by the repo owner.
+3. **Once deployed**, verify at `https://jpedroalencar.github.io/agent-floppy-bird/`.
 
 ## Generated By
 
-- **Agent:** Orchestrator (via Dev persona)
-- **Timestamp:** 2026-06-24 14:14:00 UTC
+- **Agent:** Hermes (via token-scope-restricted push attempt)
+- **Timestamp:** 2026-06-24 14:29 UTC
