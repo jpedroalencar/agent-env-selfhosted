@@ -30,7 +30,7 @@ set -euo pipefail
 # ── Configuration ────────────────────────────────────────────────────────────
 
 # The LXD container to restore. Override via environment variable.
-CONTAINER_NAME="${CONTAINER_NAME:-hermes}"
+CONTAINER_NAME="${CONTAINER_NAME:-hermes-agent}"
 
 # Optional: specify a snapshot name directly. If empty, interactive mode is used.
 SNAPSHOT_NAME="${SNAPSHOT_NAME:-}"

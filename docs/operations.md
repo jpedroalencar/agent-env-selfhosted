@@ -408,42 +408,47 @@ git config user.email "johnalencar-agent@users.noreply.github.com"
 - [ ] `tail -5 /root/.hermes/errors.log` — review recent errors
 - [ ] Send a test message to the Telegram bot — confirm agent is responsive
 - [ ] Verify LXD container is running (`lxc list` from host)
+- [ ] Check latest backup evidence — verify no gaps in last 7 days
 
 ### 4.2 Monthly Checklist
 
-- [ ] Take a fresh LXD snapshot:
-  ```bash
-  # host:
-  lxc snapshot hermes-agent monthly-$(date +%Y%m)
-  ```
+- [ ] Run a full backup: `sudo /usr/local/bin/backup-container.sh` (host)
+- [ ] Verify backup evidence exists inside the container
 - [ ] Review and rotate GitHub token if nearing expiry
 - [ ] Review Hermes logs for recurring error patterns
 - [ ] Check for Hermes updates and apply if stable
 - [ ] Review `.gitignore` — ensure no new file patterns need exclusion
-- [ ] Clean up old snapshots (keep last 3):
+- [ ] Clean up old manual snapshots (keep last 3):
   ```bash
   # host:
-  lxc list-snapshots hermes-agent
+  lxc info hermes-agent | grep -A 20 '^Snapshots:'
   lxc delete hermes-agent/old-snapshot-name
   ```
 
 ### 4.3 Backup Procedure
 
-```bash
-# 1. Snapshot the container (host):
-# host:
-lxc snapshot hermes-agent backup-$(date +%Y%m%d)
+Backups are managed by the scripted workflow on the host:
 
-# 2. Export secrets (must be done separately — not in the repo):
+```bash
+# 1. Run a full backup (host):
+# host:
+sudo /usr/local/bin/backup-container.sh
+
+# 2. Verify backup evidence inside the container:
+ls -t /root/agent-env-selfhosted/artifacts/operations-manager/host-validation/backup-evidence-*.md | head -1
+
+# 3. Export secrets (must be done separately — not in the repo):
 tar -czf ~/hermes-secrets-backup-$(date +%Y%m%d).tar.gz \
   -C /root/.config/hermes secrets.env
 
-# 3. (Optional) Archive export for off-site storage (host):
+# 4. (Optional) Archive export for off-site storage (host):
 # host:
 lxc export hermes-agent /tmp/hermes-export-$(date +%Y%m%d).tar.gz
 
-# 4. Transfer backup files to a secure off-site location (e.g., S3, backup VPS)
+# 5. Transfer backup files to a secure off-site location (e.g., S3, backup VPS)
 ```
+
+See `docs/backup-recovery.md` for the full backup and restore reference.
 
 ---
 

@@ -30,7 +30,7 @@ Oracle Cloud VPS (Ubuntu 24.04 LTS, aarch64)
 - **Provider:** Oracle Cloud Infrastructure (OCI), free-tier Ampere A1 instance
 - **CPU:** 2× Neoverse-N1 (ARM aarch64) @ ~3.0 GHz
 - **RAM:** 8 GB
-- **Kernel:** 6.17.0-1011-oracle (Oracle Linux compatible kernel on host)
+- **Kernel:** 6.17.0-1011-oracle (OCI-optimized kernel for Ubuntu 24.04; the `-oracle` suffix is the kernel flavor, not the OS distribution)
 - **Hypervisor:** LXD — manages one unprivileged LXC container
 
 ### Container Layer
@@ -48,8 +48,10 @@ Oracle Cloud VPS (Ubuntu 24.04 LTS, aarch64)
 - **Platform integration:** Telegram (primary), CLI (direct)
 - **Agent configuration:** `/root/.hermes/config.yaml`
 - **Memory store:** Filesystem-based (`~/.hermes/memories/MEMORY.md`, `USER.md`)
-- **Skills:** 73 built-in skills across 15 categories
+- **Skills:** See `skills_list` for current count (categories include development, research, data science, creative, devops, GitHub, social media, smart home, productivity, email, media, research, documentation, note-taking, MLOps, autonomous agents, and more)
 - **Tools:** web search, browser automation, terminal, file ops, code execution, vision, delegation
+- **Knowledge Vault:** Filesystem-based knowledge reuse layer at `artifacts/` — retrieval-before-research for Research Analyst and Financial Analyst personas
+- **Backup:** Automated LXD snapshot backup with retention (7 days) and host validation evidence injected into `artifacts/operations-manager/host-validation/`
 
 ### Persona Architecture
 
@@ -120,7 +122,7 @@ Hermes Container
 - **OAuth** — authentication layer before agent access
 - **Web Dashboard** — Hermes built-in dashboard behind auth
 - **Monitoring** — health checks, metrics, alerting
-- **Automated Backups** — scheduled snapshots and off-site replication
+- **Off-site backup replication** — rsync or S3-based copy of LXD snapshots to a separate location
 
 ---
 

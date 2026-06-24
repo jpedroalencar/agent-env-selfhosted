@@ -31,7 +31,7 @@ Threat model, access controls, authentication, infrastructure isolation, network
 | Disk exhaustion (40 GB) | Medium | Medium | No automated monitoring yet; agent, session DB, and browser cache are the main consumers |
 | Unauthorized Telegram access | Low | Medium | Bot token is the only auth — anyone with it can send messages |
 | Credential expiry (undetected) | Medium | Low | No automated credential rotation or expiry checks |
-| No backups | High | Critical | Container snapshot and secrets backup are manual procedures only |
+| No off-site backup | High | Critical | Local LXD snapshots exist (retention: 7) with host validation evidence. Off-site replication is not yet configured. |
 
 ### 1.3 Assumptions
 
@@ -295,7 +295,7 @@ Hermes Container
 |-------------|--------|----------|
 | Caddy reverse proxy + HTTPS | ⬜ Planned | High |
 | OAuth authentication | ⬜ Planned | High |
-| Automated container snapshots | ⬜ Planned | Medium |
+| Off-site backup replication | ⬜ Planned | Medium |
 | Secrets expiry monitoring | ⬜ Planned | Medium |
 | TIRITH policy engine | 🔧 Available, disabled | Low |
 | Web Application Firewall (WAF) | ⬜ Planned | Low |

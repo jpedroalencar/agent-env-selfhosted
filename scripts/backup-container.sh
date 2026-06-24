@@ -11,7 +11,7 @@
 #   DRY_RUN=true ./backup-container.sh       # Preview without creating snapshots
 #
 # Defaults:
-#   CONTAINER_NAME=hermes
+#   CONTAINER_NAME=hermes-agent
 #   RETENTION_COUNT=7
 #
 # Prerequisites:
@@ -25,7 +25,7 @@ set -euo pipefail
 # ── Configuration ────────────────────────────────────────────────────────────
 
 # The LXD container to back up. Override via environment variable.
-CONTAINER_NAME="${CONTAINER_NAME:-hermes}"
+CONTAINER_NAME="${CONTAINER_NAME:-hermes-agent}"
 
 # Number of backup snapshots to retain. Older snapshots are pruned automatically.
 RETENTION_COUNT="${RETENTION_COUNT:-7}"

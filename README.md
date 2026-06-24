@@ -159,7 +159,7 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 
 ## Current Status
 
-**Phase 1 – Foundation — In Progress**
+**Phase 1 – Foundation — Complete**
 
 | Component | Status | Notes |
 |-----------|--------|-------|

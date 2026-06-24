@@ -257,23 +257,52 @@ TO configure, set `enabled: true`, store the Bitwarden access token in the `BWS_
 
 ```bash
 # From the host
+sudo /usr/local/bin/backup-container.sh
+
+# Or manually with a custom name:
 lxc snapshot hermes-agent snapshot-$(date +%Y%m%d)
-lxc list-snapshots hermes-agent
+
+# List snapshots (requires lxc info on LXD 5.21+):
+lxc info hermes-agent | grep -A 20 '^Snapshots:'
 ```
 
 ### 7.2 Container Restoration
 
-```bash
-# From a snapshot
-lxc restore hermes-agent snapshot-20260623
+From a backup snapshot:
 
-# Recover from scratch
+```bash
+# Interactive restore (lists available snapshots, prompts for selection)
+# From the host:
+sudo /usr/local/bin/restore-container.sh
+
+# Direct restore (specify snapshot name):
+sudo SNAPSHOT_NAME=backup-20260623-190808 /usr/local/bin/restore-container.sh
+```
+
+Recover from scratch (no snapshot available):
+
+```bash
+# From the host:
 lxc delete hermes-agent
-lxc launch images:debian/12 hermes-agent
+lxc launch images:debian/12 hermes-agent -c limits.cpu=2 -c limits.memory=8GB
 # Re-run deployment steps 2.3 through 6
 ```
 
-### 7.3 Repository as Single Source of Truth
+### 7.3 Backup Evidence
+
+After every successful backup, a host validation evidence artifact is injected into the container's repository:
+
+```bash
+# Inside the container, verify the latest backup evidence:
+ls -t artifacts/operations-manager/host-validation/backup-evidence-*.md | head -1
+# Read it:
+cat artifacts/operations-manager/host-validation/backup-evidence-*.md
+# Expected: backup_result: "success", status: "verified"
+```
+
+The evidence artifact confirms the backup was created, verified, and had retention applied — without requiring host-side inspection.
+
+### 7.4 Repository as Single Source of Truth
 
 The `agent-env-selfhosted` GitHub repository is the authoritative reference for platform documentation. After a fresh deployment:
 
@@ -284,7 +313,7 @@ git clone "https://johnalencar-agent:${GITHUB_TOKEN}@github.com/jpedroalencar/ag
 
 All documented procedures, configurations, and architecture decisions live in the repository — not in ephemeral container state.
 
-### 7.4 What Is Not Recoverable From The Repository
+### 7.5 What Is Not Recoverable From The Repository
 
 - **API keys and tokens** — stored in `~/.config/hermes/secrets.env` only
 - **Hermes session history** — stored in the local session database
@@ -308,3 +337,5 @@ After deployment, verify:
 - [ ] Git user name and email are configured
 - [ ] `.gitignore` excludes secrets, runtime state, and build artifacts
 - [ ] Repository push/pull works without credential prompt
+- [ ] Backup script runs successfully: `sudo /usr/local/bin/backup-container.sh` (dry-run from host)
+- [ ] Host validation evidence is visible: `ls artifacts/operations-manager/host-validation/backup-evidence-*.md` (inside container)

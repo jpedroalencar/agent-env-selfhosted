@@ -15,7 +15,7 @@
 ```text
 VPS Host
 ├── LXD
-│   ├── hermes (running container)
+│   ├── hermes-agent (running container)
 │   │   └── artifacts/operations-manager/host-validation/
 │   │       └── backup-evidence-YYYYMMDD-HHMMSS.md  ← injected via lxc file push
 │   ├── backup-20260623-143000 (snapshot)
@@ -148,13 +148,13 @@ sudo ./backup-container.sh
 Expected output:
 
 ```
-[2026-06-23 14:30:00] === Backup started for container: hermes ===
-[2026-06-23 14:30:01] Creating snapshot 'backup-20260623-143000' for container 'hermes'...
+[2026-06-23 14:30:00] === Backup started for container: hermes-agent ===
+[2026-06-23 14:30:01] Creating snapshot 'backup-20260623-143000' for container 'hermes-agent'...
 [2026-06-23 14:30:02] Snapshot 'backup-20260623-143000' created successfully.
 [2026-06-23 14:30:02] Verified: snapshot 'backup-20260623-143000' is present.
 [2026-06-23 14:30:02] Applying retention policy: keeping 7 most recent 'backup-*' snapshots.
 [2026-06-23 14:30:02] Retention applied. Kept 7 of 8 total 'backup-*' snapshots.
-[2026-06-23 14:30:02] === Backup completed for container: hermes ===
+[2026-06-23 14:30:02] === Backup completed for container: hermes-agent ===
 ```
 
 ### 4.4 Dry Run
