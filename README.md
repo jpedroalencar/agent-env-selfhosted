@@ -134,8 +134,9 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 │   ├── deployment.md     # VPS provisioning and deployment
 │   ├── operations.md     # Maintainer runbook and SOPs
 │   ├── security.md       # Threat model, access control, network defenses
-│   ├── reviews/          # Capability review documents
-│   │   └── knowledge-vault-phase1-review.md  # Phase 1 validation results
+│   ├── reviews/          # Capability review and completion reports
+│   │   ├── backup-phase-completion.md          # Backup Phase 1 + 1.1 completion report
+│   │   └── knowledge-vault-phase1-review.md    # Knowledge Vault Phase 1 validation review
 │   └── workflows/        # Agent workflow definitions
 │       ├── artifact-pipeline.md   # Artifact generation and storage workflow
 │       ├── knowledge-vault.md     # Knowledge Vault retrieval-before-research workflow
@@ -169,8 +170,7 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 | Repository Structure | ✅ Complete | This repository |
 | Secret Management | ✅ Complete | Local secrets file, no Bitwarden |
 | Knowledge Vault | ✅ Complete | Phase 1 — filesystem-based knowledge reuse layer. 5 artifacts registered across Research Analyst, Financial Analyst, and Dev personas. Retrieval-before-research workflow operational. See [docs/workflows/knowledge-vault.md](docs/workflows/knowledge-vault.md). |
-| Backup Procedures | ⬜ Not Started | |
-| Recovery Procedures | ⬜ Not Started | |
+| Backup & Recovery | ✅ Complete | Phase 1 + 1.1 — LXD snapshot backup with automated retention, restore script with safety features, and host validation evidence injection. See [docs/backup-recovery.md](docs/backup-recovery.md) and [docs/reviews/backup-phase-completion.md](docs/reviews/backup-phase-completion.md). |
 
 ---
 
@@ -192,11 +192,18 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 - Web dashboard access
 - Domain integration
 
-### Phase 3 – Operations (Planned)
+### Phase 3 – Operations & Observability (Planned)
 
+**Backup Enhancements:**
+- Configure cron scheduling for automated daily backups
+- Commit evidence artifacts to git automatically
+- Telegram notification on backup success/failure
+- Off-site replication (rsync/S3-compatible)
+- Quarterly restore drill
+
+**General Operations:**
 - Monitoring and metrics
 - Health checks
-- Automated backups
 - Alerting
 - Scheduled cron jobs
 

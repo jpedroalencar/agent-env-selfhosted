@@ -1,8 +1,10 @@
 # Backup & Recovery
 
-Phase 1 implementation of automated LXD snapshots for the Hermes container.
-
-**Target audience:** A future maintainer with no prior knowledge of the platform. Every procedure is documented with exact commands.
+> **Phases covered:** 1 (Foundation) + 1.1 (Host Validation Evidence)
+> **Status:** ✅ Implementation complete. Restore testing pending.
+> **Completion report:** [docs/reviews/backup-phase-completion.md](reviews/backup-phase-completion.md)
+>
+> **Target audience:** A future maintainer with no prior knowledge of the platform. Every procedure is documented with exact commands.
 
 ---
 
@@ -14,10 +16,15 @@ Phase 1 implementation of automated LXD snapshots for the Hermes container.
 VPS Host
 ├── LXD
 │   ├── hermes (running container)
+│   │   └── artifacts/operations-manager/host-validation/
+│   │       └── backup-evidence-YYYYMMDD-HHMMSS.md  ← injected via lxc file push
 │   ├── backup-20260623-143000 (snapshot)
 │   ├── backup-20260623-150000 (snapshot)
 │   └── ... (up to 7 retained)
-└── /var/log/hermes-backup.log
+├── /usr/local/bin/backup-container.sh
+├── /usr/local/bin/restore-container.sh
+├── /var/log/hermes-backup.log
+└── /tmp/hermes-backup-evidence/  ← temp workspace (cleaned up after push)
 ```
 
 - **Tool:** Native LXD snapshots — no additional software required
