@@ -23,7 +23,7 @@ Oracle Cloud Infrastructure (OCI)
 └── Ubuntu 24.04 LTS Host (ARM64)
     ├── UFW Firewall (host-level, inbound-restricted)
     ├── Fail2Ban (host-level, SSH brute-force protection)
-    ├── LXD Hypervisor
+    ├── LXD Container Runtime
     │   └── Hermes Container (Debian 12 Bookworm)
     │       ├── Hermes Agent v0.17.0
     │       │   ├── Provider: DeepSeek (primary)
@@ -31,14 +31,11 @@ Oracle Cloud Infrastructure (OCI)
     │       │   └── Platform: Telegram
     │       ├── Knowledge Vault
     │       └── Local Secret Store
-    └── Backup & Recovery
-        ├── LXD Snapshots (automated, up to 7 retained)
-        ├── Retention Policy (configurable)
-        └── Host Validation Evidence (lxc file push → container)
+    └── Backup & Recovery (LXD snapshots, retention, evidence injection)
 ```
 
 - **Host:** Oracle Cloud Infrastructure (OCI), ARM-based (Ampere A1 / Neoverse-N1)
-- **Hypervisor:** LXD on host Ubuntu — one unprivileged LXC container
+- **Container Runtime:** LXD — one unprivileged LXC container
 - **Guest:** Debian 12 Bookworm, 2 vCPUs, 8 GB RAM, 40 GB disk
 - **Agent Runtime:** Hermes Agent v0.17.0 running natively in the container
 - **LLM Backend:** DeepSeek via API (deepseek-v4-flash), OpenRouter as fallback
@@ -158,21 +155,26 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 
 ---
 
+## Operational Capabilities
+
+Implemented capabilities of the current platform:
+
+| Capability | Description |
+|-----------|-------------|
+| **LXD Snapshot Backups** | Automated full-container snapshots with timestamped naming, verification, and configurable retention (default: 7). |
+| **Restore Workflow** | Interactive and non-interactive restore from backup snapshots with pre-restore safety snapshot and operator confirmation. |
+| **Host Validation Evidence** | After every successful backup, machine-readable evidence is generated on the host and injected into the container repository via `lxc file push`. |
+| **Knowledge Vault** | Filesystem-based knowledge reuse layer. Prevents duplicate research through retrieval-before-research workflow with automated lookup, freshness evaluation, reuse decisions, and artifact registration. |
+| **Artifact Generation** | Substantive persona outputs are automatically saved as markdown artifacts with YAML frontmatter and registered in the vault index. |
+| **Telegram Interface** | Primary chat interface via Hermes Telegram gateway. Multi-session, multi-thread. |
+| **Multi-Provider LLM Routing** | Primary provider (DeepSeek v4 Flash) with automatic fallback to OpenRouter (Gemini 2.0 Flash). |
+
+---
+
 ## Roadmap
 
-### Phase 2 — Knowledge Vault & Access Layer (In Progress)
+### Phase 2 – Access Layer (Planned)
 
-**Knowledge Vault:** ✅ Complete
-- ✅ Extend vault to Dev and Operations Manager personas
-- ✅ Auto-compute index statistics (`update-index-stats.sh`)
-- ✅ Automatic artifact registration (`generate-artifact.sh` → `register-artifact.sh`)
-- ✅ Structured artifact lookup (`lookup-artifact.sh`)
-- ✅ Freshness evaluation (`freshness-check.sh`)
-- ✅ Reuse decision framework (`reuse-artifact.sh`)
-- ✅ Cron-based stale artifact checking (`stale-check-cron.sh`)
-- ✅ Comprehensive workflow documentation (`docs/workflows/knowledge-vault.md`)
-
-**Access Layer:**
 - Caddy reverse proxy
 - HTTPS termination (Let's Encrypt / ACME)
 - OAuth authentication
@@ -182,8 +184,6 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 ### Phase 3 – Operations & Observability (Planned)
 
 **Backup Enhancements:**
-- Configure cron scheduling for automated daily backups
-- Commit evidence artifacts to git automatically
 - Telegram notification on backup success/failure
 - Off-site replication (rsync/S3-compatible)
 - Quarterly restore drill
