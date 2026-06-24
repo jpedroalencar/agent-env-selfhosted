@@ -127,7 +127,7 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 ├── diagrams/            # Architecture and infrastructure diagrams
 ├── docs/                # Platform documentation (see subsystem docs for detail)
 ├── infra/               # Infrastructure configuration (Not yet populated)
-├── logs/                # Operational telemetry and logs (gitignored)
+├── log/                 # Engineering journal — build log, decision records
 ├── scripts/             # Automation and utility scripts (backup, vault, generation)
 ├── screenshots/         # Platform screenshots and diagrams
 ├── workspaces/          # Temporary agent workspaces (gitignored contents)
@@ -205,3 +205,36 @@ Implemented capabilities of the current platform:
 ## Philosophy
 
 The goal is to build a secure, maintainable, and recoverable platform capable of supporting autonomous agents over the long term while documenting the engineering decisions, tradeoffs, and lessons learned throughout the process.
+
+---
+
+## Documentation Governance
+
+This repository is the **single canonical source** for all platform documentation, artifacts, journals, diagrams, and operational records.
+
+### Canonical Documentation Tree
+
+All platform documentation lives inside this repository at these paths:
+
+| Content | Path | Notes |
+|---------|------|-------|
+| Platform architecture | `docs/architecture.md` | System design, topology, delegation flow |
+| Configuration reference | `docs/configuration.md` | Hermes config, providers, conventions |
+| Deployment guide | `docs/deployment.md` | VPS → LXC → Hermes → GitHub |
+| Operations runbook | `docs/operations.md` | Infrastructure and persona-level procedures |
+| Security guide | `docs/security.md` | Access control, isolation, network, incident response |
+| Backup & recovery | `docs/backup-recovery.md` | Snapshot backup, restore, evidence workflow |
+| Engineering journal | `log/build-log.md` | Append-only decision log with provenance |
+| Diagram notes | `docs/diagram-notes.md` | Component responsibilities and boundaries |
+| Knowledge Vault | `artifacts/index.md` | Artifact registry with metadata |
+| Phase reviews | `docs/reviews/` | Completion reports and review documents |
+| Workflow definitions | `docs/workflows/` | Agent execution workflow documentation |
+
+### Rules
+
+1. **No canonical documentation outside the repository.** The `/root/docs/` and `/root/artifacts/` directories are deprecated. Do not create new files there.
+2. **No external dependencies.** The repository contains everything needed to understand and operate the platform. No pointers to files outside the repo.
+3. **No auto-commit daemons.** The repository is the system of record. Write documentation directly, commit, and push. No filesystem watchers or background synchronization.
+4. **Build log is in-repo.** The canonical Engineering Journal lives at `log/build-log.md`. Append new entries there.
+5. **Artifacts are in-repo.** All generated artifacts and their registry entries live under `artifacts/`.
+6. **Host validation evidence** continues to be injected into `artifacts/operations-manager/host-validation/` via the existing backup workflow, then committed to the repository.

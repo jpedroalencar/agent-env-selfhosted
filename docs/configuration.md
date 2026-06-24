@@ -4,6 +4,8 @@ Reference documentation for the Hermes Agent configuration, environment variable
 
 **CRITICAL:** This document describes configuration *schemas and patterns*. Actual secrets, API keys, and tokens are stored in a local secrets file (`~/.config/hermes/secrets.env`) that is excluded from version control.
 
+> **Provenance:** This document was consolidated from the repository's original `docs/configuration.md` and the root-level `CONFIGURATION.md` on 2026-06-24. Unique content from the root document has been merged into the appendix; the root file is now deprecated.
+
 ---
 
 ## 1. Hermes Configuration
@@ -300,3 +302,158 @@ Agent-generated content is stored under `~/.hermes/content/<agent-name>/`:
 | Max parallel | Unlimited |
 | Response wrapping | Enabled |
 | Delivery | Fan-out to connected channels |
+
+---
+
+## Appendix: Configuration Reference (Consolidated from Root-Level Documentation)
+
+The following sections were consolidated from the original root-level `CONFIGURATION.md` and provide supplementary reference material.
+
+### A.1 Configuration Architecture
+
+The platform uses a **layered configuration model**:
+
+```
+┌─────────────────────────────────────────┐
+│  Global Hermes Config                    │
+│  ~/.hermes/config.yaml                   │
+│  Settings: profiles_dir, logging, etc.   │
+├─────────────────────────────────────────┤
+│  Per-Profile Config                      │
+│  ~/.hermes/profiles/<name>/config.yaml   │
+│  Settings: persona, tools, memory, etc.  │
+├─────────────────────────────────────────┤
+│  Core Memory (Per-Profile)               │
+│  ~/.hermes/profiles/<name>/memories/core/│
+│  Settings: identity, constraints, domain │
+├─────────────────────────────────────────┤
+│  Environment Variables                   │
+│  Inherited from shell                    │
+│  Settings: API keys, paths, preferences  │
+└─────────────────────────────────────────┘
+```
+
+**Priority:** Environment variables override core memory. Core memory overrides per-profile config. Per-profile config overrides global config.
+
+### A.2 Global Hermes Config Reference
+
+**Location:** `~/.hermes/config.yaml`
+
+```yaml
+# Global Hermes Agent Configuration
+hermes:
+  version: "1.0"
+  profiles_dir: "~/.hermes/profiles"
+
+logging:
+  level: "info"                             # debug | info | warn | error
+  format: "json"                            # json | text
+  output: "stdout"                          # stdout | file | syslog
+
+profiles:
+  default_persona: "orchestrator"
+  allow_custom_profiles: true
+```
+
+| Setting | When to Change |
+|---------|---------------|
+| `logging.level` | Set to `debug` when troubleshooting a persona issue |
+| `profiles.default_persona` | If you want a different default entry point |
+| `hermes.profiles_dir` | If you move profiles to a different path |
+
+### A.3 Memory Configuration Reference
+
+Each profile's memory directory:
+
+```
+memories/
+├── core/              # Permanent identity — NEVER modified by sessions
+│   ├── domain.md      # Domain expertise, knowledge, and methodology
+│   └── constraints.md # Boundaries, rules, and prohibitions
+├── working/           # Session context — CLEARED between delegations
+│   └── current-task.md
+└── persistent/        # Cross-session learnings — ACCUMULATED over time
+    ├── preferences.md
+    └── patterns.md
+```
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `memory.max_size_kb` | integer | 50 | Soft limit for total memory directory size (KB) |
+| `memory.auto_clean` | boolean | true | If true, working memory is automatically cleared at session end |
+| `memory.working_ttl` | integer (minutes) | null | If set, working memory older than this is automatically cleared |
+
+### A.4 Environment Variables Reference
+
+| Variable | Used By | Purpose |
+|----------|---------|---------|
+| `PATH` | All | Locate executables |
+| `HOME` | All | Locate user home directory |
+| `PYTHONPATH` | Dev, Fin Analyst | Additional Python import paths |
+| `HERMES_CONFIG` | Hermes | Override global config path |
+
+For credential management, use a `.env` file loaded at shell startup, never commit it to git, and rotate credentials regularly.
+
+### A.5 Configuration Change Procedures
+
+**Low-risk changes** (tool whitelist additions, memory updates, routing updates):
+1. Edit the file
+2. Test with a single command
+3. Done
+
+**Medium-risk changes** (tool whitelist removals, constraint changes):
+1. Edit the file
+2. Backup the previous version
+3. Test with full workflow
+4. Monitor for issues over 24 hours
+
+**High-risk changes** (global config changes, profile deletions, credential config):
+1. Take a full LXD snapshot backup
+2. Document the change in the build log (`log/build-log.md`)
+3. Make the change
+4. Run full verification (`docs/deployment.md` verification checklist)
+5. Monitor closely for 48 hours
+
+### A.6 Configuration Validation
+
+```bash
+python3 -c "
+import yaml, sys
+try:
+    with open(sys.argv[1]) as f:
+        yaml.safe_load(f)
+        print('Valid YAML')
+except Exception as e:
+    print(f'Invalid: {e}')
+    sys.exit(1)
+" ~/.hermes/profiles/financial-analyst/config.yaml
+```
+
+### A.7 Per-Profile Config Template: Profile Schema
+
+```yaml
+persona:
+  name: "<Short Name>"
+  role: "<One-line role description>"
+  never_do: "<(Optional) Key constraint>"
+
+tools:
+  allowed:
+    - <tool_name>
+  blocked:
+    - <tool_name>
+
+memory:
+  max_size_kb: <number>
+  auto_clean: <boolean>
+  working_ttl: <minutes>
+
+skills:
+  enabled:
+    - <skill_name>
+  disabled:
+    - <skill_name>
+
+cron:
+  enabled: false
+```

@@ -4,6 +4,8 @@ VPS provisioning, LXC container setup, and Hermes Agent deployment guide.
 
 **Perspective:** This document assumes a future maintainer must rebuild the environment from scratch. Every step is documented with exact commands where applicable.
 
+> **Provenance:** This document was consolidated from the repository's original `docs/deployment.md` and the root-level `DEPLOYMENT.md` on 2026-06-24. Unique reference content (profile configs, memory seeding templates, verification workflows) from the root document has been merged into the appendix; the root file is now deprecated.
+
 ---
 
 ## Prerequisites
@@ -367,3 +369,193 @@ After deployment, verify:
 - [ ] Repository push/pull works without credential prompt
 - [ ] Backup script runs successfully: `sudo /usr/local/bin/backup-container.sh` (dry-run from host)
 - [ ] Host validation evidence is visible: `ls artifacts/operations-manager/host-validation/backup-evidence-*.md` (inside container)
+
+---
+
+## Appendix: Profile Templates and Memory Seeding
+
+The following sections were consolidated from the original root-level `DEPLOYMENT.md`.
+
+### A.1 Profile Config Templates
+
+Each persona needs a `config.yaml` in its profile directory.
+
+**Financial Analyst (`~/.hermes/profiles/financial-analyst/config.yaml`):**
+```yaml
+persona:
+  name: "Financial Analyst"
+  role: "Financial data analysis and valuation"
+  never_do: "Never fabricate financial data. Always cite sources."
+tools:
+  allowed:
+    - python_code_exec
+    - file_write
+    - file_read
+  blocked:
+    - bash_exec
+    - web_fetch
+    - profile_switch
+    - pip_install
+memory:
+  max_size_kb: 50
+  auto_clean: true
+```
+
+**Research Analyst (`~/.hermes/profiles/research-analyst/config.yaml`):**
+```yaml
+persona:
+  name: "Research Analyst"
+  role: "Web research and fact-checking"
+tools:
+  allowed:
+    - web_fetch
+    - search
+    - file_read
+    - file_write
+  blocked:
+    - bash_exec
+    - python_code_exec
+    - profile_switch
+    - pip_install
+memory:
+  max_size_kb: 50
+  auto_clean: true
+```
+
+**Dev (`~/.hermes/profiles/dev/config.yaml`):**
+```yaml
+persona:
+  name: "Dev"
+  role: "Code writing, testing, and deployment"
+tools:
+  allowed:
+    - python_code_exec
+    - bash_exec
+    - git
+    - pip_install
+    - file_read
+    - file_write
+  blocked:
+    - web_fetch
+    - profile_switch
+memory:
+  max_size_kb: 50
+  auto_clean: true
+```
+
+**Ops Manager (`~/.hermes/profiles/ops-manager/config.yaml`):**
+```yaml
+persona:
+  name: "Operations Manager"
+  role: "Health monitoring, recovery, and diagnostics"
+tools:
+  allowed:
+    - process_list
+    - health_check
+    - log_view
+    - file_read
+  blocked:
+    - bash_exec
+    - python_code_exec
+    - web_fetch
+    - profile_switch
+    - pip_install
+    - file_write
+memory:
+  max_size_kb: 50
+  auto_clean: true
+```
+
+### A.2 Core Memory Templates
+
+**Financial Analyst — `constraints.md`:**
+```markdown
+# Financial Analyst Constraints
+
+## NEVER
+- Fabricate financial data. Always cite sources.
+- Access other profiles' memory or configuration.
+- Execute shell commands.
+- Access the web (leave web research to Research Analyst).
+- Make investment recommendations without clearly stating methodology.
+
+## ALWAYS
+- Cite the source of every data point.
+- State when data is unavailable rather than making assumptions.
+- Use yfinance for market data when possible.
+- Present financial data with appropriate context (time period, currency).
+```
+
+**Dev — `constraints.md`:**
+```markdown
+# Dev Constraints
+
+## NEVER
+- Hardcode credentials or secrets in code.
+- Execute code without testing it first.
+- Access other profiles' memory or configuration.
+- Download or run arbitrary code from the internet.
+- Modify system configuration files.
+
+## ALWAYS
+- Test code before declaring it complete.
+- Document all dependencies (requirements.txt or equivalent).
+- Use version control for code changes.
+- Follow Python best practices (PEP 8).
+```
+
+### A.3 Orchestrator Routing Memory Template
+
+`~/.hermes/profiles/orchestrator/memories/core/routing.md`:
+```markdown
+# Routing Table
+
+Route subtasks based on intent classification:
+
+## Financial Analysis → financial-analyst
+- Stock valuation, P/E ratio, market cap
+- Financial statement analysis
+- DCF, comparable company analysis
+- Financial ratios and KPIs
+- Data source: yfinance, SEC EDGAR
+
+## Web Research → research-analyst
+- Company research, industry analysis
+- Fact-checking, claim verification
+- News summarization, competitive intelligence
+
+## Code & Development → dev
+- Writing and testing code
+- Building dashboards and visualizations
+- Deployment scripts
+
+## Operations → ops-manager
+- Health checks and monitoring
+- Recovery procedures
+- Diagnostics and troubleshooting
+
+## Default
+- If intent is unclear, ask the user for clarification.
+- Never attempt domain work yourself — always delegate.
+```
+
+### A.4 Verification Workflow Test
+
+```bash
+# Run a complete orchestration workflow:
+hermes run --profile orchestrator --command \
+  "Run a test workflow: research Apple Inc. (AAPL), fetch its current P/E ratio, and return a brief summary."
+```
+
+**Expected outcome:**
+1. Orchestrator decomposes the request
+2. Routes "research Apple" to Research Analyst
+3. Routes "fetch P/E ratio" to Financial Analyst
+4. Both personas complete their tasks
+5. Orchestrator composes a summary
+6. Summary is returned
+
+**If this fails:**
+- Check each persona's tool access
+- Verify memory is seeded correctly
+- Check the Orchestrator's routing memory

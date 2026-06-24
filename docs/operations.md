@@ -2,6 +2,8 @@
 
 Maintainer runbook for the self-hosted AI agent platform. All commands assume you are inside the Hermes LXC container unless marked otherwise.
 
+> **Provenance:** This document was consolidated from the repository's original `docs/operations.md` and the root-level `OPERATIONS.md` on 2026-06-24. Unique content (persona health checks, recovery runbooks, monitoring) from the root document has been merged into the appendix; the root file is now deprecated.
+
 ---
 
 ## 1. Prerequisites
@@ -561,3 +563,144 @@ truncate -s 0 /root/.hermes/agent.log
 
 # Hermes will continue writing to these files — they'll recreate as needed.
 ```
+
+---
+
+## Appendix: Persona-Level Operations (Consolidated from Root-Level Documentation)
+
+The following sections were consolidated from the original root-level `OPERATIONS.md` and cover persona-level health, recovery, and monitoring procedures that supplement the infrastructure-focused runbook above.
+
+### A.1 Persona Health Checks
+
+Run this from the Ops Manager persona:
+
+```
+"Run a full platform health check: verify all profiles exist, check memory integrity, and confirm tool access."
+```
+
+Or manually:
+
+```bash
+# 1. Check Hermes is installed and responsive
+hermes --version
+
+# 2. Check all profiles exist
+for p in orchestrator financial-analyst research-analyst dev ops-manager; do
+    [ -d ~/.hermes/profiles/$p ] && echo "✓ $p" || echo "✗ $p MISSING"
+done
+
+# 3. Check core memory files exist
+for p in orchestrator financial-analyst research-analyst dev ops-manager; do
+    [ -f ~/.hermes/profiles/$p/memories/core/domain.md ] && echo "✓ $p: domain.md" || echo "✗ $p: domain.md MISSING"
+done
+
+# 4. Check disk space
+df -h /root
+
+# 5. Check memory usage
+free -h
+```
+
+**Health criteria:** A persona is considered healthy if:
+1. Profile directory exists and is readable
+2. Core memory files exist and are non-empty
+3. Config file (`config.yaml`) is valid YAML
+4. Persona can start a session: `hermes run --profile <name> --command "confirm you are operational"`
+5. Memory size is under 50KB
+
+### A.2 Persona Recovery Procedures
+
+#### R1: Persona Profile Missing or Corrupted
+
+**Symptoms:** `hermes run --profile <name>` fails with "profile not found" or "invalid config"
+
+**Recovery:**
+```bash
+# 1. Check if the profile directory exists
+ls ~/.hermes/profiles/<name>/
+
+# 2. If missing, restore from LXD snapshot
+#    (Revert container to a snapshot taken before the corruption)
+
+# 3. If config.yaml is corrupted, regenerate from template
+#    See docs/deployment.md Appendix A.1 for template configs
+
+# 4. Verify recovery
+hermes run --profile <name> --command "confirm you are operational"
+```
+
+#### R2: Memory Pollution
+
+**Symptoms:** Persona references previous unrelated tasks, confuses entities, or includes stale data
+
+**Recovery:**
+```bash
+# 1. Clear working memory
+rm -rf ~/.hermes/profiles/<name>/memories/working/*
+touch ~/.hermes/profiles/<name>/memories/working/.gitkeep
+
+# 2. Check core memory is intact
+cat ~/.hermes/profiles/<name>/memories/core/domain.md
+
+# 3. Verify the persona re-initializes correctly
+hermes run --profile <name> --command "introduce yourself"
+```
+
+#### R3: Orchestrator Stuck or Looping
+
+**Symptoms:** Long delay (>5 min) on delegation; repeated subtask to same persona
+
+**Recovery:**
+```bash
+# 1. Check if Hermes process is running
+ps aux | grep hermes
+
+# 2. If stuck, kill the session (restart the container from host)
+# host:
+lxc restart hermes-agent
+
+# 3. Check the last delegation context
+cat ~/.hermes/profiles/orchestrator/memories/working/current-task.md
+
+# 4. Clear working memory and retry
+rm -rf ~/.hermes/profiles/orchestrator/memories/working/*
+```
+
+#### R4: Tool Access Denied
+
+**Symptoms:** Persona says "I cannot access that tool" or "permission denied"
+
+**Recovery:**
+```bash
+# 1. Check the persona's tool whitelist
+cat ~/.hermes/profiles/<name>/config.yaml | grep -A 20 "tools"
+
+# 2. Add the missing tool to the allowed list
+# 3. Verify the change
+hermes run --profile <name> --command "list your available tools"
+```
+
+#### R5: Filesystem Collision
+
+**Symptoms:** Two personas writing to the same file; interleaved content
+
+**Recovery:**
+```bash
+# 1. Identify the collision
+ls -la /root/workdir/req-*/
+
+# 2. Rename/separate the collided files
+mv /root/workdir/req-001/output.md /root/workdir/req-001/research-output.md
+
+# 3. Re-run the affected subtask with explicit output filename
+```
+
+### A.3 Monitoring Signals
+
+| Signal | What It Indicates | Threshold |
+|--------|-------------------|-----------|
+| Delegation failures | Persona unavailable or tool access issue | > 1 failure in 10 delegations |
+| Session timeout | Persona not responding | > 120s per subtask |
+| Memory growth | Persistent memory accumulating | > 50KB per profile |
+| Disk usage | Artifacts accumulating | > 80% disk |
+| Error rate increase | System degradation or config drift | > 10% of delegations producing errors |

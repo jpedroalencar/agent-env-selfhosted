@@ -2,6 +2,8 @@
 
 Threat model, access controls, authentication, infrastructure isolation, network defenses, and security roadmap for the self-hosted AI agent platform.
 
+> **Provenance:** This document was consolidated from the repository's original `docs/security.md` and the root-level `SECURITY.md` on 2026-06-24. Unique content (persona-level security, incident response, security checklist) from the root document has been merged into the appendix; the root file is now deprecated.
+
 ---
 
 ## 1. Threat Model
@@ -315,3 +317,145 @@ Run this after any deployment or significant configuration change:
 - [ ] Verify `.gitignore` exists and blocks `.env`, `secrets.env`, `*.log`
 - [ ] Send a test message to the Telegram bot — confirm agent responds
 - [ ] Verify LXD container status from host: `lxc list` (should show `RUNNING`)
+
+---
+
+## Appendix: Agent-Level Security (Consolidated from Root-Level Documentation)
+
+The following sections cover agent-level security concerns — persona isolation, data protection, credential management, known risks, incident response, and best practices. These supplement the infrastructure-level security controls in the main document.
+
+### A.1 Security Model
+
+The platform operates within a single Linux host, running as a single user (`root`). The primary security boundary is **profile isolation** within Hermes Agent, not OS-level sandboxing.
+
+```
+┌──────────────────────────────────────────────┐
+│              Linux Host (single user)         │
+│                                               │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │Orchestr. │  │    FA    │  │ Research │   │
+│  │ Profile  │  │ Profile  │  │ Profile  │   │
+│  └──────────┘  └──────────┘  └──────────┘   │
+│                                               │
+│  ┌──────────┐  ┌──────────┐                   │
+│  │   Dev    │  │ Ops Mgr  │                   │
+│  │ Profile  │  │ Profile  │                   │
+│  └──────────┘  └──────────┘                   │
+│                                               │
+│  ┌──────────────────────────────────────┐     │
+│  │     Shared Filesystem (ext4)         │     │
+│  └──────────────────────────────────────┘     │
+└──────────────────────────────────────────────┘
+```
+
+**Key point:** Profile isolation prevents one persona from accessing another persona's **Hermes-level data** (memories, skills, config). However, **OS-level filesystem isolation does not exist** — all personas run under the same Linux user and can theoretically read/write any file.
+
+### A.2 Known Risks
+
+| Risk | Severity | Description | Current Mitigation | Long-Term Fix |
+|------|----------|-------------|-------------------|---------------|
+| Shared filesystem (no OS isolation) | Medium | All personas share the same Linux user; any persona with shell access can read/write any file | Tool whitelisting prevents most personas from having shell access | Containerize each persona with separate Linux users |
+| Prompt injection via persona output | Medium | A persona could inject instructions affecting subsequent personas via its output | Orchestrator validates output before composing next brief | Add output sanitization to strip meta-instructions |
+| Unlimited persistent memory growth | Low | Persistent memory grows without bound, slowing responses and increasing hallucination risk | 50KB soft memory limit; Ops Manager can archive old entries | Implement automatic memory pruning |
+| No audit trail | Medium | No centralized log of which persona processed which task or what commands were executed | Orchestrator's working memory tracks current delegation chain | Implement structured logging (JSONL) with rotation |
+| No network isolation | Low (current) | Dev persona can install packages; Research can fetch arbitrary URLs | No sensitive data stored by design | Add egress filtering if platform handles sensitive data |
+
+### A.3 Data Protection
+
+**Sensitive data that may exist:**
+- Financial analysis results (stock prices, valuations)
+- Research data (market intelligence, competitive analysis)
+- Generated code and reports
+- No user credentials (by design)
+
+**Storage:**
+- All data lives on the local filesystem (`ext4`)
+- No encryption at rest is currently applied
+- Backups are unencrypted LXD snapshots and tarballs
+
+**Data in transit:**
+- The platform has no network-exposed services
+- All communication is local (Hermes internal API calls between profiles)
+
+### A.4 Credential Management Best Practices
+
+**Principle:** No credentials in memory. The platform is designed to operate without storing credentials in persona memory.
+
+| Service | Credential Needed? | How Provided |
+|---------|-------------------|--------------|
+| Yahoo Finance (yfinance) | No | Public API, no auth required |
+| Web fetch | No | Public web requests |
+| Git operations | No | Public repos only (HTTPS) |
+| SEC EDGAR | No | Public filings, no auth required |
+| Package install (PyPI) | No | Public repository |
+
+**If credentials become necessary:**
+1. Never store credentials in memory files — use environment variables
+2. Never commit credentials to git — add `*.env` and `*secret*` to `.gitignore`
+3. Use environment variables, not config files
+4. Rotate credentials regularly
+5. Audit credential usage via Ops Manager
+
+### A.5 Incident Response
+
+#### Classification
+
+| Level | Description | Example | Response Time |
+|-------|-------------|---------|---------------|
+| **L1** | Minor | Persona returns wrong info | Next business day |
+| **L2** | Moderate | Persona tool access breached | Within 4 hours |
+| **L3** | Severe | Data exfiltration or system compromise | Immediate |
+
+**L1 Procedure:**
+1. Document the incident in the build log (`log/build-log.md`)
+2. Fix the root cause (update memory, adjust config)
+3. Verify fix with a test case
+
+**L2 Procedure:**
+1. **Contain:** Isolate the affected profile — disable tool access
+2. **Assess:** Determine scope and affected data
+3. **Remediate:** Fix vulnerability (adjust tool whitelist, update constraints)
+4. **Verify:** Run health check and test all personas
+5. **Document:** Update build log
+
+**L3 Procedure:**
+1. **Immediate containment:** Kill all Hermes processes; isolate from network
+2. **Assess:** Full forensic analysis
+3. **Remediate:** Restore from clean LXD snapshot
+4. **Verify:** Full security audit before returning to service
+5. **Document:** Detailed incident report
+
+### A.6 Security Best Practices
+
+**For maintainers:**
+1. Run as a non-root user if possible
+2. Use SSH key-based access only
+3. Keep Hermes Agent updated
+4. Regularly review tool access boundaries (every 3 months)
+5. Validate backups — test restore from backup monthly
+6. Monitor file changes with `auditd` or `inotify`
+
+**For persona design:**
+1. Principle of Least Privilege — each persona gets exactly the tools it needs
+2. Data minimization — pass only necessary information in subtask briefs
+3. Validate before trusting — always check outputs against criteria
+4. Defense in depth — rely on tool whitelisting, core memory constraints, and output validation
+
+**For code:**
+1. No hardcoded secrets
+2. Validate all inputs
+3. Avoid `eval()` and `exec()`
+4. Use `.gitignore` properly
+
+### A.7 Security Checklist
+
+Use this when adding a new persona or modifying an existing one:
+
+- [ ] Tool whitelist configured (only necessary tools allowed)
+- [ ] Core memory constraints defined (what the persona should NEVER do)
+- [ ] Profile switch disabled (only Orchestrator should have this)
+- [ ] Validation criteria defined for this persona's output
+- [ ] No credentials or secrets in memory files
+- [ ] Working memory isolation working (cleared between delegations)
+- [ ] Other personas' memories are not accessible from this persona
+- [ ] Documentation updated

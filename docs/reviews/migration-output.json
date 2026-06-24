@@ -1,0 +1,173 @@
+{
+  "files_reviewed": [
+    "/root/docs/ARCHITECTURE.md",
+    "/root/docs/CONFIGURATION.md",
+    "/root/docs/DEPLOYMENT.md",
+    "/root/docs/OPERATIONS.md",
+    "/root/docs/SECURITY.md",
+    "/root/docs/build-log.md",
+    "/root/docs/BUILD_LOG.md",
+    "/root/artifacts/index.md",
+    "/root/artifacts/operations-manager/nvidia-2026-06-24-live-test.md",
+    "/root/scripts/README.md",
+    "/root/screenshots/.gitkeep",
+    "/root/diagrams/.gitkeep",
+    "/root/agent-env-selfhosted/README.md",
+    "/root/agent-env-selfhosted/docs/architecture.md",
+    "/root/agent-env-selfhosted/docs/configuration.md",
+    "/root/agent-env-selfhosted/docs/deployment.md",
+    "/root/agent-env-selfhosted/docs/operations.md",
+    "/root/agent-env-selfhosted/docs/security.md",
+    "/root/agent-env-selfhosted/docs/build-log.md",
+    "/root/agent-env-selfhosted/docs/backup-recovery.md",
+    "/root/agent-env-selfhosted/log/build-log.md"
+  ],
+  "files_modified": [
+    "/root/agent-env-selfhosted/README.md",
+    "/root/agent-env-selfhosted/docs/architecture.md",
+    "/root/agent-env-selfhosted/docs/build-log.md",
+    "/root/agent-env-selfhosted/docs/configuration.md",
+    "/root/agent-env-selfhosted/docs/deployment.md",
+    "/root/agent-env-selfhosted/docs/operations.md",
+    "/root/agent-env-selfhosted/docs/security.md",
+    "/root/agent-env-selfhosted/log/build-log.md",
+    "/root/agent-env-selfhosted/docs/reviews/documentation-tree-migration-cleanup.md"
+  ],
+  "files_created": [
+    "/root/agent-env-selfhosted/log/build-log.md",
+    "/root/agent-env-selfhosted/docs/reviews/documentation-tree-migration-cleanup.md"
+  ],
+  "content_migrated": [
+    {
+      "source": "/root/docs/ARCHITECTURE.md",
+      "destination": "/root/agent-env-selfhosted/docs/architecture.md",
+      "type": "merge",
+      "lines_preserved": "~500",
+      "status": "completed"
+    },
+    {
+      "source": "/root/docs/CONFIGURATION.md",
+      "destination": "/root/agent-env-selfhosted/docs/configuration.md",
+      "type": "merge (Appendix A)",
+      "lines_preserved": "~150",
+      "status": "completed"
+    },
+    {
+      "source": "/root/docs/DEPLOYMENT.md",
+      "destination": "/root/agent-env-selfhosted/docs/deployment.md",
+      "type": "merge (Appendix A)",
+      "lines_preserved": "~190",
+      "status": "completed"
+    },
+    {
+      "source": "/root/docs/OPERATIONS.md",
+      "destination": "/root/agent-env-selfhosted/docs/operations.md",
+      "type": "merge (Appendix A)",
+      "lines_preserved": "~140",
+      "status": "completed"
+    },
+    {
+      "source": "/root/docs/SECURITY.md",
+      "destination": "/root/agent-env-selfhosted/docs/security.md",
+      "type": "merge (Appendix A)",
+      "lines_preserved": "~140",
+      "status": "completed"
+    },
+    {
+      "source": "/root/docs/build-log.md",
+      "destination": "/root/agent-env-selfhosted/log/build-log.md",
+      "type": "move (canonical journal)",
+      "lines_preserved": "742",
+      "status": "completed"
+    },
+    {
+      "source": "/root/docs/build-log.md (canonical header)",
+      "destination": "/root/agent-env-selfhosted/docs/build-log.md",
+      "type": "redirect replacement (pointer → in-repo redirect)",
+      "lines_preserved": "8 (summary)",
+      "status": "completed"
+    },
+    {
+      "source": "n/a — documentation governance",
+      "destination": "/root/agent-env-selfhosted/README.md",
+      "type": "new Governance section",
+      "lines_preserved": "35",
+      "status": "completed"
+    }
+  ],
+  "remaining_root_dependencies": [],
+  "cleanup_candidates": [
+    {
+      "path": "/root/docs/ARCHITECTURE.md",
+      "action": "delete",
+      "reason": "Content merged into repo docs/architecture.md with provenance tag"
+    },
+    {
+      "path": "/root/docs/CONFIGURATION.md",
+      "action": "delete",
+      "reason": "Content merged into repo docs/configuration.md Appendix A"
+    },
+    {
+      "path": "/root/docs/DEPLOYMENT.md",
+      "action": "delete",
+      "reason": "Content merged into repo docs/deployment.md Appendix A"
+    },
+    {
+      "path": "/root/docs/OPERATIONS.md",
+      "action": "delete",
+      "reason": "Content merged into repo docs/operations.md Appendix A"
+    },
+    {
+      "path": "/root/docs/SECURITY.md",
+      "action": "delete",
+      "reason": "Content merged into repo docs/security.md Appendix A"
+    },
+    {
+      "path": "/root/docs/BUILD_LOG.md",
+      "action": "delete",
+      "reason": "Superseded by canonical journal at repo log/build-log.md (all entries preserved with provenance)"
+    },
+    {
+      "path": "/root/docs/build-log.md",
+      "action": "delete or replace with pointer",
+      "reason": "Canonical journal migrated to repo log/build-log.md. Can be replaced with one-line pointer or deleted after transition period"
+    },
+    {
+      "path": "/root/artifacts/index.md",
+      "action": "delete",
+      "reason": "Stale 4-line stub; repo artifacts/index.md is the full canonical index (95 lines)"
+    },
+    {
+      "path": "/root/artifacts/operations-manager/nvidia-2026-06-24-live-test.md",
+      "action": "delete",
+      "reason": "Stale 4-line stub; repo version is canonical"
+    },
+    {
+      "path": "/root/screenshots/.gitkeep",
+      "action": "delete",
+      "reason": "Placeholder duplicate; repo has its own screenshots/.gitkeep"
+    },
+    {
+      "path": "/root/diagrams/.gitkeep",
+      "action": "delete or leave",
+      "reason": "Placeholder; no real diagram content. All diagrams live in repo diagrams/"
+    },
+    {
+      "path": "/root/scripts/README.md",
+      "action": "review — optionally merge into repo",
+      "reason": "Documents planned scripts (mostly stale; repo has real scripts). No critical operational content"
+    }
+  ],
+  "commit_hash": "ee6e1ab (current HEAD — migration files are staged as uncommitted working-tree changes)",
+  "governance_updated": {
+    "location": "/root/agent-env-selfhosted/README.md (Documentation Governance section)",
+    "rules": [
+      "No canonical documentation outside the repository",
+      "No external dependencies — no pointers to files outside the repo",
+      "No auto-commit daemons or filesystem watchers",
+      "Build log is in-repo at log/build-log.md",
+      "Artifacts are in-repo under artifacts/",
+      "Host validation evidence continues to be injected into the repo and committed"
+    ]
+  }
+}
