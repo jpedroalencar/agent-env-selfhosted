@@ -201,17 +201,23 @@ Quick reference:
 echo 'GITHUB_TOKEN=<new_token>' > ~/.config/hermes/secrets.env
 chmod 600 ~/.config/hermes/secrets.env
 
-# 2. Verify the new token
+# 2. Update the credential store (secrets.env must be sourced first)
 source ~/.config/hermes/secrets.env
-curl -s -H "Authorization: token *** "https://api.github.com/user" | \
+echo "https://johnalencar-agent:${GITHUB_TOKEN}@github.com" \
+  | git credential-store --file ~/.config/hermes/git-credentials approve
+chmod 600 ~/.config/hermes/git-credentials
+
+# 3. Verify the new token
+source ~/.config/hermes/secrets.env
+curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/user" | \
   python3 -c "import sys,json; print(json.load(sys.stdin)['login'])"
 # Expected: johnalencar-agent
 
-# 3. Test Git push
+# 4. Test Git push
 cd /root/agent-env-selfhosted
-git push origin main
+git push origin main --dry-run
 
-# 4. Revoke the old token in GitHub Settings → Developer Settings → PAT
+# 5. Revoke the old token in GitHub Settings → Developer Settings → PAT
 ```
 
 ### 2.9 Verify GitHub Access
@@ -222,13 +228,10 @@ source ~/.config/hermes/secrets.env
 curl -s -H "Authorization: token *** "https://api.github.com/user" | \
   python3 -c "import sys,json; d=json.load(sys.stdin); print(f'User: {d[\"login\"]}'); print(f'Scope: {d.get(\"plan\",{}).get(\"name\",\"classic PAT\")}')"
 
-# Test repository access
-curl -s -H "Authorization: token *** "https://api.github.com/repos/jpedroalencar/agent-env-selfhosted" | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'Push: {d[\"permissions\"][\"push\"]}'); print(f'Pull: {d[\"permissions\"][\"pull\"]}')"
-# Expected: Push: True, Pull: True
-
-# Test Git push
+# Test Git push (no token in URL — credential helper provides auth)
 cd /root/agent-env-selfhosted
+git remote -v
+# Expected: origin https://github.com/... (no token in URL)
 git push origin main --dry-run
 # Expected: Everything up-to-date
 ```
@@ -380,13 +383,20 @@ lxc exec hermes-agent bash
 #   4. Git and GitHub Integration
 #   5. Telegram Integration
 #   6. Secret Management
-
+#
 # After deployment:
+```bash
 cd /root
-git clone "https://johnalencar-agent:${GITHUB_TOKEN}@github.com/jpedroalencar/agent-env-selfhosted.git"
+git clone https://github.com/jpedroalencar/agent-env-selfhosted.git
 cd agent-env-selfhosted
 git config user.name "johnalencar-agent"
 git config user.email "johnalencar-agent@users.noreply.github.com"
+
+# Restore credential store (see §2.8 for rotation procedure)
+source ~/.config/hermes/secrets.env
+echo "https://johnalencar-agent:${GITHUB_TOKEN}@github.com" \
+  | git credential-store --file ~/.config/hermes/git-credentials approve
+chmod 600 ~/.config/hermes/git-credentials
 ```
 
 **What is lost and needs manual re-creation:**
@@ -502,17 +512,26 @@ lxc restart hermes-agent
 ```bash
 # 1. Check authentication
 source ~/.config/hermes/secrets.env
-curl -s -H "Authorization: token *** "https://api.github.com/user"
+curl -s -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/user"
 # If this fails, the token is invalid or expired → Rotate (see 2.8)
 
-# 2. Check remote connectivity
+# 2. Check credential store
+git config --global --get credential.helper
+# Expected: store --file ~/.config/hermes/git-credentials
+ls -l ~/.config/hermes/git-credentials
+# Expected: -rw------- (600 permissions)
+
+# 3. Verify the credential store has credentials for github.com
+#    (should show output containing "https://johnalencar-agent:***@github.com")
+
+# 4. Check remote connectivity
 curl -s -o /dev/null -w "%{http_code}" "https://github.com"
 # Expected: 200
 
-# 3. Verify remote URL
+# 5. Verify remote URL does NOT contain a token
 cd /root/agent-env-selfhosted
 git remote -v
-# Expected: origin https://johnalencar-agent:***n
+# Expected: origin https://github.com/jpedroalencar/agent-env-selfhosted.git (push)
 ```
 
 ### 5.4 LLM Provider Rate Limited (429)

@@ -162,22 +162,50 @@ git config --global user.email "johnalencar-agent@users.noreply.github.com"
 
 A dedicated automation account (`johnalencar-agent`) is used for all Git operations.
 
-```bash
-# Store token in secrets file
-echo "GITHUB_TOKEN=ghp_..." >> ~/.config/hermes/secrets.env
+No tokens are embedded in remote URLs. Authentication uses **Git credential helpers** backed by the secrets file.
 
-# Clone via token (example)
-git clone "https://johnalencar-agent:${GITHUB_TOKEN}@github.com/jpedroalencar/agent-env-selfhosted.git"
+#### Setup credential helper (one-time)
+
+```bash
+# 1. Ensure the PAT is stored in the secrets file
+#    ~/.config/hermes/secrets.env
+GITHUB_TOKEN=ghp_...
+
+# 2. Configure Git to use credential store (one-time globally)
+git config --global credential.helper 'store --file ~/.config/hermes/git-credentials'
+
+# 3. Feed credentials to the store (runs once per host)
+echo "https://johnalencar-agent:${GITHUB_TOKEN}@github.com" \
+  | git credential-store --file ~/.config/hermes/git-credentials approve
+chmod 600 ~/.config/hermes/git-credentials
 ```
+
+Git will now automatically supply the token for any operation against `github.com`.
 
 ### 4.3 Repository Setup
 
 ```bash
 cd /root
-git clone "https://johnalencar-agent:${GITHUB_TOKEN}@github.com/jpedroalencar/agent-env-selfhosted.git"
+git clone https://github.com/jpedroalencar/agent-env-selfhosted.git
 cd agent-env-selfhosted
 git config user.name "johnalencar-agent"
 git config user.email "johnalencar-agent@users.noreply.github.com"
+```
+
+Authentication is automatic via the credential helper — no token in the URL.
+
+#### Adding a new repository
+
+1. Create the repository on GitHub
+2. Add `johnalencar-agent` as a **collaborator** (Settings → Collaborators → Add people)
+3. Accept the invitation (log in as `johnalencar-agent` on GitHub)
+4. Clone and push normally — credential helper handles auth automatically
+
+```bash
+git clone https://github.com/jpedroalencar/<new-repo>.git
+cd <new-repo>
+git push origin main
+# No additional authentication setup required
 ```
 
 ---
