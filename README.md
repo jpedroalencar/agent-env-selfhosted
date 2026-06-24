@@ -115,62 +115,19 @@ Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-p
 ## Repository Structure
 
 ```
-├── agent/
-│   ├── memory/           # Memory schemas, templates, and prompt definitions
-│   │   ├── decision-log-template.md   # ADR-style decision log template
-│   │   ├── memory-schema.md           # Memory field definitions
-│   │   ├── persona-memory-template.md # Persona-specific memory structure
-│   │   └── project-memory-template.md # Project-level memory structure
-│   ├── personas/         # Specialist agent persona definitions
-│   │   ├── dev.md              # Dev persona scope and boundaries
-│   │   ├── financial-analyst.md # Financial Analyst persona
-│   │   ├── operations-manager.md # Operations Manager persona
-│   │   └── research-analyst.md   # Research Analyst persona
-│   └── skills/           # Reusable skill definitions
-├── apps/                 # Application definitions built on the platform
-├── artifacts/            # Knowledge Vault — curated deliverables and generated outputs
-│   ├── index.md          # Vault index with metadata schema (title, persona, status, tags, freshness, summary, path)
-│   ├── research-analyst/ # Research reports, competitive intelligence, literature reviews
-│   ├── financial-analyst/# Investment research, valuation reports, earnings reviews
-│   ├── dev/              # Technical plans and architecture documents
-│   └── operations-manager/ # Operational runbooks and procedures
-│       └── host-validation/  # Host-side backup evidence artifacts
-├── diagrams/             # Architecture and infrastructure diagrams
-│   ├── current-architecture.drawio  # Canonical Draw.io source
-│   ├── current-architecture.md      # Mermaid architecture diagram
-│   └── sequence-research.md         # Research Analyst execution sequence
-├── docs/                 # Platform documentation
-│   ├── architecture.md   # System architecture and design decisions
-│   ├── build-log.md      # Project decisions, lessons learned, milestones
-│   ├── configuration.md  # Configuration reference
-│   ├── deployment.md     # VPS provisioning and deployment
-│   ├── operations.md     # Maintainer runbook and SOPs
-│   ├── security.md       # Threat model, access control, network defenses
-│   ├── diagram-notes.md  # Architecture diagram assumptions and conventions
-│   ├── reviews/          # Capability review and completion reports
-│   │   ├── backup-phase-completion.md          # Backup Phase 1 + 1.1 completion report
-│   │   └── knowledge-vault-phase1-review.md    # Knowledge Vault Phase 1 validation review
-│   └── workflows/        # Agent workflow definitions
-│       ├── artifact-pipeline.md   # Artifact generation and storage workflow
-│       ├── knowledge-vault.md     # Knowledge Vault retrieval-before-research workflow
-│       └── research-pipeline.md   # Research Analyst execution sequence
-├── infra/                # Infrastructure configuration (Not yet populated)
-├── logs/                 # Operational telemetry and logs (gitignored)
-├── scripts/              # Automation and utility scripts
-│   ├── backup-container.sh    # LXD container backup with retention and host evidence
-│   ├── freshness-check.sh     # Knowledge Vault freshness evaluation
-│   ├── generate-artifact.sh   # Artifact generation and storage
-│   ├── lookup-artifact.sh     # Structured artifact lookup with relevance ranking
-│   ├── register-artifact.sh   # Knowledge Vault registration with metadata validation
-│   ├── restore-container.sh   # LXD container restore with safety features
-│   ├── reuse-artifact.sh      # Artifact reuse decision framework
-│   ├── stale-check-cron.sh    # Cron-based stale artifact checker
-│   └── update-index-stats.sh  # Auto-compute Knowledge Vault index statistics
-├── screenshots/          # Platform screenshots and diagrams
-├── workspaces/           # Temporary agent workspaces (gitignored contents)
-├── .gitignore            # Security-hardened exclusion rules
-├── LICENSE               # License file
-└── README.md             # This file
+├── agent/               # Persona definitions, memory schemas, and skill templates
+├── apps/                # Application definitions built on the platform
+├── artifacts/           # Knowledge Vault — curated deliverables and generated outputs
+├── diagrams/            # Architecture and infrastructure diagrams
+├── docs/                # Platform documentation (see subsystem docs for detail)
+├── infra/               # Infrastructure configuration (Not yet populated)
+├── logs/                # Operational telemetry and logs (gitignored)
+├── scripts/             # Automation and utility scripts (backup, vault, generation)
+├── screenshots/         # Platform screenshots and diagrams
+├── workspaces/          # Temporary agent workspaces (gitignored contents)
+├── .gitignore           # Security-hardened exclusion rules
+├── LICENSE              # License file
+└── README.md            # This file
 ```
 
 ---
