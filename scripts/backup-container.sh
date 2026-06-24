@@ -74,7 +74,25 @@ run_or_dry() {
 # Compatible with LXD 5.21+ where `lxc list-snapshots` is not a valid command.
 list_snapshots() {
     lxc info "${CONTAINER_NAME}" 2>/dev/null \
-        | awk '/^Snapshots:/ {flag=1; next} /^[A-Za-z]/ && flag {flag=0} flag && /^  / {print $1}'
+        | awk '
+/^Snapshots:/ {flag=1; next}
+flag && /^[[:space:]]*\|/ {
+    # Table format (LXD 5.21+):  | name | date | ... |
+    n = split($0, a, "|")
+    if (n >= 3) {
+        name = a[2]
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", name)
+        if (name != "" && name != "NAME") print name
+    }
+    next
+}
+flag && /^  [a-zA-Z0-9]/ {
+    # Legacy indented format:   name
+    print $1
+    next
+}
+/^[A-Za-z]/ && flag {flag=0}
+'
 }
 
 # Number of prefix-matching snapshots (for retention logging).
