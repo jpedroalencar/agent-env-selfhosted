@@ -12,9 +12,12 @@ Mermaid architecture diagram for the self-hosted AI agent platform.
 architecture-beta
     group vps(cloud)[Oracle Cloud VPS - Ubuntu 24.04 LTS]
 
-    group container(container)[LXC Container - Debian 12 Bookworm]
-    group hostBoundary[Host isolation boundary]
-    group lxdBoundary[LXD Unprivileged Container Boundary]  service hermes(internet)[Hermes Agent v0.17.0]
+    group hostLayer[Host Security Layer]
+    group lxdGroup[LXD Hypervisor]
+    group container(container)[Hermes Container - Debian 12 Bookworm]
+    group backupGroup[Backup & Recovery]
+
+    service hermes(internet)[Hermes Agent v0.17.0]
     service deepseek(cloud)[DeepSeek API]
     service openrouter(cloud)[OpenRouter API]
     service telegram(cloud)[Telegram Bot API]
@@ -32,8 +35,13 @@ architecture-beta
     service personaDev(server)[Persona: Dev]
     service personaOM(server)[Persona: Operations Manager]
 
-    hostBoundary -- container
-    lxdBoundary -- hermes
+    service backupScript(disk)[backup-container.sh]
+    service snapshots(disk)[LXD Snapshots]
+    service evidence(disk)[Host Validation Evidence]
+
+    hostLayer -- lxdGroup
+    lxdGroup -- container
+    container -- hermes
     hermes -- deepseek
     hermes -- openrouter
     hermes -- telegram
@@ -48,8 +56,12 @@ architecture-beta
     hermes -- personaRA
     hermes -- personaDev
     hermes -- personaOM
-    ufw -- hostBoundary
-    fail2ban -- hostBoundary
+    backupGroup -- snapshots
+    backupScript -- snapshots
+    snapshots -- lxdGroup
+    evidence -- container
+    ufw -- hostLayer
+    fail2ban -- hostLayer
 ```
 
 ---

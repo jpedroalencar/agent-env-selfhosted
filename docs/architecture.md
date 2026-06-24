@@ -20,8 +20,14 @@ Oracle Cloud VPS (Ubuntu 24.04 LTS, aarch64)
 │       │   ├── Chat Platform: Telegram
 │       │   └── Local CLI: Direct terminal access
 │       ├── GitHub Integration (bot account: johnalencar-agent)
+│       ├── Knowledge Vault (artifacts/, 5 registered)
 │       ├── Local Secret Store (/root/.config/hermes/secrets.env)
 │       └── Python 3.11.2 Runtime
+├── Backup & Recovery (host-side)
+│   ├── backup-container.sh (snapshot + retention + evidence)
+│   ├── restore-container.sh (interactive restore with safety checks)
+│   ├── /var/log/hermes-backup.log
+│   └── Host validation evidence → injected into container
 └── 40 GB Boot Volume (loop device)
 ```
 

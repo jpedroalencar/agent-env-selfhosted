@@ -19,13 +19,22 @@ The current deployment is private and intended for personal use. Public-facing s
 ## Current Architecture
 
 ```text
-Oracle Cloud VPS
-└── LXC Container (Hermes — Debian 12, aarch64)
-    ├── Hermes Agent v0.17.0
-    │   ├── Provider: DeepSeek (primary)
-    │   ├── Fallback: OpenRouter → Gemini Flash
-    │   └── Platform: Telegram
-    └── Local Secret Store
+Oracle Cloud Infrastructure (OCI)
+└── Ubuntu 24.04 LTS Host (ARM64)
+    ├── UFW Firewall (host-level, inbound-restricted)
+    ├── Fail2Ban (host-level, SSH brute-force protection)
+    ├── LXD Hypervisor
+    │   └── Hermes Container (Debian 12 Bookworm)
+    │       ├── Hermes Agent v0.17.0
+    │       │   ├── Provider: DeepSeek (primary)
+    │       │   ├── Fallback: OpenRouter → Gemini Flash
+    │       │   └── Platform: Telegram
+    │       ├── Knowledge Vault
+    │       └── Local Secret Store
+    └── Backup & Recovery
+        ├── LXD Snapshots (automated, up to 7 retained)
+        ├── Retention Policy (configurable)
+        └── Host Validation Evidence (lxc file push → container)
 ```
 
 - **Host:** Oracle Cloud Infrastructure (OCI), ARM-based (Ampere A1 / Neoverse-N1)
