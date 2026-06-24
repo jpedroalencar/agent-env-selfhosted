@@ -25,31 +25,34 @@
 | 2026-06-23 | DeepSeek v4 Flash Provider Analysis | research-analyst | `draft` | `deepseek`, `provider`, `llm`, `api`, `analysis` | 30 days | Analysis of DeepSeek v4 Flash model covering performance benchmarks, pricing, and provider comparison. | [artifacts/research-analyst/2026-06-23_deepseek-v4-flash-provider-analysis.md](artifacts/research-analyst/2026-06-23_deepseek-v4-flash-provider-analysis.md) |
 | 2026-06-23 | LXD vs Docker Comparison | research-analyst | `draft` | `lxd`, ` docker`, ` containerization`, ` comparison`, ` infrastructure` | 90 days | Comparison of LXD system containers vs Docker application containers for agent-hosting workloads. | [artifacts/research-analyst/2026-06-23_lxd-vs-docker-comparison.md](artifacts/research-analyst/2026-06-23_lxd-vs-docker-comparison.md) |
 | 2026-06-24 | NVIDIA NIM Provider Validation | operations-manager | `verified` | `nvidia`, ` nim`, ` provider`, ` background`, ` maintenance`, ` delegation` | 90 days | Validation of NVIDIA NIM as a background maintenance provider for Hermes Agent. All three priority models responding. | [artifacts/operations-manager/2026-06-24_nvidia-nim-provider-validation.md](artifacts/operations-manager/2026-06-24_nvidia-nim-provider-validation.md) |
+| 2026-06-24 | Architecture Documentation Audit — NVIDIA NIM Generated | operations-manager | `draft` | `nvidia`, ` nim`, ` audit`, ` architecture`, ` documentation`, ` background-maintenance` | 90 days | Architecture audit generated entirely by NVIDIA NIM (meta/llama-3.3-70b-instruct) as a background maintenance task. Zero DeepSeek tokens consumed. | [artifacts/operations-manager/2026-06-24_architecture-audit-nvidia-nim.md](artifacts/operations-manager/2026-06-24_architecture-audit-nvidia-nim.md) |
 | 2026-06-23 | AAPL Q3 FY2026 Earnings Review | financial-analyst | `draft` | `aapl`, `apple`, `earnings`, `valuation`, `services`, `q3-2026` | 30 days | Apple Q3 FY2026 earnings review with revenue beat, Services milestones, and bull/bear case analysis. | [artifacts/financial-analyst/2026-06-23_aapl-q3-2026-earnings-review.md](artifacts/financial-analyst/2026-06-23_aapl-q3-2026-earnings-review.md) |
 <!-- /Index-Table -->
 
 ---
 
 
+
 ## Statistics
 
 | Metric | Value |
 |--------|-------|
-| Total artifacts | 6 |
+| Total artifacts | 7 |
 | Last artifact | 2026-06-24 |
 | Oldest artifact | 2026-06-23 |
-| Fresh artifacts | 6 |
+| Fresh artifacts | 7 |
 | Stale artifacts | 0 |
-| Avg freshness threshold | 70 days |
-| Most used tag | `provider` (2) |
+| Avg freshness threshold | 72 days |
+| Most used tag | `architecture` (3) |
 | Unique personas | 4 |
-| Unique tags | 27 || research-analyst artifacts | 2 |
+| Unique tags | 30 || research-analyst artifacts | 2 |
 | financial-analyst artifacts | 1 |
-| operations-manager artifacts | 1 |
-| `draft` artifacts | 3 |
+| operations-manager artifacts | 2 |
+| `draft` artifacts | 4 |
 | `verified` artifacts | 3 |
 
 ---
+
 
 
 ## Quick Reference
