@@ -9,59 +9,44 @@ Mermaid architecture diagram for the self-hosted AI agent platform.
 ## Architecture Overview
 
 ```mermaid
-architecture-beta
-    group vps(cloud)[Oracle Cloud VPS - Ubuntu 24.04 LTS]
+flowchart LR
+    %% Floating node from your original list
+    vps["Oracle Cloud VPS - Ubuntu 24.04 LTS"]
 
-    group hostLayer[Host Security Layer]
-    group lxdGroup[LXD Hypervisor]
-    group container(container)[Hermes Container - Debian 12 Bookworm]
-    group backupGroup[Backup & Recovery]
-
-    service hermes(internet)[Hermes Agent v0.17.0]
-    service deepseek(cloud)[DeepSeek API]
-    service openrouter(cloud)[OpenRouter API]
-    service telegram(cloud)[Telegram Bot API]
-    service github(cloud)[GitHub API]
-
-    service secretsFile(disk)[Local Secrets Store]
-    service sessionDB(disk)[Session Database]
-    service agentMemory(disk)[Agent Memory]
-
-    service ufw(internet)[UFW Firewall]
-    service fail2ban(internet)[Fail2Ban]
-
-    service personaFA(server)[Persona: Financial Analyst]
-    service personaRA(server)[Persona: Research Analyst]
-    service personaDev(server)[Persona: Dev]
-    service personaOM(server)[Persona: Operations Manager]
-
-    service backupScript(disk)[backup-container.sh]
-    service snapshots(disk)[LXD Snapshots]
-    service evidence(disk)[Host Validation Evidence]
-
-    hostLayer -- lxdGroup
-    lxdGroup -- container
-    container -- hermes
-    hermes -- deepseek
-    hermes -- openrouter
-    hermes -- telegram
-    hermes -- github
-    hermes -- sessionDB
-    hermes -- agentMemory
-    deepseek -- secretsFile
-    openrouter -- secretsFile
-    telegram -- secretsFile
-    github -- secretsFile
-    hermes -- personaFA
-    hermes -- personaRA
-    hermes -- personaDev
-    hermes -- personaOM
-    backupGroup -- snapshots
-    backupScript -- snapshots
-    snapshots -- lxdGroup
-    evidence -- container
-    ufw -- hostLayer
-    fail2ban -- hostLayer
+    %% Security & Infrastructure Dependencies
+    ufw["UFW Firewall"] --> hostLayer["Host Security Layer"]
+    fail2ban["Fail2Ban"] --> hostLayer
+    hostLayer --> lxdGroup["LXD Hypervisor"]
+    
+    %% Backup Flow
+    backupGroup["Backup & Recovery"] --> snapshots["LXD Snapshots"]
+    backupScript["backup-container.sh"] --> snapshots
+    snapshots --> lxdGroup
+    
+    %% Container Layer
+    lxdGroup --> container["Hermes Container - Debian 12 Bookworm"]
+    evidence["Host Validation Evidence"] --> container
+    container --> hermes["Hermes Agent v0.17.0"]
+    
+    %% Hermes Internal Storage & Personas
+    hermes --> sessionDB["Session Database"]
+    hermes --> agentMemory["Agent Memory"]
+    hermes --> personaFA["Persona: Financial Analyst"]
+    hermes --> personaRA["Persona: Research Analyst"]
+    hermes --> personaDev["Persona: Dev"]
+    hermes --> personaOM["Persona: Operations Manager"]
+    
+    %% External API Flow
+    hermes --> deepseek["DeepSeek API"]
+    hermes --> openrouter["OpenRouter API"]
+    hermes --> telegram["Telegram Bot API"]
+    hermes --> github["GitHub API"]
+    
+    %% Secrets Flow
+    deepseek --> secretsFile["Local Secrets Store"]
+    openrouter --> secretsFile
+    telegram --> secretsFile
+    github --> secretsFile
 ```
 
 ---
@@ -70,36 +55,61 @@ architecture-beta
 
 ```mermaid
 sequenceDiagram
-    actor User as Telegram User
-    participant Telegram as Telegram Bot API
-    participant Hermes as Hermes Agent
-    participant Skills as Skills & Tools
-    participant Persona as Specialist Persona
-    participant DeepSeek as DeepSeek API
-    participant OpenRouter as OpenRouter (Fallback)
-    participant GitHub as GitHub API
-    participant Secrets as Local Secrets Store
+    autonumber
 
+    %% Grouping components into visual boxes
+    box transparent 1. User & Trigger
+        actor User as Telegram User
+        participant Telegram as Telegram Bot API
+    end
+
+    box transparent 2. Hermes Internal Processing
+        participant Hermes as Hermes Agent
+        participant Persona as Specialist Persona
+        participant Skills as Skills & Tools
+        participant Secrets as Local Secrets Store
+    end
+
+    box transparent 3. External Cloud APIs
+        participant DeepSeek as DeepSeek API
+        participant OpenRouter as OpenRouter
+        participant GitHub as GitHub API
+    end
+
+    %% Phase 1: Ingestion & Setup
+    Note over User,Secrets: Phase 1: Message Ingestion & Strategy
     User->>Telegram: Send message
     Telegram->>Hermes: Webhook / poll (Bot Token auth)
+    
+    activate Hermes
     Hermes->>Skills: Load relevant skill definitions
-    Hermes->>Secrets: Read GitHub PAT (outbound)
     Hermes->>Persona: Select & delegate (if multi-domain)
 
+    %% Phase 2: AI Inference
+    Note over Hermes,OpenRouter: Phase 2: LLM Inference
+    
     alt Primary provider
         Hermes->>DeepSeek: LLM inference (API Key auth)
-        DeepSeek-->>Hermes: Response
+        DeepSeek-->>Hermes: Strategy / Response
     else Fallback
         Hermes->>OpenRouter: LLM inference (API Key auth)
-        OpenRouter-->>Hermes: Response
+        OpenRouter-->>Hermes: Strategy / Response
     end
 
-    alt Git operation needed
+    %% Phase 3: Tool Execution
+    Note over Hermes,GitHub: Phase 3: Tool Execution (Optional)
+    
+    opt Git operation needed
+        Hermes->>Secrets: Read GitHub PAT (outbound)
         Hermes->>GitHub: Clone / push / PR (PAT auth)
-        GitHub-->>Hermes: Result
+        GitHub-->>Hermes: Action Result
     end
 
-    Hermes-->>Telegram: Response message
+    %% Phase 4: Delivery
+    Note over User,Hermes: Phase 4: Delivery
+    Hermes-->>Telegram: Formatted Response message
+    deactivate Hermes
+    
     Telegram-->>User: Deliver message
 ```
 
