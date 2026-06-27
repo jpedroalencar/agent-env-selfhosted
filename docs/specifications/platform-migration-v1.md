@@ -257,7 +257,7 @@ agent-env-selfhosted/                    # Canonical Platform repository
 | # | Component | Current Location | Type |
 |---|-----------|-----------------|------|
 | P1 | Persona identity definitions | `agent/personas/*.md` + `~/.hermes/skills/personas/` | Content |
-| P2 | Memory schemas (core/working/persistent) | `agent/memory/memory-schema.md` | Intelligence |
+| P2 | Memory schemas (core/working/persistent) | `docs/memory-schemas/memory-schema.md` | Intelligence |
 | P3 | Memory tier policies | `config/memory-policies.yaml` (NEW) | Intelligence |
 | P4 | Knowledge Vault (artifacts, index, scripts) | `artifacts/` + `scripts/` | Intelligence |
 | P5 | Knowledge Provider framework | `pilot/knowledge/` (NEW) | Intelligence |

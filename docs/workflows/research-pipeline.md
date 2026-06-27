@@ -255,9 +255,9 @@ The following must **never** be committed to the repository, regardless of stora
 | Category | Examples | Location |
 |----------|----------|----------|
 | Final research artifacts | Reviewed, structured briefs | `~/.hermes/content/` → `artifacts/` or `docs/` |
-| Memory schemas | Template files, field definitions | `agent/memory/` |
+| Memory schemas | Template files, field definitions | `docs/memory-schemas/` |
 | Persona definitions | SKILL.md, persona boundary docs | `agent/personas/` |
-| Decision records | Build log entries, ADRs | `docs/build-log.md`, `agent/memory/` |
+| Decision records | Build log entries, ADRs | `docs/build-log.md`, `docs/memory-schemas/` |
 | Workflow documentation | Runbooks, sequence diagrams | `docs/workflows/` |
 
 ---
