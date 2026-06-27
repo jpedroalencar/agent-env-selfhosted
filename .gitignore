@@ -70,9 +70,14 @@ build/
 *.komodoproject
 
 # ──────────────────────────────────────────────
+# Workspaces (temporary agent workspaces)
+# ──────────────────────────────────────────────
+workspaces/*
+!workspaces/.gitkeep
+
+# ──────────────────────────────────────────────
 # Storage & Logs
 # ──────────────────────────────────────────────
-logs/
 *.log
 memory.db
 vectorstore/
