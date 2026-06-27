@@ -237,7 +237,7 @@ The repository `.gitignore` blocks:
 - **Secrets:** `.env`, `secrets.env`, `.git-credentials`, `*.pem`, `*.key`
 - **Caches:** `__pycache__/`, `tmp/`, `.DS_Store`
 - **Python:** `.venv/`, `venv/`, `dist/`, `build/`
-- **Storage:** `logs/`, `*.log`, `memory.db`, `vectorstore/`, `chroma/`, `qdrant/`
+- **Storage:** `*.log`, `memory.db`, `vectorstore/`, `chroma/`, `qdrant/`
 - **Hermes runtime:** `.hermes/` (except whitelisted patterns), `hermes-cron/`
 - **Editors:** `.vscode/`, `.idea/`
 

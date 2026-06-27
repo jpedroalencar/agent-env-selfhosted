@@ -346,7 +346,7 @@ The personas need to pass artifacts — a CSV of financial data, a code file, a 
 │       ├── financial-data.csv
 │       └── dashboard.py
 ├── artifacts/         # Personas write their outputs here
-└── logs/              # Structured log output
+└── .hermes/           # Operational logs (gitignored)
 ```
 
 > **Lesson learned:** Initially we tried passing data purely through message context. This failed for large outputs (code files, datasets). The shared filesystem convention with request-ID namespacing was the fix.

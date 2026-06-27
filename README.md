@@ -1,240 +1,147 @@
 # Agent Platform
 
-Self-hosted AI agent platform running on an **Oracle Cloud VPS** using **LXC containers**, with a focus on security, operational simplicity, recoverability, and long-term maintainability.
+A self-hosted AI agent platform that runs on Oracle Cloud VPS with LXC containers. The Platform owns intelligence — classifying requests, assembling context, selecting knowledge providers. Hermes Runtime handles execution — model calls, tool dispatch, streaming.
 
-> **Disclaimer:** This repository documents a self-hosted AI agent platform currently in active development. Items listed under "Planned Architecture" or "Roadmap" describe intended future states, not implemented features.
-
----
-
-## Overview
-
-Agent Platform documents the design, deployment, and operation of a private AI agent environment built around [Hermes Agent](https://hermes-agent.nousresearch.com).
-
-Unlike traditional web applications, autonomous agents interact extensively with filesystems, development tools, repositories, scripts, and long-running processes. This project explores how to provide an agent with a realistic Linux environment while maintaining isolation, recoverability, and operational control.
-
-The current deployment is private and intended for personal use. Public-facing services will only be introduced after operational procedures, backups, and security controls have been validated.
+> **Disclaimer:** This repository documents a platform in active development. Items marked ⬜ are planned, not implemented.
 
 ---
 
-## Current Architecture
+## Architecture
 
-```text
-Oracle Cloud Infrastructure (OCI)
-└── Ubuntu 24.04 LTS Host (ARM64)
-    ├── UFW Firewall (host-level, inbound-restricted)
-    ├── Fail2Ban (host-level, SSH brute-force protection)
-    ├── LXD Container Runtime
-    │   └── Hermes Container (Debian 12 Bookworm)
-    │       ├── Hermes Agent v0.17.0
-    │       │   ├── Provider: DeepSeek (primary)
-    │       │   ├── Fallback: OpenRouter → Gemini Flash
-    │       │   └── Platform: Telegram
-    │       ├── Knowledge Vault
-    │       └── Local Secret Store
-    └── Backup & Recovery (LXD snapshots, retention, evidence injection)
+The Platform is an intelligent orchestration layer. It receives user requests, determines what to do, assembles context, builds prompts, and delegates execution to Hermes Runtime.
+
+```
+User Request
+    │
+    ▼
+┌──────────────────────────────────────────┐
+│  PLATFORM (agent-env-selfhosted)         │
+│                                          │
+│  Parser → Classifier → IntentMapper      │
+│     → ConfigProvider → ExecutionPlan     │
+│     → KnowledgeProviders                 │
+│     → Context Assembly → Prompt Builder  │
+│                                          │
+│  Owns: intelligence, strategy, content   │
+└──────────────────┬───────────────────────┘
+                   │  ExecutionPlan
+                   ▼
+┌──────────────────────────────────────────┐
+│  HERMES RUNTIME (external dependency)    │
+│                                          │
+│  Model calls, tool dispatch, streaming,  │
+│  chat platform adapters (Telegram)       │
+│                                          │
+│  Owns: execution, mechanics, transport   │
+└──────────────────────────────────────────┘
 ```
 
-- **Host:** Oracle Cloud Infrastructure (OCI), ARM-based (Ampere A1 / Neoverse-N1)
-- **Container Runtime:** LXD — one unprivileged LXC container
-- **Guest:** Debian 12 Bookworm, 2 vCPUs, 8 GB RAM, 40 GB disk
-- **Agent Runtime:** Hermes Agent v0.17.0 running natively in the container
-- **LLM Backend:** DeepSeek via API (deepseek-v4-flash), OpenRouter as fallback
-- **Chat Interface:** Telegram (primary), CLI (direct)
-- **Auth:** GitHub Personal Access Token stored in local secrets file
-- **Firewall:** UFW on host (container outbound-only)
-
-## Planned Architecture
-
-```text
-Internet
-    ↓
-Caddy (reverse proxy, HTTPS)
-    ↓
-OAuth Authentication
-    ↓
-Hermes Container
-    ├── Web Dashboard
-    └── Telegram Gateway
-```
-
-The planned architecture adds a public access layer with a Caddy reverse proxy, HTTPS termination, and OAuth authentication. This is **not yet implemented**.
+**Platform owns intelligence. Hermes owns execution.** The Platform decides; Hermes executes. See [docs/platform-architecture.md](docs/platform-architecture.md) for the full pipeline.
 
 ---
 
-## Technology Stack
+## Current Implementation
 
-### Infrastructure
+### ✅ Implemented
 
-| Component | Current | Notes |
-|-----------|---------|-------|
-| VPS Provider | Oracle Cloud (OCI) | ARM-based Ampere A1 tier |
-| Host OS | Ubuntu 24.04 LTS (host) | Kernel: 6.17.0-1011-oracle |
-| Container Runtime | LXD | Unprivileged LXC containers |
-| Guest OS | Debian 12 (Bookworm) | aarch64 |
-| Firewall (Host) | UFW | Inbound-restricted |
-| Intrusion Prevention | Fail2Ban (Host) | SSH brute force protection |
+| Component | Description |
+|-----------|-------------|
+| **Context Planner** | Parse user messages, classify intent (8 request types), map to Platform profiles. Migrated from Hermes. |
+| **ConfigProvider** | Declarative routing: 15 intents → 5 profiles. Reads `config/routing.yaml`. |
+| **ExecutionPlan** | Frozen contract carrying profile, skills, memory tier, knowledge providers. Validated before execution. |
+| **Knowledge Providers** | ConfigProvider (routing) + MemoryProvider (agent memory). Same contract. |
+| **Context System** | Assembles provider artifacts into labeled context blocks. Provider-agnostic. |
+| **Prompt Builder** | Formats system prompt + context + question. Pure template. |
+| **Knowledge Vault** | Filesystem-based knowledge reuse. 10 artifacts. Automated lookup, freshness, registration. |
+| **Backup & Recovery** | LXD snapshot backup with retention, restore, host validation evidence. |
+| **Telegram Interface** | Primary chat via Hermes Telegram gateway. Multi-session, multi-thread. |
+| **Multi-Provider LLM** | DeepSeek (primary) with fallback to OpenRouter. |
+| **Git Identity** | Author/Committer separation enforced by `scripts/git-commit.sh`. |
 
-### Agent Runtime
+### ⬜ Planned
 
-| Component | Version | Notes |
-|-----------|---------|-------|
-| Hermes Agent | v0.17.0 | `/usr/local/lib/hermes-agent` |
-| Python | 3.11.2 | System Python |
-| OpenAI SDK | 2.24.0 | Hermes dependency |
-
-### LLM Providers
-
-| Provider | Model | Role |
-|----------|-------|------|
-| DeepSeek | deepseek-v4-flash | Primary inference |
-| OpenRouter | google/gemini-2.0-flash | Fallback |
-
-### Connected Platforms
-
-| Platform | Role | Status |
-|----------|------|--------|
-| Telegram | Primary chat interface | ✅ Connected |
-| GitHub | Repository & automation | ✅ Connected |
-
----
-
-## Design Decisions
-
-### Private-First Deployment
-
-The platform remains private during development to validate stability, backup procedures, recovery workflows, and security controls before introducing public access.
-
-### LXC/LXD Instead of Docker
-
-Hermes behaves more like a Linux user than a traditional web application. LXD provides a complete Linux environment, natural filesystem behavior, snapshot support, simplified backup and migration, and strong isolation from the host — all without the filesystem abstraction overhead of Docker bind mounts.
-
-### VPS Instead of Local Hosting
-
-Running the platform on a VPS provides continuous availability, remote administration, dedicated resources, and easier disaster recovery compared to a local machine.
-
-### ARM Architecture
-
-Oracle Cloud's free-tier Ampere A1 ARM instances offer competitive performance-per-dollar for LLM API-based agent workloads, which are I/O and network-bound rather than compute-bound.
+| Component | Phase |
+|-----------|-------|
+| Vault + Web Knowledge Providers | 5 |
+| Telemetry (event collection, reporting) | 6 |
+| Benchmark suites | 7 |
+| HTTP Gateway (Caddy, OAuth, API) | 8 |
+| Memory Orchestration | 4 |
 
 ---
 
 ## Repository Structure
 
 ```
-├── agent/               # Persona definitions, memory schemas, and skill templates
-├── apps/                # Application definitions built on the platform
-├── artifacts/           # Knowledge Vault — curated deliverables and generated outputs
-├── diagrams/            # Architecture and infrastructure diagrams
-├── docs/                # Platform documentation (see subsystem docs for detail)
-├── infra/               # Infrastructure configuration (Not yet populated)
-├── log/                 # Engineering journal — build log, decision records
-├── scripts/             # Automation and utility scripts (backup, vault, generation)
-├── screenshots/         # Platform screenshots and diagrams
-├── workspaces/          # Temporary agent workspaces (gitignored contents)
-├── .gitignore           # Security-hardened exclusion rules
-├── LICENSE              # License file
-└── README.md            # This file
+├── pilot/              # Platform intelligence layer
+│   ├── contracts/      # Frozen architectural contracts
+│   ├── dispatch/       # Parser, classifier, intent mapper, ExecutionPlan
+│   ├── context/        # Context assembly
+│   ├── knowledge/      # Knowledge providers (config, memory)
+│   ├── prompt/         # Prompt builder
+│   └── gateway.py      # Request entry point
+├── adapters/           # Hermes Runtime adapter
+│   └── hermes/         # Model adapter, (future) config bridge
+├── config/             # Platform configuration (routing.yaml)
+├── agent/              # Persona definitions, memory schemas
+├── artifacts/          # Knowledge Vault
+├── docs/               # Documentation
+│   ├── specifications/ # Architecture specifications
+│   └── platform-architecture.md
+├── diagrams/           # Architecture diagrams
+├── log/                # Engineering journal
+├── scripts/            # Automation (backup, vault, git commit wrapper)
+├── tests/              # Test suite (60 tests)
+├── apps/               # Application registry
+├── infra/              # Infrastructure config (future)
+├── workspaces/         # Temporary (gitignored)
+└── .hermes/            # Operational logs (gitignored)
 ```
 
 ---
 
-## Current Status
+## Deployment
 
-**Phase 1 – Foundation — Complete**
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| VPS Provisioning | ✅ Complete | Oracle Cloud, ARM, Debian 12 |
-| LXC Container | ✅ Complete | Unprivileged LXD container |
-| Hermes Installation | ✅ Complete | v0.17.0 |
-| GitHub Integration | ✅ Complete | Dedicated automation account |
-| Repository Structure | ✅ Complete | This repository |
-| Secret Management | ✅ Complete | Local secrets file, no Bitwarden |
-| Knowledge Vault | ✅ Complete | Phase 1 (retrieval-before-research) + Phase 2 (automated workflows, freshness checks, reuse decisions, cron-based stale detection, auto-registration chain, auto-computed statistics). 6 artifacts registered. See [docs/workflows/knowledge-vault.md](docs/workflows/knowledge-vault.md). |
-| Backup & Recovery | ✅ Complete | Phase 1 + 1.1 — LXD snapshot backup with automated retention, restore script with safety features, and host validation evidence injection. See [docs/backup-recovery.md](docs/backup-recovery.md) and [docs/reviews/backup-phase-completion.md](docs/reviews/backup-phase-completion.md). |
+```
+Oracle Cloud VPS (Ubuntu 24.04, ARM64)
+└── LXD Container (Debian 12)
+    ├── Hermes Agent v0.17.0 (Runtime)
+    │   ├── DeepSeek API (primary)
+    │   ├── OpenRouter (fallback)
+    │   └── Telegram Gateway
+    ├── Platform (this repository)
+    └── Knowledge Vault
+```
 
 ---
 
-## Operational Capabilities
+## Documentation
 
-Implemented capabilities of the current platform:
-
-| Capability | Description |
-|-----------|-------------|
-| **LXD Snapshot Backups** | Automated full-container snapshots with timestamped naming, verification, and configurable retention (default: 7). |
-| **Restore Workflow** | Interactive and non-interactive restore from backup snapshots with pre-restore safety snapshot and operator confirmation. |
-| **Host Validation Evidence** | After every successful backup, machine-readable evidence is generated on the host and injected into the container repository via `lxc file push`. |
-| **Knowledge Vault** | Filesystem-based knowledge reuse layer. Prevents duplicate research through retrieval-before-research workflow with automated lookup, freshness evaluation, reuse decisions, and artifact registration. |
-| **Artifact Generation** | Substantive persona outputs are automatically saved as markdown artifacts with YAML frontmatter and registered in the vault index. |
-| **Telegram Interface** | Primary chat interface via Hermes Telegram gateway. Multi-session, multi-thread. |
-| **Multi-Provider LLM Routing** | Primary provider (DeepSeek v4 Flash) with automatic fallback to OpenRouter (Gemini 2.0 Flash). |
+| Document | Description |
+|----------|-------------|
+| [Platform Architecture](docs/platform-architecture.md) | Full pipeline, responsibilities, provider model |
+| [Architecture v3.0](docs/architecture.md) | System design, topology, persona architecture |
+| [Configuration](docs/configuration.md) | Hermes config, providers, conventions |
+| [Deployment](docs/deployment.md) | VPS → LXC → Hermes → GitHub |
+| [Operations](docs/operations.md) | Infrastructure and persona-level procedures |
+| [Security](docs/security.md) | Access control, isolation, network |
+| [Backup & Recovery](docs/backup-recovery.md) | Snapshot backup, restore, evidence |
+| [Knowledge Vault](docs/workflows/knowledge-vault.md) | Retrieval-before-research workflow |
+| [Git Identity](docs/GIT-IDENTITY.md) | Author/Committer policy |
+| [Specifications](docs/specifications/) | Migration plans, conformance audits |
 
 ---
 
-## Roadmap
+## Design Decisions
 
-### Phase 2 – Access Layer (Planned)
-
-- Caddy reverse proxy
-- HTTPS termination (Let's Encrypt / ACME)
-- OAuth authentication
-- Web dashboard access
-- Domain integration
-
-### Phase 3 – Operations & Observability (Planned)
-
-**Backup Enhancements:**
-- Telegram notification on backup success/failure
-- Off-site replication (rsync/S3-compatible)
-- Quarterly restore drill
-
-**General Operations:**
-- Monitoring and metrics
-- Health checks
-- Alerting
-- Scheduled cron jobs
-
-### Phase 4 – Public Presence (Planned)
-
-- Public website
-- Published architecture diagrams
-- Public read-only demo environment
+- **Platform/Runtime separation.** The Platform owns strategy; Hermes handles execution. They communicate through a single contract (ExecutionPlan).
+- **LXC over Docker.** Hermes needs a real Linux environment. LXD provides filesystem semantics, snapshots, and strong isolation without Docker's abstraction overhead.
+- **ARM-based VPS.** Oracle Cloud Ampere A1 free tier. Agent workloads are network-bound, not CPU-bound.
+- **Declarative routing.** Intent → profile mappings in `config/routing.yaml`. No rule engine. No dependency resolver. One YAML file.
+- **Minimal abstractions.** Two providers → explicit wiring. Registry at 3+. Every abstraction earns its place.
 
 ---
 
 ## Philosophy
 
-The goal is to build a secure, maintainable, and recoverable platform capable of supporting autonomous agents over the long term while documenting the engineering decisions, tradeoffs, and lessons learned throughout the process.
-
----
-
-## Documentation Governance
-
-This repository is the **single canonical source** for all platform documentation, artifacts, journals, diagrams, and operational records.
-
-### Canonical Documentation Tree
-
-All platform documentation lives inside this repository at these paths:
-
-| Content | Path | Notes |
-|---------|------|-------|
-| Platform architecture | `docs/architecture.md` | System design, topology, delegation flow |
-| Configuration reference | `docs/configuration.md` | Hermes config, providers, conventions |
-| Deployment guide | `docs/deployment.md` | VPS → LXC → Hermes → GitHub |
-| Operations runbook | `docs/operations.md` | Infrastructure and persona-level procedures |
-| Security guide | `docs/security.md` | Access control, isolation, network, incident response |
-| Backup & recovery | `docs/backup-recovery.md` | Snapshot backup, restore, evidence workflow |
-| Engineering journal | `log/build-log.md` | Append-only decision log with provenance |
-| Diagram notes | `docs/diagram-notes.md` | Component responsibilities and boundaries |
-| Knowledge Vault | `artifacts/index.md` | Artifact registry with metadata |
-| Phase reviews | `docs/reviews/` | Completion reports and review documents |
-| Workflow definitions | `docs/workflows/` | Agent execution workflow documentation |
-
-### Rules
-
-1. **No canonical documentation outside the repository.** The `/root/docs/` and `/root/artifacts/` directories are deprecated. Do not create new files there.
-2. **No external dependencies.** The repository contains everything needed to understand and operate the platform. No pointers to files outside the repo.
-3. **No auto-commit daemons.** The repository is the system of record. Write documentation directly, commit, and push. No filesystem watchers or background synchronization.
-4. **Build log is in-repo.** The canonical Engineering Journal lives at `log/build-log.md`. Append new entries there.
-5. **Artifacts are in-repo.** All generated artifacts and their registry entries live under `artifacts/`.
-6. **Host validation evidence** continues to be injected into `artifacts/operations-manager/host-validation/` via the existing backup workflow, then committed to the repository.
+Build a secure, maintainable, and recoverable platform capable of supporting autonomous agents over the long term. Document every decision, tradeoff, and lesson. Prefer simplicity over generality. The Platform decides; Hermes executes.
