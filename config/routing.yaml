@@ -1,0 +1,119 @@
+# Platform Routing Rules
+# Maps user intent to persona profiles.
+# Format:
+#   routing:
+#     <intent>:
+#       profile: <profile-name>
+#       skills: [<default-skills>]
+#       memory_tier: persistent | working | none
+#       knowledge_providers: [<provider-names>]  # ordered by priority
+#
+# Intents are classified by platform/dispatch/classifier.py using rule-based heuristics.
+
+routing:
+  financial_analysis:
+    profile: financial-analyst
+    skills:
+      - stock-bull-bear-report
+    memory_tier: persistent
+    knowledge_providers:
+      - vault
+      - web
+
+  stock_valuation:
+    profile: financial-analyst
+    skills:
+      - stock-bull-bear-report
+    memory_tier: persistent
+    knowledge_providers:
+      - vault
+      - web
+
+  market_data:
+    profile: financial-analyst
+    skills: []
+    memory_tier: working
+    knowledge_providers:
+      - web
+
+  research:
+    profile: research-analyst
+    skills: []
+    memory_tier: persistent
+    knowledge_providers:
+      - vault
+      - web
+
+  fact_check:
+    profile: research-analyst
+    skills: []
+    memory_tier: working
+    knowledge_providers:
+      - web
+
+  competitive_intel:
+    profile: research-analyst
+    skills: []
+    memory_tier: persistent
+    knowledge_providers:
+      - vault
+      - web
+
+  code_change:
+    profile: dev
+    skills: []
+    memory_tier: working
+    knowledge_providers:
+      - vault
+
+  code_question:
+    profile: dev
+    skills: []
+    memory_tier: working
+    knowledge_providers:
+      - vault
+
+  deploy:
+    profile: dev
+    skills: []
+    memory_tier: persistent
+    knowledge_providers: []
+
+  health_check:
+    profile: ops-manager
+    skills: []
+    memory_tier: working
+    knowledge_providers: []
+
+  recovery:
+    profile: ops-manager
+    skills:
+      - lxd-snapshots
+    memory_tier: persistent
+    knowledge_providers: []
+
+  monitoring:
+    profile: ops-manager
+    skills: []
+    memory_tier: working
+    knowledge_providers: []
+
+  casual:
+    profile: orchestrator
+    skills: []
+    memory_tier: none
+    knowledge_providers: []
+
+  multi_step:
+    profile: orchestrator
+    skills: []
+    memory_tier: persistent
+    knowledge_providers:
+      - vault
+
+  # Catch-all: anything the classifier can't match
+  ambiguous:
+    profile: orchestrator
+    skills: []
+    memory_tier: none
+    knowledge_providers: []
