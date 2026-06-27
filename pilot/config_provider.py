@@ -6,7 +6,7 @@ as read-only properties. Delegates to adapters/hermes/config.py
 for Hermes operational data (providers, models, toolsets).
 
 Usage:
-    from platform import ConfigProvider
+    from pilot import ConfigProvider
 
     config = ConfigProvider()
     routing = config.routing        # intent -> RoutingRule
@@ -88,10 +88,10 @@ class ConfigProvider:
         routing: Dict[str, RoutingRule] = {}
         for intent, entry in raw.get("routing", {}).items():
             routing[intent] = RoutingRule(
-                profile=entry.get("profile", "orchestrator"),
-                skills=entry.get("skills", []),
-                memory_tier=entry.get("memory_tier", "working"),
-                knowledge_providers=entry.get("knowledge_providers", []),
+                profile=entry.get("profile") or "orchestrator",
+                skills=entry.get("skills") or [],
+                memory_tier=entry.get("memory_tier") or "working",
+                knowledge_providers=entry.get("knowledge_providers") or [],
             )
 
         return routing

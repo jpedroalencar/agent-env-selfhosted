@@ -10,7 +10,7 @@
 
 | Directory | Recommendation | Justification |
 |-----------|---------------|---------------|
-| `platform/` | **Remain unchanged** | Core Platform layer. Contains frozen contracts (`contracts/`) and placeholder directories for all 8 declared subsystems. Every subdirectory maps to a responsibility in the frozen architecture. |
+| `pilot/` | **Remain unchanged** | Platform intelligence layer — directs Hermes Runtime. Contains frozen contracts (`contracts/`) and placeholder directories for all 8 declared subsystems. Every subdirectory maps to a responsibility in the frozen architecture. Renamed from `pilot/` to avoid shadowing Python's stdlib `platform` module. |
 | `adapters/` | **Remain unchanged** | Single integration point between Platform and Hermes Runtime. Three modules, three responsibilities. Clean boundary. |
 | `agent/` | **Remain unchanged** | Persona identity definitions (`personas/`), memory schemas (`memory/`), and future home for migrated domain skills (`skills/`). Note: persona files are currently duplicated in `~/.hermes/skills/personas/`. During implementation, in-repo becomes canonical. |
 | `artifacts/` | **Remain unchanged** | Knowledge Vault. Working subsystem with registry, 10 artifacts, automated scripts. Core Platform intelligence. |
@@ -21,7 +21,7 @@
 | `infra/` | **Remain unchanged** | Empty. Intentionally retained for future infrastructure configuration (Caddy, deployment configs — Phase 8). |
 | `log/` | **Remain unchanged** | Canonical engineering journal (`build-log.md`). Single file, append-only. |
 | `logs/` | **Remove** | Empty directory with only `.gitkeep`. Gitignored by `.gitignore` line 75. Created at repo init but superseded by `log/` (singular). Serves no purpose — operational logs belong outside the repository. |
-| `scripts/` | **Remain unchanged** | Automation scripts for backup, vault management, artifact lifecycle. May eventually be partially migrated to `platform/` Python modules, but that is implementation, not organization. |
+| `scripts/` | **Remain unchanged** | Automation scripts for backup, vault management, artifact lifecycle. May eventually be partially migrated to `pilot/` Python modules, but that is implementation, not organization. |
 | `screenshots/` | **Remove** | Empty since repo init (June 23). Never used. Referenced in 4 docs only as a line item in directory tree listings. No future architectural purpose — diagrams live in `diagrams/`. |
 | `workspaces/` | **Remain unchanged** | Temporary agent workspaces. Intended to be gitignored. Minor issue: `.gitignore` has no `workspaces/` exclusion rule. Fix `.gitignore`, not the directory. |
 | `.hermes/` | **Remain unchanged** | Already gitignored (`.gitignore` line 136). Contains `vault-logs/` — operational log output from vault scripts. Correctly excluded from version control. |
@@ -46,13 +46,13 @@
 | `infra/` | Caddy configuration, deployment configs, Docker/compose files | 8 |
 | `apps/` | Application definitions built on the Platform | Ongoing |
 | `agent/skills/` | Migrated domain skills from `~/.hermes/skills/` | 2+ |
-| `platform/dispatch/` | Intent classification, routing, ExecutionPlan production | 2 |
-| `platform/context/` | Context strategy, vault provider | 3 |
-| `platform/memory/` | Memory orchestration, tier policies | 4 |
-| `platform/knowledge/` | Knowledge provider framework, vault and web providers | 5 |
-| `platform/telemetry/` | Event collection, storage, reporting | 6 |
-| `platform/benchmarks/` | Benchmark runner, suites, scoring | 7 |
-| `platform/gateway/` | API gateway, OAuth integration | 8 |
+| `pilot/dispatch/` | Intent classification, routing, ExecutionPlan production | 2 |
+| `pilot/context/` | Context strategy, vault provider | 3 |
+| `pilot/memory/` | Memory orchestration, tier policies | 4 |
+| `pilot/knowledge/` | Knowledge provider framework, vault and web providers | 5 |
+| `pilot/telemetry/` | Event collection, storage, reporting | 6 |
+| `pilot/benchmarks/` | Benchmark runner, suites, scoring | 7 |
+| `pilot/gateway/` | API gateway, OAuth integration | 8 |
 
 Every empty directory maps to a declared subsystem in the frozen architecture. None are speculative.
 
@@ -73,10 +73,10 @@ Every empty directory maps to a declared subsystem in the frozen architecture. N
 | Routing rules | `config/routing.yaml` | **Platform** | Intent-to-profile mappings. |
 | Memory tier policies | `config/memory-policies.yaml` (future) | **Platform** | Per-intent memory strategy. |
 | Knowledge provider config | `config/knowledge-providers.yaml` (future) | **Platform** | Provider registration and priority. |
-| Telemetry events | `platform/telemetry/store.py` (future) | **Platform** | Execution events, latency, token usage, errors. |
-| Telemetry reports | `platform/telemetry/reports.py` (future) | **Platform** | Aggregations, trends, dashboards. |
-| Benchmark results | `platform/benchmarks/` (future) | **Platform** | Test scores, regression data, historical trends. |
-| Benchmark suites | `platform/benchmarks/suites/` (future) | **Platform** | Prompt sets, expected behaviors, scoring rubrics. |
+| Telemetry events | `pilot/telemetry/store.py` (future) | **Platform** | Execution events, latency, token usage, errors. |
+| Telemetry reports | `pilot/telemetry/reports.py` (future) | **Platform** | Aggregations, trends, dashboards. |
+| Benchmark results | `pilot/benchmarks/` (future) | **Platform** | Test scores, regression data, historical trends. |
+| Benchmark suites | `pilot/benchmarks/suites/` (future) | **Platform** | Prompt sets, expected behaviors, scoring rubrics. |
 | Domain skills | `agent/skills/` (future) | **Platform** | Reusable procedures for financial analysis, research, dev, ops. |
 | ExecutionPlans | In-memory (future: telemetry store) | **Platform** | Plans produced by dispatch. May be logged for telemetry. |
 

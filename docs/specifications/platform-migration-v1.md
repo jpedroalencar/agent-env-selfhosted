@@ -128,7 +128,7 @@ agent-env-selfhosted/
 ```
 agent-env-selfhosted/                    # Canonical Platform repository
 │
-├── platform/                            # Active Platform layer (NEW)
+├── pilot/                                # Platform intelligence layer (NEW) — directs Hermes Runtime
 │   ├── contracts/                       # Frozen architectural contracts
 │   │   └── execution-plan-v1.md         # ExecutionPlan schema
 │   ├── dispatch/                        # Intent → Profile → Plan
@@ -260,17 +260,17 @@ agent-env-selfhosted/                    # Canonical Platform repository
 | P2 | Memory schemas (core/working/persistent) | `agent/memory/memory-schema.md` | Intelligence |
 | P3 | Memory tier policies | `config/memory-policies.yaml` (NEW) | Intelligence |
 | P4 | Knowledge Vault (artifacts, index, scripts) | `artifacts/` + `scripts/` | Intelligence |
-| P5 | Knowledge Provider framework | `platform/knowledge/` (NEW) | Intelligence |
-| P6 | Context strategy | `platform/context/` (NEW) | Intelligence |
-| P7 | Intent classification | `platform/dispatch/classifier.py` (NEW) | Intelligence |
+| P5 | Knowledge Provider framework | `pilot/knowledge/` (NEW) | Intelligence |
+| P6 | Context strategy | `pilot/context/` (NEW) | Intelligence |
+| P7 | Intent classification | `pilot/dispatch/classifier.py` (NEW) | Intelligence |
 | P8 | Routing rules | `config/routing.yaml` (NEW) | Intelligence |
-| P9 | ExecutionPlan contract | `platform/contracts/execution-plan-v1.md` (NEW) | Contract |
-| P10 | Platform Dispatch | `platform/dispatch/` (NEW) | Intelligence |
-| P11 | Memory Orchestrator | `platform/memory/orchestrator.py` (NEW) | Intelligence |
-| P12 | Telemetry collector and reports | `platform/telemetry/` (NEW) | Intelligence |
-| P13 | Benchmark suites and scoring | `platform/benchmarks/` (NEW) | Intelligence |
-| P14 | API Gateway | `platform/gateway/api.py` (NEW) | Intelligence |
-| P15 | OAuth authentication | `platform/gateway/auth.py` (NEW) | Intelligence |
+| P9 | ExecutionPlan contract | `pilot/contracts/execution-plan-v1.md` (NEW) | Contract |
+| P10 | Platform Dispatch | `pilot/dispatch/` (NEW) | Intelligence |
+| P11 | Memory Orchestrator | `pilot/memory/orchestrator.py` (NEW) | Intelligence |
+| P12 | Telemetry collector and reports | `pilot/telemetry/` (NEW) | Intelligence |
+| P13 | Benchmark suites and scoring | `pilot/benchmarks/` (NEW) | Intelligence |
+| P14 | API Gateway | `pilot/gateway/api.py` (NEW) | Intelligence |
+| P15 | OAuth authentication | `pilot/gateway/auth.py` (NEW) | Intelligence |
 | P16 | Caddy configuration | `infra/` (NEW) | Infrastructure |
 | P17 | Architecture documentation | `docs/architecture.md` | Intelligence |
 | P18 | Engineering journal | `log/build-log.md` | Intelligence |
@@ -355,7 +355,7 @@ Hermes emits execution events via callbacks. The adapter:
 
 1. Registers Platform telemetry hooks during `AIAgent` construction
 2. Translates raw Hermes callback data into Platform `TelemetryEvent` schemas
-3. Forwards events to `platform/telemetry/collector.py`
+3. Forwards events to `pilot/telemetry/collector.py`
 
 The adapter does NOT store, analyze, or interpret events. It only bridges.
 
@@ -509,9 +509,9 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Create the directory structure and contracts. No behavior change.
 
 **Actions:**
-1. Create `platform/`, `adapters/`, `config/` directories
+1. Create `pilot/`, `adapters/`, `config/` directories
 2. Create `docs/specifications/` directory, move this document there
-3. Write `platform/contracts/execution-plan-v1.md` — the formal contract
+3. Write `pilot/contracts/execution-plan-v1.md` — the formal contract
 4. Create `adapters/hermes/` with stub modules (no implementation)
 5. Create `config/routing.yaml` with current routing rules (extracted from Orchestrator persona)
 6. Commit. Push.
@@ -529,7 +529,7 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Define the ExecutionPlan as a frozen contract. Implement the data model.
 
 **Actions:**
-1. Implement `platform/dispatch/plan.py` — ExecutionPlan dataclass
+1. Implement `pilot/dispatch/plan.py` — ExecutionPlan dataclass
 2. Implement `adapters/hermes/executor.py` — plan-to-params translation (mechanical mapping)
 3. Write tests: valid plan → valid Hermes params; invalid plan → rejection
 4. Freeze the contract once `adapters/hermes/executor.py` depends on it
@@ -547,9 +547,9 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Platform actively classifies intent and routes to profiles.
 
 **Actions:**
-1. Implement `platform/dispatch/classifier.py` — rule-based intent classification
-2. Implement `platform/dispatch/routing.py` — intent → profile lookup from `config/routing.yaml`
-3. Implement `platform/dispatch/__init__.py` — `dispatch(message, session) → ExecutionPlan`
+1. Implement `pilot/dispatch/classifier.py` — rule-based intent classification
+2. Implement `pilot/dispatch/routing.py` — intent → profile lookup from `config/routing.yaml`
+3. Implement `pilot/dispatch/__init__.py` — `dispatch(message, session) → ExecutionPlan`
 4. Update Orchestrator persona to consume ExecutionPlan instead of doing free-form routing
 5. Run existing delegation paths through the dispatcher (parallel to current flow, compare results)
 
@@ -566,8 +566,8 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Platform assembles context (vault + memory + skills) before Hermes execution.
 
 **Actions:**
-1. Implement `platform/context/strategy.py` — ContextStrategy and ContextBlock
-2. Implement `platform/context/providers/vault.py` — Knowledge Vault as context provider
+1. Implement `pilot/context/strategy.py` — ContextStrategy and ContextBlock
+2. Implement `pilot/context/providers/vault.py` — Knowledge Vault as context provider
 3. Integrate with Platform Dispatch: `preloaded_context` populated before plan is produced
 4. Vault lookup becomes automatic — no persona needs to remember to grep artifacts/
 
@@ -584,8 +584,8 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Platform decides memory tier strategy. Hermes executes mechanically.
 
 **Actions:**
-1. Implement `platform/memory/orchestrator.py` — MemoryOrchestrator
-2. Implement `platform/memory/policies.py` — per-intent tier policies
+1. Implement `pilot/memory/orchestrator.py` — MemoryOrchestrator
+2. Implement `pilot/memory/policies.py` — per-intent tier policies
 3. Create `config/memory-policies.yaml` — policy configuration
 4. Integrate with Platform Dispatch: MemoryStrategy incorporated into ExecutionPlan
 5. Implement pre-turn memory read (core + selected tier) injected into preloaded_context
@@ -604,9 +604,9 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Knowledge sources are pluggable. Vault is the first provider. Web search is the second.
 
 **Actions:**
-1. Implement `platform/knowledge/provider.py` — KnowledgeProvider abstract class
-2. Implement `platform/knowledge/providers/vault.py` — wraps existing vault scripts
-3. Implement `platform/knowledge/providers/web.py` — controlled web search (Platform decides query)
+1. Implement `pilot/knowledge/provider.py` — KnowledgeProvider abstract class
+2. Implement `pilot/knowledge/providers/vault.py` — wraps existing vault scripts
+3. Implement `pilot/knowledge/providers/web.py` — controlled web search (Platform decides query)
 4. Implement KnowledgeResolver — queries providers in priority order, deduplicates
 5. Create `config/knowledge-providers.yaml` — provider registration
 6. Integrate with Platform Dispatch: KnowledgeResolver results feed into ContextStrategy
@@ -624,9 +624,9 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Platform collects structured execution data from Hermes callbacks.
 
 **Actions:**
-1. Implement `platform/telemetry/events.py` — TurnStart, ToolCall, LLMCall, TurnEnd, Error schemas
-2. Implement `platform/telemetry/collector.py` — event ingestion
-3. Implement `platform/telemetry/store.py` — SQLite persistence
+1. Implement `pilot/telemetry/events.py` — TurnStart, ToolCall, LLMCall, TurnEnd, Error schemas
+2. Implement `pilot/telemetry/collector.py` — event ingestion
+3. Implement `pilot/telemetry/store.py` — SQLite persistence
 4. Implement `adapters/hermes/callbacks.py` — callback registration and event translation
 5. Integrate with Adapter: register callbacks during AIAgent construction
 
@@ -643,11 +643,11 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Platform evaluates system performance against defined test suites.
 
 **Actions:**
-1. Implement `platform/benchmarks/runner.py` — sends prompts through Platform → Adapter → Hermes
-2. Implement `platform/benchmarks/scoring.py` — scoring framework
-3. Implement `platform/benchmarks/suites/routing.py` — routing accuracy
-4. Implement `platform/benchmarks/suites/retrieval.py` — vault reuse rate
-5. Implement `platform/benchmarks/suites/latency.py` — end-to-end timing
+1. Implement `pilot/benchmarks/runner.py` — sends prompts through Platform → Adapter → Hermes
+2. Implement `pilot/benchmarks/scoring.py` — scoring framework
+3. Implement `pilot/benchmarks/suites/routing.py` — routing accuracy
+4. Implement `pilot/benchmarks/suites/retrieval.py` — vault reuse rate
+5. Implement `pilot/benchmarks/suites/latency.py` — end-to-end timing
 
 **Deliverable:** Benchmark runner exercises the full pipeline. Scores tracked over time.
 
@@ -662,14 +662,14 @@ If the Platform cannot produce an ExecutionPlan (no classifier match, no routing
 **Goal:** Platform API Gateway handles programmatic access. Caddy handles TLS and routing. OAuth handles authentication. Hermes Gateway continues handling chat platforms.
 
 **Actions:**
-1. Implement `platform/gateway/auth.py` — OAuth integration
-2. Implement `platform/gateway/api.py` — FastAPI server with `/api/chat`, `/api/telemetry`, `/api/benchmarks`
+1. Implement `pilot/gateway/auth.py` — OAuth integration
+2. Implement `pilot/gateway/api.py` — FastAPI server with `/api/chat`, `/api/telemetry`, `/api/benchmarks`
 3. Configure Caddy: TLS termination, route `/telegram/webhook` → Hermes Gateway, route `/api/*` → Platform API, route `/dashboard` → static files
 4. Deploy. Verify coexistence with Hermes Gateway.
 
 **Deliverable:** External systems can call the Platform API. Users can authenticate via OAuth. Hermes Gateway unchanged.
 
-**Validation:** `curl -X POST https://platform/api/chat -H "Authorization: Bearer <token>" -d '{"message": "Analyze AAPL"}'` → structured response.
+**Validation:** `curl -X POST https://pilot/api/chat -H "Authorization: Bearer <token>" -d '{"message": "Analyze AAPL"}'` → structured response.
 
 **Dependencies:** Phase 2 (Platform Dispatch). Phase 6 (Telemetry API endpoint).
 
@@ -797,8 +797,8 @@ Every phase is additive. No phase modifies Hermes source code or removes existin
 
 | Phase | Rollback Action |
 |-------|----------------|
-| 0 | Delete `platform/`, `adapters/`, `config/` directories. Repository returns to current state. |
-| 1 | Delete `platform/dispatch/plan.py` and `adapters/hermes/executor.py`. Remove contract freeze marker. |
+| 0 | Delete `pilot/`, `adapters/`, `config/` directories. Repository returns to current state. |
+| 1 | Delete `pilot/dispatch/plan.py` and `adapters/hermes/executor.py`. Remove contract freeze marker. |
 | 2 | Remove Platform Dispatch from Orchestrator persona prompt. Orchestrator returns to free-form routing. |
 | 3 | Remove ContextStrategy integration from Dispatch. Vault returns to manual persona-initiated lookup. |
 | 4 | Remove MemoryOrchestrator integration. Memory returns to Hermes-managed behavior. |
