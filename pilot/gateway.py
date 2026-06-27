@@ -2,13 +2,11 @@
 Platform Gateway — entry point for all user requests.
 
 Orchestrates the complete Platform → Adapter → Model pipeline.
-Hardcoded wiring for the first end-to-end request.
 
-Shortcuts:
-  - No HTTP server. Direct function call.
-  - No intent classification. Single known intent (financial_analysis).
-  - No async. Synchronous.
-  - No error handling beyond basic try/except.
+Pipeline:
+  User Request → Parser → Classifier → ConfigProvider.lookup(intent)
+  → ExecutionPlan → Knowledge Providers → Context System
+  → Prompt Builder → Hermes Runtime
 """
 
 from __future__ import annotations
@@ -16,6 +14,9 @@ from __future__ import annotations
 from adapters.hermes.model import call_model
 from pilot.config_provider import ConfigProvider
 from pilot.context.system import assemble_context
+from pilot.dispatch._classifier import classify
+from pilot.dispatch._parser import parse
+from pilot.dispatch.intent_mapper import shape_to_intent
 from pilot.dispatch.plan import ExecutionPlan, validate_plan
 from pilot.knowledge.providers.memory import MemoryProvider
 from pilot.prompt.builder import build_prompt
@@ -24,18 +25,22 @@ from pilot.prompt.builder import build_prompt
 def handle_request(question: str) -> dict:
     """Process a user request through the complete pipeline.
 
-    Hardcoded for the first end-to-end test:
-      "Which profile should handle a financial analysis request?"
+    Deterministic: same input always produces the same output.
+    No model calls until the final step.
 
     Returns a dict with the full pipeline trace.
     """
-    # ── Step 1: Classify intent (hardcoded) ──
-    intent = "financial_analysis"
+    # ── Step 1: Parse — extract signals from raw text ──
+    parsed = parse(question)
+    shape = classify(parsed)
 
-    # ── Step 2: Load configuration ──
+    # ── Step 2: Map shape → Platform intent ──
+    intent = shape_to_intent(shape)
+
+    # ── Step 3: Load configuration ──
     config = ConfigProvider()
 
-    # ── Step 3: Create ExecutionPlan ──
+    # ── Step 4: Create ExecutionPlan ──
     rule = config.lookup(intent)
     plan = ExecutionPlan(
         intent=intent,
@@ -46,25 +51,31 @@ def handle_request(question: str) -> dict:
         knowledge_providers=rule.knowledge_providers if rule else [],
     )
 
-    # ── Step 4: Validate plan (contract requirement) ──
+    # ── Step 5: Validate plan (contract requirement) ──
     validate_plan(plan)
 
-    # ── Step 5: Produce KnowledgeArtifacts from all providers ──
+    # ── Step 6: Produce KnowledgeArtifacts from all providers ──
     config_artifact = config.produce_artifact(intent)
     memory = MemoryProvider()
     memory_artifact = memory.produce_artifact(intent)
     artifacts = [config_artifact, memory_artifact]
 
-    # ── Step 6: Assemble context ──
+    # ── Step 7: Assemble context ──
     context = assemble_context(artifacts)
 
-    # ── Step 7: Build prompt ──
+    # ── Step 8: Build prompt ──
     prompt = build_prompt(context, question)
 
-    # ── Step 8: Call model ──
+    # ── Step 9: Call model ──
     response = call_model(prompt)
 
     return {
+        "parse": {
+            "shape": shape.name,
+            "has_question": parsed.has_question,
+            "imperative_verbs": parsed.imperative_verbs,
+            "urls": parsed.urls,
+        },
         "intent": intent,
         "plan": {
             "profile": plan.profile,
@@ -76,7 +87,6 @@ def handle_request(question: str) -> dict:
             {"source": a.source, "content": a.content[:200]}
             for a in artifacts
         ],
-        "context": context,
-        "prompt": prompt,
+        "context": context[:300],
         "response": response,
     }
