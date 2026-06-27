@@ -17,6 +17,7 @@ from adapters.hermes.model import call_model
 from pilot.config_provider import ConfigProvider
 from pilot.context.system import assemble_context
 from pilot.dispatch.plan import ExecutionPlan, validate_plan
+from pilot.knowledge.providers.memory import MemoryProvider
 from pilot.prompt.builder import build_prompt
 
 
@@ -48,11 +49,14 @@ def handle_request(question: str) -> dict:
     # ── Step 4: Validate plan (contract requirement) ──
     validate_plan(plan)
 
-    # ── Step 5: Produce KnowledgeArtifact (provider-owned) ──
-    artifact = config.produce_artifact(intent)
+    # ── Step 5: Produce KnowledgeArtifacts from all providers ──
+    config_artifact = config.produce_artifact(intent)
+    memory = MemoryProvider()
+    memory_artifact = memory.produce_artifact(intent)
+    artifacts = [config_artifact, memory_artifact]
 
     # ── Step 6: Assemble context ──
-    context = assemble_context(plan, config)
+    context = assemble_context(artifacts)
 
     # ── Step 7: Build prompt ──
     prompt = build_prompt(context, question)
@@ -68,10 +72,10 @@ def handle_request(question: str) -> dict:
             "memory_tier": plan.memory_tier,
             "knowledge_providers": plan.knowledge_providers,
         },
-        "artifact": {
-            "source": artifact.source,
-            "content": artifact.content,
-        },
+        "artifacts": [
+            {"source": a.source, "content": a.content[:200]}
+            for a in artifacts
+        ],
         "context": context,
         "prompt": prompt,
         "response": response,

@@ -1,37 +1,45 @@
 """
-Context System — assembles context from the ExecutionPlan and ConfigProvider.
+Context System — assembles context from KnowledgeArtifacts.
 
-Minimal edition: hardcoded assembly for the first end-to-end request.
+Minimal edition: accepts a list of artifacts and formats them.
 No abstraction. No caching. No provider registry.
 
 Contracts: the Context System only assembles context.
-KnowledgeProviders (e.g. ConfigProvider.produce_artifact) produce artifacts.
+KnowledgeProviders produce artifacts. The Context System
+receives them and formats them into the prompt.
 """
 
 from __future__ import annotations
 
-from pilot.config_provider import ConfigProvider
-from pilot.dispatch.plan import ExecutionPlan
+from pilot.knowledge.artifact import KnowledgeArtifact
 
 
-def assemble_context(plan: ExecutionPlan, config: ConfigProvider) -> str:
-    """Assemble context from the ExecutionPlan.
+def assemble_context(artifacts: list[KnowledgeArtifact]) -> str:
+    """Assemble context from a list of KnowledgeArtifacts.
 
-    Loads routing information from ConfigProvider and formats it
-    as structured context for the model.
+    Each artifact is formatted as a labeled block. Blocks are
+    joined with double newlines. Empty artifacts are skipped.
 
-    Shortcut: hardcoded to config provider only. Later phases will
-    add vault, memory, and web providers.
+    The Context System does not know or care which providers
+    produced the artifacts — it only formats what it receives.
     """
-    rule = config.lookup(plan.intent)
+    blocks: list[str] = []
 
-    if rule is None:
-        return f"No routing rule found for intent '{plan.intent}'."
+    for artifact in artifacts:
+        if not artifact.content.strip():
+            continue
 
-    return (
-        f"Intent: {plan.intent}\n"
-        f"Profile: {rule.profile}\n"
-        f"Skills: {', '.join(rule.skills) if rule.skills else '(none)'}\n"
-        f"Memory tier: {rule.memory_tier}\n"
-        f"Knowledge providers: {', '.join(rule.knowledge_providers) if rule.knowledge_providers else '(none)'}"
-    )
+        label = _label_for(artifact.source)
+        blocks.append(f"## {label}\n\n{artifact.content}")
+
+    return "\n\n".join(blocks) if blocks else "(no context available)"
+
+
+def _label_for(source: str) -> str:
+    """Map a provider source name to a human-readable section label."""
+    return {
+        "config": "Configuration",
+        "memory": "Agent Memory",
+        "vault": "Knowledge Vault",
+        "web": "Web Search",
+    }.get(source, source.title())
