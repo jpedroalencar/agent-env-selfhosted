@@ -20,9 +20,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 import yaml
+
+if TYPE_CHECKING:
+    from pilot.knowledge.artifact import KnowledgeArtifact
 
 
 # ---------------------------------------------------------------------------
@@ -123,6 +126,33 @@ class ConfigProvider:
         """Return the knowledge providers for an intent, in priority order."""
         rule = self.lookup(intent)
         return rule.knowledge_providers if rule else []
+
+    # -- Knowledge Provider interface ---------------------------------------
+
+    def produce_artifact(self, intent: str) -> KnowledgeArtifact:
+        """Produce a KnowledgeArtifact for the given intent.
+
+        ConfigProvider is the KnowledgeProvider for routing configuration.
+        This method produces a structured artifact describing the routing
+        rule for the intent.
+
+        Returns a KnowledgeArtifact with source='config' and the routing
+        information as content.
+        """
+        from pilot.knowledge.artifact import KnowledgeArtifact
+
+        rule = self.lookup(intent)
+
+        if rule is None:
+            content = f"No routing rule for '{intent}'."
+        else:
+            content = (
+                f"Intent '{intent}' routes to profile '{rule.profile}' "
+                f"with skills {rule.skills}, memory tier '{rule.memory_tier}', "
+                f"and knowledge providers {rule.knowledge_providers}."
+            )
+
+        return KnowledgeArtifact(source="config", content=content)
 
     # -- Introspection -----------------------------------------------------
 

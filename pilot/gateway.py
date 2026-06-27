@@ -15,8 +15,8 @@ from __future__ import annotations
 
 from adapters.hermes.model import call_model
 from pilot.config_provider import ConfigProvider
-from pilot.context.system import assemble_context, produce_artifact
-from pilot.dispatch.plan import ExecutionPlan
+from pilot.context.system import assemble_context
+from pilot.dispatch.plan import ExecutionPlan, validate_plan
 from pilot.prompt.builder import build_prompt
 
 
@@ -45,16 +45,19 @@ def handle_request(question: str) -> dict:
         knowledge_providers=rule.knowledge_providers if rule else [],
     )
 
-    # ── Step 4: Produce KnowledgeArtifact ──
-    artifact = produce_artifact(plan, config)
+    # ── Step 4: Validate plan (contract requirement) ──
+    validate_plan(plan)
 
-    # ── Step 5: Assemble context ──
+    # ── Step 5: Produce KnowledgeArtifact (provider-owned) ──
+    artifact = config.produce_artifact(intent)
+
+    # ── Step 6: Assemble context ──
     context = assemble_context(plan, config)
 
-    # ── Step 6: Build prompt ──
+    # ── Step 7: Build prompt ──
     prompt = build_prompt(context, question)
 
-    # ── Step 7: Call model ──
+    # ── Step 8: Call model ──
     response = call_model(prompt)
 
     return {
