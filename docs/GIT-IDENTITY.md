@@ -10,12 +10,24 @@ The Git Committer represents the execution agent that created the commit.
 
 ## Implementation
 
-This policy is enforced through Git's native author/committer fields:
+This policy is enforced through `scripts/git-commit.sh` — the single
+entry point for every Platform commit.
 
-- Committer is set via `git config user.name` / `user.email` (local repo config)
-- Author is set via `GIT_AUTHOR_NAME` / `GIT_AUTHOR_EMAIL` environment variables
+- **Committer** is set via `git config user.name` / `user.email` in the local repo config (`johnalencar-agent`)
+- **Author** is set deterministically inside `scripts/git-commit.sh` via `GIT_AUTHOR_NAME` / `GIT_AUTHOR_EMAIL`
+- The wrapper script **verifies** the identity split after every commit and exits with code 2 on violation
 
-No Co-authored-by trailers. No amend tricks. Pure Git identity separation.
+No environment variable dependencies. No shell state assumptions.
+Restart the container, switch execution environments, run from a cron
+job — every commit through `scripts/git-commit.sh` has the same identity.
+
+Usage:
+
+    scripts/git-commit.sh "commit message"
+    scripts/git-commit.sh -m "commit message"
+    scripts/git-commit.sh -am "commit message"
+
+All arguments pass through to `git commit` unchanged.
 
 ## Verification
 
