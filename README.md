@@ -49,10 +49,10 @@ User Request
 | **Context Planner** | Parse user messages, classify intent (8 request types), map to Platform profiles. Migrated from Hermes. |
 | **ConfigProvider** | Declarative routing: 15 intents → 5 profiles. Reads `config/routing.yaml`. |
 | **ExecutionPlan** | Frozen contract carrying profile, skills, memory tier, knowledge providers. Validated before execution. |
-| **Knowledge Providers** | ConfigProvider (routing) + MemoryProvider (agent memory). Same contract. |
+| **Knowledge Providers** | ConfigProvider and MemoryProvider implement the frozen KnowledgeProvider contract and demonstrate provider-independent context assembly. |
 | **Context System** | Assembles provider artifacts into labeled context blocks. Provider-agnostic. |
 | **Prompt Builder** | Formats system prompt + context + question. Pure template. |
-| **Knowledge Vault** | Filesystem-based knowledge reuse. 10 artifacts. Automated lookup, freshness, registration. |
+| **Knowledge Vault** | Curated knowledge artifacts consumed by Knowledge Providers during context assembly. 10 artifacts. Automated lookup, freshness, registration. |
 | **Backup & Recovery** | LXD snapshot backup with retention, restore, host validation evidence. |
 | **Telegram Interface** | Primary chat via Hermes Telegram gateway. Multi-session, multi-thread. |
 | **Multi-Provider LLM** | DeepSeek (primary) with fallback to OpenRouter. |
@@ -142,6 +142,17 @@ Oracle Cloud VPS (Ubuntu 24.04, ARM64)
 
 ---
 
+## Core Principles
+
+- Deterministic planning before reasoning
+- Dynamic context engineering
+- Provider-based knowledge access
+- Stable public contracts
+- Runtime independence
+
+---
+
 ## Philosophy
 
-Build a secure, maintainable, and recoverable platform capable of supporting autonomous agents over the long term. Document every decision, tradeoff, and lesson. Prefer simplicity over generality. The Platform decides; Hermes executes.
+Agent Platform is a deterministic orchestration platform that prepares the smallest useful information for a reasoning runtime. Strategic decisions are made before model invocation, allowing the runtime to focus solely on reasoning rather than context discovery.
+
