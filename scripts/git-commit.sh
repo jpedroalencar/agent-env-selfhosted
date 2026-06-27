@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# ══════════════════════════════════════════════════════════════
-# Platform Engineering Gateway — the single supported commit path.
-# ══════════════════════════════════════════════════════════════
+# ==========================================================
+# git-commit.sh -- Platform repository policy gateway
+# ==========================================================
 #
-# Every Platform commit flows through this script. Direct `git commit`
-# is unsupported. This is where identity, lint, tests, message validation,
-# and verification all converge — one gate, one policy, one audit trail.
+# Every commit in this repository flows through this script.
+# Direct `git commit` is unsupported.
+#
+# This gateway enforces Platform repository policy -- rules that
+# apply to every commit regardless of which tool (Hermes, CLI,
+# IDE, CI) created it. None of these rules depend on Hermes.
 #
 #   scripts/git-commit.sh "commit message"
 #   scripts/git-commit.sh -m "commit message"
@@ -13,38 +16,61 @@
 #
 # All arguments pass through to `git commit` unchanged.
 #
-# ── Commit Pipeline ───────────────────────────────────────
+# -- Policy Pipeline --------------------------------------
 #
-#   Phase 0 — Pre-commit hooks (future extension points)
-#     → commit message validation  (conventional commits format)
-#     → syntax check               (lint staged files)
-#     → test run                   (run affected tests)
+#   Phase 0 -- Pre-commit policy checks
+#     Rules that run BEFORE the commit is created.
+#     Must complete in under 30 seconds (cumulative).
+#     Any failure blocks the commit.
 #
-#   Phase 1 — Commit
-#     → set deterministic author identity
-#     → execute git commit
+#     -> conventional commit format
+#     -> binary/large-file guard
+#     -> syntax check (shellcheck, yamllint, ruff)
+#     -> formatting (auto-fix or reject)
+#     -> affected unit tests
+#     -> architecture guardrails
 #
-#   Phase 2 — Post-commit verification
-#     → verify author/committer identity split
-#     → (future) verify commit message format
-#     → (future) push to remote
+#   Phase 1 -- Commit
+#     -> set deterministic Author/Committer identities
+#     -> execute `git commit`
 #
-# ── Adding a hook ─────────────────────────────────────────
+#   Phase 2 -- Post-commit actions
+#     Rules that run AFTER the commit is created.
+#     Failures are reported but do not roll back.
+#
+#     -> identity verification
+#     -> optional auto-push
+#     -> metrics / release note generation
+#
+# -- The 30-Second Rule -----------------------------------
+#
+# Phase 0 is a gate, not a test suite. Full benchmarks,
+# integration tests, and multi-minute verification belong in
+# CI or dedicated commands (`hermes verify`, `hermes benchmark`).
+# If pre-commit collectively exceeds 30 seconds, developers
+# will bypass it. Keep the gate fast; put everything else in CI.
+#
+# -- Adding Policy ----------------------------------------
 #
 # Drop an executable script into scripts/hooks/pre-commit.d/
-# or scripts/hooks/post-commit.d/. They run in alphabetical order.
-# Any hook that exits non-zero blocks the pipeline.
+# or scripts/hooks/post-commit.d/. They run in alphabetical
+# order. Any pre-commit hook that exits non-zero blocks the
+# commit. Post-commit hook failures are warnings only.
 #
-# ══════════════════════════════════════════════════════════════
+# These hooks enforce Platform repository policy.
+# They do not depend on Hermes. They apply to any project
+# that adopts this gateway.
+#
+# ==========================================================
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 HOOKS_DIR="$REPO_ROOT/scripts/hooks"
 
-# ─────────────────────────────────────────────────────────
-# Phase 0 — Pre-commit hooks
-# ─────────────────────────────────────────────────────────
+# ---------------------------------------------------------
+# Phase 0 -- Pre-commit policy checks
+# ---------------------------------------------------------
 run_hooks() {
     local hook_dir="$1"
     local phase_name="$2"
@@ -54,7 +80,7 @@ run_hooks() {
             if [ -x "$hook" ]; then
                 echo "  [$phase_name] $(basename "$hook")"
                 "$hook" || {
-                    echo >&2 "  [$phase_name] FAILED — commit blocked"
+                    echo >&2 "  [$phase_name] FAILED -- commit blocked"
                     exit 1
                 }
             fi
@@ -64,27 +90,27 @@ run_hooks() {
 
 run_hooks "$HOOKS_DIR/pre-commit.d" "pre-commit"
 
-# ─────────────────────────────────────────────────────────
-# Phase 1 — Commit with deterministic identity
-# ─────────────────────────────────────────────────────────
+# ---------------------------------------------------------
+# Phase 1 -- Commit with deterministic identity
+# ---------------------------------------------------------
 
-# Author identity — hardcoded, never environment-dependent.
-# Committer identity — from repo config (johnalencar-agent).
+# Author identity -- hardcoded, never environment-dependent.
+# Committer identity -- from repo config (johnalencar-agent).
 export GIT_AUTHOR_NAME="John P. Alencar"
 export GIT_AUTHOR_EMAIL="johnpalencar@hotmail.com"
 
 git commit "$@"
 
-# ─────────────────────────────────────────────────────────
-# Phase 2 — Post-commit verification
-# ─────────────────────────────────────────────────────────
+# ---------------------------------------------------------
+# Phase 2 -- Post-commit verification
+# ---------------------------------------------------------
 
 EXPECTED="Author: John P. Alencar <johnpalencar@hotmail.com> | Committer: johnalencar-agent <johnalencar-agent@users.noreply.github.com>"
 ACTUAL=$(git log --format='Author: %an <%ae> | Committer: %cn <%ce>' -1)
 
 if [ "$ACTUAL" != "$EXPECTED" ]; then
-    echo >&2 "  IDENTITY VIOLATION — expected: $EXPECTED"
-    echo >&2 "                         actual:   $ACTUAL"
+    echo >&2 "  IDENTITY VIOLATION -- expected: $EXPECTED"
+    echo >&2 "                          actual:   $ACTUAL"
     exit 2
 fi
 
