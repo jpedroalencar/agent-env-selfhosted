@@ -30,3 +30,30 @@ The Platform required deterministic observability of each KnowledgeProvider's co
 
 ---
 # test append
+
+---
+## 2026-06-29 — Approval Package Rejected: 2026-06-29-1
+
+### Date
+2026-06-29
+
+### Source
+`#provenance: approval-pipeline`
+
+### Decision
+Approval package **2026-06-29-1** was rejected by operator.
+
+### Reasoning
+needs more work
+
+### Changes Made
+- Package moved from `approval/pending/2026-06-29-1` to `approval/rejected/2026-06-29-1`
+- Rejection reason recorded
+- No push performed
+- Journal entry appended
+
+### Lessons Learned
+_Review rejection reason for improvements in next sprint._
+
+### Follow-Up Actions
+- [ ] Address rejection reason and create revised proposal if needed
