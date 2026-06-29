@@ -124,14 +124,14 @@ build_pr_body() {
 github_api() {
     local method=$1
     local url=$2
-    local data=$3
+    local data=${3:-}
     # Retrieve token from git credential helper (in memory only)
     token=$(printf 'protocol=https\nhost=github.com\n\n' | git credential fill | grep '^password=' | cut -d= -f2)
     if [ -z "$token" ]; then
         die "GitHub token not found via git credential helper"
     fi
     local auth_header="Authorization: Bearer $token"
-
+    # Use curl silently, include HTTP status code
     local response
     if [ -n "$data" ]; then
         response=$(curl -s -w "%{http_code}" -X "$method" -H "$auth_header" -H "Accept: application/vnd.github+json" -d "$data" "$url")
@@ -145,11 +145,13 @@ github_api() {
     echo "$code|$body"
 }
 
+
 # Find existing Draft PR for a branch (returns PR number or empty)
 find_existing_pr() {
     local owner_repo=$1
     local branch=$2
-    local url="https://api.github.com/repos/$owner_repo/pulls?state=open&head=$owner_repo:$branch"
+    local repo_owner=${owner_repo%%/*}
+    local url="https://api.github.com/repos/$owner_repo/pulls?state=open&head=${repo_owner}:${branch}"
     local result=$(github_api GET "$url")
     local code=${result%%|*}
     local body=${result#*|}
