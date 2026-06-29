@@ -176,3 +176,8 @@ crash.*.log
 .docker/
 docker-compose.override.yml
 artifacts/operations-manager/host-validation/backup-evidence-*.md
+# Approval packages are committed by approval-generate.sh
+# Only untracked if generation fails mid-process
+# But normally tracked as part of the commit
+# So we do NOT ignore approval/
+

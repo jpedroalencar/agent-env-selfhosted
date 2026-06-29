@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+FILE="log/build-log.md"
+
+# Only act if the journal file is part of the commit
+if ! git diff --cached --name-only | grep -q "^$FILE$"; then
+  exit 0
+fi
+
+# Ensure the file exists in the working tree
+if [ ! -f "$FILE" ]; then
+  echo "Error: $FILE does not exist in the repository." >&2
+  exit 1
+fi
+
+# Detect any deletions or modifications (lines starting with '-')
+# Exclude diff metadata lines that start with '---' or '--- a/...'
+if git diff --cached "$FILE" | grep '^-' | grep -v '^---' | grep -v '^--- a/' > /dev/null; then
+  echo "Error: $FILE modifications must be append‑only. No lines may be removed or edited." >&2
+  exit 1
+fi
+
+exit 0
