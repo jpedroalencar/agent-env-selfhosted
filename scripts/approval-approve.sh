@@ -1,4 +1,24 @@
 #!/usr/bin/env bash
+# Wrapper for Hermes Approval Service – approve a pending proposal.
+# Usage: ./approval-approve.sh [PROPOSAL_ID]
+# If no ID is provided, the most recent pending record is used.
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PYTHON_SCRIPT=$(cat <<'PYEOF'
+import sys, pathlib
+repo = pathlib.Path('$REPO_ROOT')
+sys.path.insert(0, str(repo))
+from approval_service import approve
+if len(sys.argv) > 1:
+    path = approve(proposal_id=sys.argv[1])
+else:
+    path = approve()
+print(path)
+PYEOF
+)
+python3 -c "$PYTHON_SCRIPT" "$@"
 # ==========================================================
 # approval-approve.sh — Approve pending proposal + push
 # ==========================================================

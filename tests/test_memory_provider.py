@@ -64,4 +64,5 @@ def test_memory_provider_contract_unchanged(tmp_path):
 
     artifact = provider.produce_artifact("research Apple earnings valuation")
 
-    assert set(vars(artifact)) == {"source", "content"}
+    # New canonical artifact shape
+    assert set(vars(artifact)) == {"source", "content", "metadata", "priority", "estimated_tokens", "loaded"}

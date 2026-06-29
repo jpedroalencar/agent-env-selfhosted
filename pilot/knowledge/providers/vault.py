@@ -59,15 +59,16 @@ class ArtifactSelection:
 # ---------------------------------------------------------------------------#
 
 
+from pilot.provider_registry import register
+
 class VaultProvider:
     """KnowledgeProvider for the Knowledge Vault filesystem layer.
 
     Resolves artifacts by title, tag, or persona. Supports summary, section, and
     full retrieval modes. Estimates token counts for plan capacity.
-
-    Token estimation: ~4 characters/token for English text.
-    Deterministic behavior: same (mode, section, path) -> same content.
     """
+
+    # Deterministic behavior: same (mode, section, path) -> same content.
 
     def __init__(self, repo_root: str | None = None):
         """
@@ -139,6 +140,17 @@ class VaultProvider:
         return KnowledgeArtifact(
             source="vault",
             content=content,
+            # Include basic metadata for the artifact
+            metadata={
+                "title": selected_artifact.title,
+                "persona": selected_artifact.persona,
+                "tags": selected_artifact.tags,
+                "summary": selected_artifact.summary,
+                "path": selected_artifact.path,
+            },
+            priority=0,
+            estimated_tokens=len(content.split()),
+            loaded=True,
         )
 
     def _parse_selection(self, selection: str) -> ArtifactSelection:
@@ -421,3 +433,6 @@ class VaultProvider:
 
     def __repr__(self) -> str:
         return f"VaultProvider(repo_root={self._repo_root!r})"
+
+# Register provider
+register('vault', VaultProvider)

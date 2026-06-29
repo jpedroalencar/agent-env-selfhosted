@@ -3575,3 +3575,3578 @@ index a9243c7..2f4413c 100644
  diff --git a/log/build-log.md b/log/build-log.md
  index e825e31..69200cd 100644
  --- a/log/build-log.md
+diff --git a/approval/pending/2026-06-29-2/changed-files.md b/approval/pending/2026-06-29-2/changed-files.md
+new file mode 100644
+index 0000000..7ef26ba
+--- /dev/null
++++ b/approval/pending/2026-06-29-2/changed-files.md
+@@ -0,0 +1,8 @@
++# Changed Files
++
++Generated: 2026-06-29T03:19:56Z
++
++| Status | File |
++|--------|------|
++| ` M` | `approval/pending/2026-06-29-1/git-diff.patch` |
++| `??` | `approval/pending/2026-06-29-2/` |
+diff --git a/approval/pending/2026-06-29-2/git-diff.patch b/approval/pending/2026-06-29-2/git-diff.patch
+new file mode 100644
+index 0000000..4abfcbe
+--- /dev/null
++++ b/approval/pending/2026-06-29-2/git-diff.patch
+@@ -0,0 +1,3527 @@
++diff --git a/approval/pending/2026-06-29-1/git-diff.patch b/approval/pending/2026-06-29-1/git-diff.patch
++index a9243c7..2f4413c 100644
++--- a/approval/pending/2026-06-29-1/git-diff.patch
+++++ b/approval/pending/2026-06-29-1/git-diff.patch
++@@ -1,3 +1,10 @@
+++diff --git a/END-TO-END-TEST.txt b/END-TO-END-TEST.txt
+++new file mode 100644
+++index 0000000..bd8e10c
+++--- /dev/null
++++++ b/END-TO-END-TEST.txt
+++@@ -0,0 +1 @@
++++This is a test for the approval pipeline
++ diff --git a/approval/pending/2026-06-29-1/changed-files.md b/approval/pending/2026-06-29-1/changed-files.md
++ index 38bad54..c47e7c9 100644
++ --- a/approval/pending/2026-06-29-1/changed-files.md
++@@ -1128,13 +1135,6 @@ index f15a068..e69de29 100644
++ -+        if "aapl" in expanded and "apple" not in expanded:
++ -+            expanded.append("apple")
++ -+        return list(dict.fromkeys(expanded))
++-diff --git a/approval/pending/2026-06-29-1/proposal-link.txt b/approval/pending/2026-06-29-1/proposal-link.txt
++-deleted file mode 100644
++-index d94ef95..0000000
++---- a/approval/pending/2026-06-29-1/proposal-link.txt
++-+++ /dev/null
++-@@ -1 +0,0 @@
++--Original proposal (no prior reference)
++ diff --git a/approval/pending/2026-06-29-1/summary.md b/approval/pending/2026-06-29-1/summary.md
++ index 621348b..3da3af4 100644
++ --- a/approval/pending/2026-06-29-1/summary.md
++@@ -1157,6 +1157,3547 @@ index 621348b..3da3af4 100644
++  
++  ## Status
++  
+++diff --git a/approval/rejected/2026-06-29-1/changed-files.md b/approval/rejected/2026-06-29-1/changed-files.md
+++new file mode 100644
+++index 0000000..38bad54
+++--- /dev/null
++++++ b/approval/rejected/2026-06-29-1/changed-files.md
+++@@ -0,0 +1,25 @@
++++# Changed Files
++++
++++Generated: 2026-06-29T02:52:07Z
++++
++++| Status | File |
++++|--------|------|
++++| ` M` | `.gitignore` |
++++| ` M` | `log/build-log.md` |
++++| ` M` | `pilot/context/system.py` |
++++| ` M` | `pilot/gateway.py` |
++++| ` M` | `pilot/knowledge/providers/memory.py` |
++++| `??` | `TEST-FILE-FOR-APPROVAL` |
++++| `??` | `approval/` |
++++| `??` | `docs/journal-recovery-v1.0.md` |
++++| `??` | `docs/policy-build-log.md` |
++++| `??` | `pilot/knowledge/providers/vault.py` |
++++| `??` | `pilot/knowledge/providers/vault.py.backup` |
++++| `??` | `scripts/approval-approve.sh` |
++++| `??` | `scripts/approval-generate.sh` |
++++| `??` | `scripts/approval-reject.sh` |
++++| `??` | `scripts/approval-revise.sh` |
++++| `??` | `scripts/hooks/pre-commit.d/07-build-log-append-only` |
++++| `??` | `tests/test_context_budget.py` |
++++| `??` | `tests/test_memory_provider.py` |
++++| `??` | `tests/test_vault_provider.py` |
+++diff --git a/approval/rejected/2026-06-29-1/git-diff.patch b/approval/rejected/2026-06-29-1/git-diff.patch
+++new file mode 100644
+++index 0000000..f833e16
+++--- /dev/null
++++++ b/approval/rejected/2026-06-29-1/git-diff.patch
+++@@ -0,0 +1,3469 @@
++++diff --git a/.gitignore b/.gitignore
++++index 2f8b3ab..355ad35 100644
++++--- a/.gitignore
+++++++ b/.gitignore
++++@@ -176,3 +176,8 @@ crash.*.log
++++ .docker/
++++ docker-compose.override.yml
++++ artifacts/operations-manager/host-validation/backup-evidence-*.md
+++++# Approval packages are committed by approval-generate.sh
+++++# Only untracked if generation fails mid-process
+++++# But normally tracked as part of the commit
+++++# So we do NOT ignore approval/
+++++
++++diff --git a/TEST-FILE-FOR-APPROVAL b/TEST-FILE-FOR-APPROVAL
++++new file mode 100644
++++index 0000000..e69de29
++++diff --git a/approval/pending/2026-06-29-1/changed-files.md b/approval/pending/2026-06-29-1/changed-files.md
++++new file mode 100644
++++index 0000000..38bad54
++++--- /dev/null
+++++++ b/approval/pending/2026-06-29-1/changed-files.md
++++@@ -0,0 +1,25 @@
+++++# Changed Files
+++++
+++++Generated: 2026-06-29T02:52:07Z
+++++
+++++| Status | File |
+++++|--------|------|
+++++| ` M` | `.gitignore` |
+++++| ` M` | `log/build-log.md` |
+++++| ` M` | `pilot/context/system.py` |
+++++| ` M` | `pilot/gateway.py` |
+++++| ` M` | `pilot/knowledge/providers/memory.py` |
+++++| `??` | `TEST-FILE-FOR-APPROVAL` |
+++++| `??` | `approval/` |
+++++| `??` | `docs/journal-recovery-v1.0.md` |
+++++| `??` | `docs/policy-build-log.md` |
+++++| `??` | `pilot/knowledge/providers/vault.py` |
+++++| `??` | `pilot/knowledge/providers/vault.py.backup` |
+++++| `??` | `scripts/approval-approve.sh` |
+++++| `??` | `scripts/approval-generate.sh` |
+++++| `??` | `scripts/approval-reject.sh` |
+++++| `??` | `scripts/approval-revise.sh` |
+++++| `??` | `scripts/hooks/pre-commit.d/07-build-log-append-only` |
+++++| `??` | `tests/test_context_budget.py` |
+++++| `??` | `tests/test_memory_provider.py` |
+++++| `??` | `tests/test_vault_provider.py` |
++++diff --git a/approval/pending/2026-06-29-1/git-diff.patch b/approval/pending/2026-06-29-1/git-diff.patch
++++new file mode 100644
++++index 0000000..e69de29
++++diff --git a/approval/pending/2026-06-29-1/proposal-link.txt b/approval/pending/2026-06-29-1/proposal-link.txt
++++new file mode 100644
++++index 0000000..d94ef95
++++--- /dev/null
+++++++ b/approval/pending/2026-06-29-1/proposal-link.txt
++++@@ -0,0 +1 @@
+++++Original proposal (no prior reference)
++++diff --git a/approval/pending/2026-06-29-1/summary.md b/approval/pending/2026-06-29-1/summary.md
++++new file mode 100644
++++index 0000000..621348b
++++--- /dev/null
+++++++ b/approval/pending/2026-06-29-1/summary.md
++++@@ -0,0 +1,14 @@
+++++# Approval Package: 2026-06-29-1
+++++
+++++**Generated:** 2026-06-29T02:52:07Z
+++++**Branch:** test-approval-pipeline
+++++**Base Commit:** 0c6f7ac doc: Revise README
+++++**Total Commits:** 54
+++++
+++++## Commit Message
+++++
+++++Test approval package generation
+++++
+++++## Status
+++++
+++++WAITING_FOR_APPROVAL
++++diff --git a/docs/journal-recovery-v1.0.md b/docs/journal-recovery-v1.0.md
++++new file mode 100644
++++index 0000000..1077e1b
++++--- /dev/null
+++++++ b/docs/journal-recovery-v1.0.md
++++@@ -0,0 +1,69 @@
+++++# Engineering Journal Recovery Procedure – v1.0
+++++
+++++**Target file:** `log/build-log.md`
+++++
+++++## Scope
+++++- Verify the journal exists.
+++++- Ensure it is intact and append‑only.
+++++- Record a recovery artifact **only if a recovery was required**.
+++++- No architecture changes or contract modifications.
+++++
+++++## Steps
+++++1. **Existence check** – Fail if the journal is missing:
+++++   ```bash
+++++   test -f log/build-log.md || { echo "ERROR: missing journal"; exit 1; }
+++++   ```
+++++2. **Append‑only guard verification** – Run the pre‑commit hook; it exits non‑zero on any illegal modification:
+++++   ```bash
+++++   scripts/hooks/pre-commit.d/07-build-log-append-only || { echo "ERROR: append‑only guard failed"; exit 1; }
+++++   ```
+++++3. **Create recovery artifact *only when a problem was detected***:
+++++   ```bash
+++++   if [ $? -ne 0 ]; then
+++++       cat <<EOF > artifacts/operations-manager/host-validation/journal-recovery-v1.0-$(date +%Y%m%d).md
+++++   # Journal Recovery – v1.0
+++++   * Date: $(date -u)
+++++   * Issue: $(test -f log/build-log.md || echo "missing journal")$(git diff --cached log/build-log.md | grep '^-' | wc -l | awk '{if($1>0)print ", illegal modification"}')
+++++   * Action: Verified existence and append‑only protection of `log/build-log.md`.
+++++   EOF
+++++   else
+++++       echo "Journal intact – no recovery artifact needed."
+++++   fi
+++++   ```
+++++4. **Commit the artifact** (if created) with a clear message; the journal itself remains unchanged.
+++++
+++++All steps are operational, and the artifact is produced **only when a recovery action took place**.
+++++
+++++**Target file:** `log/build-log.md`
+++++
+++++## Scope
+++++- Verify the journal exists.
+++++- Ensure it is intact and append‑only.
+++++- Record a recovery artifact **only if a recovery was required**.
+++++- No architecture changes or contract modifications.
+++++
+++++## Steps
+++++1. **Existence check** – Fail if the journal is missing:
+++++   ```bash
+++++   test -f log/build-log.md || { echo "ERROR: missing journal"; exit 1; }
+++++   ```
+++++2. **Append‑only guard verification** – Run the pre‑commit hook; it exits non‑zero on any illegal modification:
+++++   ```bash
+++++   scripts/hooks/pre-commit.d/07-build-log-append-only || { echo "ERROR: append‑only guard failed"; exit 1; }
+++++   ```
+++++3. **Create recovery artifact *only when a problem was detected***:
+++++   ```bash
+++++   if [ $? -ne 0 ]; then
+++++       cat <<EOF > artifacts/operations-manager/host-validation/journal-recovery-v1.0-$(date +%Y%m%d).md
+++++   # Journal Recovery – v1.0
+++++   * Date: $(date -u)
+++++   * Issue: $([ -f log/build-log.md ] || echo "missing journal")$(git diff --cached log/build-log.md | grep '^-' | wc -l | awk '{if($1>0)print ", illegal modification"}')
+++++   * Action: Verified existence and append‑only protection of `log/build-log.md`.
+++++   EOF
+++++   else
+++++       echo "Journal intact – no recovery artifact needed."
+++++   fi
+++++   ```
+++++4. **Commit the artifact** (if created) with a clear message; the journal itself remains unchanged.
+++++
+++++All steps are operational, and the artifact is produced **only when a recovery action took place**.
++++diff --git a/docs/policy-build-log.md b/docs/policy-build-log.md
++++new file mode 100644
++++index 0000000..0ef3fef
++++--- /dev/null
+++++++ b/docs/policy-build-log.md
++++@@ -0,0 +1,15 @@
+++++# Engineering Journal Append‑Only Policy
+++++
+++++**File:** `log/build-log.md`
+++++
+++++The engineering journal is the canonical source of truth for build‑related notes, decisions, and sprint retrospectives. To preserve its historical integrity we enforce the following rules:
+++++
+++++1. **Append‑Only** – Existing entries must never be modified or removed during normal development.
+++++2. **New Entries** – All new sprint entries are appended to the **end** of the file.
+++++3. **Corrections** – If a previous entry contains an error, a **dedicated corrective commit** must be created. The commit message should reference the original entry (e.g., `fix: correct typo in build‑log entry for 2026‑06‑23`). The corrective commit may add a new line explaining the correction; it must **not** edit or delete the original line.
+++++4. **File Overwrite** – Any operation that would replace the entire file (e.g., `cp`, `mv`, `rm && cat >`) is prohibited for normal journal updates.
+++++5. **Verification** – Commit hooks verify that `log/build-log.md` exists, that the change consists only of added lines, and that the file is not recreated.
+++++
+++++These constraints are enforced by a lightweight pre‑commit hook (see `scripts/hooks/pre-commit.d/07-build-log-append-only`). The hook aborts the commit with a clear error message if a disallowed modification is detected.
+++++
+++++> **Note:** When the journal grows large, consider splitting it into yearly logs (e.g., `log/build-log-2026.md`). This does **not** affect the current policy – each yearly log remains append‑only.
++++diff --git a/log/build-log.md b/log/build-log.md
++++index 7415c9e..e825e31 100644
++++--- a/log/build-log.md
+++++++ b/log/build-log.md
++++@@ -1,743 +1,32 @@
++++-# Build Log — Engineering Journal
++++-
++++-> **Audience:** Future maintainers retracing our steps. This log explains *why* things are the way they are — the decisions, the mistakes, the mid-course corrections.
++++->
++++-> **Canonical location:** `log/build-log.md` (inside the repository)
++++-> **Policy:** Append-only. Never overwrite previous entries.
++++-> **Last updated:** 2026-06-24
++++-> **Provenance:** Migrated from `/root/docs/build-log.md` on 2026-06-24 during documentation-tree unification.
++++-
++++----
++++-
++++-## Table of Contents
++++-
++++-1. [2026-06-20 — Project Genesis and Foundation](#2026-06-20--project-genesis-and-foundation)
++++-2. [2026-06-21 — Persona Scaffolding and Orchestrator Constraint](#2026-06-21--persona-scaffolding-and-orchestrator-constraint)
++++-3. [2026-06-21 — Shared Filesystem Convention](#2026-06-21--shared-filesystem-convention)
++++-4. [2026-06-22 — Software Engineer → Dev Migration](#2026-06-22--software-engineer--dev-migration)
++++-5. [2026-06-22 — Three-Tier Memory System](#2026-06-22--three-tier-memory-system)
++++-6. [2026-06-23 — Intent-Based Routing Table](#2026-06-23--intent-based-routing-table)
++++-7. [2026-06-23 — Repository Initialization](#2026-06-23--repository-initialization)
++++-8. [2026-06-23 — Security-First Repository Structure](#2026-06-23--security-first-repository-structure)
++++-9. [2026-06-23 — LXC Over Docker for Agent Runtime](#2026-06-23--lxc-over-docker-for-agent-runtime)
++++-10. [2026-06-23 — Dedicated GitHub Automation Account](#2026-06-23--dedicated-github-automation-account)
++++-11. [2026-06-23 — Local Secret Store (Environment File)](#2026-06-23--local-secret-store-environment-file)
++++-12. [2026-06-23 — Single Hermes Profile with Persona Architecture](#2026-06-23--single-hermes-profile-with-persona-architecture)
++++-13. [2026-06-23 — ARM Architecture for VPS](#2026-06-23--arm-architecture-for-vps)
++++-14. [2026-06-23 — Outbound-Only Container Networking](#2026-06-23--outbound-only-container-networking)
++++-15. [2026-06-23 — Engineering Journal Implementation](#2026-06-23--engineering-journal-implementation)
++++-16. [Cross-Cutting: Lessons Learned](#cross-cutting-lessons-learned)
++++-17. [Cross-Cutting: What We'd Do Differently](#cross-cutting-what-wed-do-differently)
++++-18. [Build Timeline](#build-timeline)
++++-
++++----
++++-
++++-## 2026-06-20 — Project Genesis and Foundation
++++-
++++-### Date
++++-2026-06-20
++++-
++++-### Source
++++-`#provenance: root/BUILD_LOG.md`
++++-
++++-### Decision
++++-Build a multi-agent orchestration platform on Hermes Agent, where specialized persona agents handle domain-specific tasks under a central Orchestrator supervisor.
++++-
++++-### Reasoning
++++-The user's initial brief: *"I want an agent that can research a company, analyze its finances, build something with that data, and present a report — all in one go. Not a chatbot that switches context. A system that orchestrates specialists."*
++++-
++++-Hermes Agent was chosen because:
++++-- Profile system provides natural isolation boundaries
++++-- Memory system supports persistent domain knowledge
++++-- Tool system allows granular permission control
++++-- Open-source and extensible
++++-
++++-Initial team: Financial Analyst, Research Analyst, Software Engineer (later renamed to Dev), Operations Manager, and the Orchestrator (root).
++++-
++++-### Changes Made
++++-- Installed and configured Hermes Agent
++++-- Created the 4 initial persona profiles
++++-- Set up the base `~/.hermes/profiles/` directory structure
++++-- Profiled tool access per-persona (whitelist in `config.yaml`) — fixing the default where every persona had access to every tool
++++-- Seeded core memory (`core/domain.md` and `core/constraints.md`) for all personas — they were starting as blank slates with no domain context
++++-
++++-### Lessons Learned
++++-- **Personas are not blank slates** — they're domain experts. Seed their memory before the first interaction.
++++-- **Default profile config was too permissive.** Every persona had access to every tool. The Research Analyst could execute system commands. Manual tool whitelisting per-profile fixed this.
++++-- **Memory was empty at first.** Personas started with no domain context, forcing re-explanation of each persona's job every session.
++++-
++++-### Follow-Up Actions
++++-- Monitor whether tool whitelisting needs further refinement as new tasks emerge
++++-- Evaluate if the 4-persona team is sufficient or if additional specialists are needed
++++-
++++----
++++-
++++-## 2026-06-21 — Persona Scaffolding and Orchestrator Constraint
++++-
++++-### Date
++++-2026-06-21
++++-
++++-### Source
++++-`#provenance: root/BUILD_LOG.md`
++++-
++++-### Decision
++++-Define the persona topology (Orchestrator + 4 specialists) with strict role boundaries. The Orchestrator must be explicitly constrained to a routing-only role.
++++-
++++-### Reasoning
++++-Early testing revealed the Orchestrator would perform its own research "just to check" after delegating to a specialist — causing duplicate work and contradictory results. The root cause was that the Orchestrator's prompt didn't explicitly prohibit it from performing domain work. It had "you can delegate to specialists" alongside "you have general knowledge," and it defaulted to doing both.
++++-
++++-### Changes Made
++++-- Drafted initial routing logic in the Orchestrator's memory
++++-- Created a test workflow: "Research Nvidia, analyze its financial health, write a summary report"
++++-- Updated the Orchestrator's core memory with the hard constraint:
++++-
++++-```
++++-You are a ROUTING SUPERVISOR only. Never perform domain work yourself.
++++-If a task falls within a persona's domain, delegate it.
++++-Your job: decompose, delegate, validate, compose — not execute.
++++-```
++++-
++++-- Decided on synchronous delegation for v0.1 (simplicity, debuggability). Parallel delegation deferred to v0.3.
++++-- Established request-ID namespacing convention (`/root/workdir/req-{id}/`) for passing artifacts between personas via the shared filesystem
++++-
++++-### Lessons Learned
++++-- **The Orchestrator must be explicitly constrained.** Without "You are a ROUTER, not a DOER" in its prompt, it encroaches on persona domains and creates chaos.
++++-- **Synchronous delegation is slower but debuggable.** This was the right call for v0.1.
++++-- **Shared filesystem works fine with naming conventions.** People worry about collisions, but request-ID namespacing avoids them reliably.
++++-
++++-### Follow-Up Actions
++++-- Design parallel delegation mechanism for v0.3
++++-- Expand test workflow to cover more complex multi-step scenarios
++++-- Document the filesystem convention in ARCHITECTURE.md
++++-
++++----
++++-
++++-## 2026-06-21 — Shared Filesystem Convention
++++-
++++-### Date
++++-2026-06-21
++++-
++++-### Source
++++-`#provenance: root/BUILD_LOG.md` (Decision D006)
++++-
++++-### Decision
++++-Use a shared filesystem with request-ID namespacing for passing artifacts between personas, rather than SCP, network transfer, or message-context passing.
++++-
++++-### Reasoning
++++-Passing large artifacts through message context failed — context windows filled up, and persona responses became unusably long. Network-based transfer (SCP) was over-engineered for same-machine operation. A shared filesystem with a simple naming convention (`/root/workdir/req-{id}/`) provides reliable, zero-latency artifact passing.
++++-
++++-### Changes Made
++++-- Established the `/root/workdir/req-{id}/` naming convention
++++-- Each delegated subtask writes its output to its request-specific directory
++++-- The Orchestrator reads the output from the filesystem after the persona completes
++++-- Risk of collision is mitigated by unique request IDs
++++-
++++-### Lessons Learned
++++-- **Don't over-engineer the transport layer.** Files are fine when the system runs on a single machine.
++++-- Request-ID namespacing is simple, transparent, and debuggable — anyone can `ls /root/workdir/` to see active tasks.
++++-- This pattern would need revisiting if personas ever run on separate machines (containerized per-persona is a future goal).
++++-
++++-### Follow-Up Actions
++++-- Consider formalizing a cleanup policy for old request directories
++++-- Document the convention in the Operations Manager's procedures
++++ 
++++ ---
++++-
++++-## 2026-06-22 — Software Engineer → Dev Migration
+++++## 2026-06-28 — Sprint 2.3 — Context Budget Reporting Frozen
++++ 
++++ ### Date
++++-2026-06-22
+++++2026-06-28
++++ 
++++ ### Source
++++-`#provenance: root/BUILD_LOG.md` (Phase 3 + Decision D003)
+++++`#provenance: direct`
++++ 
++++ ### Decision
++++-Rename the "Software Engineer" persona to "Dev" and archive the old profile.
+++++Feature **Context Budget Reporting** was implemented, verified, and frozen.
++++ 
++++ ### Reasoning
++++-The "Software Engineer" name caused two problems:
++++-
++++-1. **Scope confusion.** The persona was asked to do software engineering, DevOps, data pipeline work, and dashboard creation. "Software Engineer" implies a narrower scope than what was needed.
++++-2. **Identity bleed.** The persona started providing architectural advice on non-code topics — because "software engineer" in common understanding includes system design, which overlaps with the Orchestrator's role.
++++-
++++-Comparison:
++++-
++++-| Concern | "Software Engineer" | "Dev" |
++++-|---|---|---|
++++-| Scope clarity | Implies narrow SE | Implies all development tasks |
++++-| Overlap with Orchestrator | System design overlap | Clear boundary (code only) |
++++-| Future expansion | Hard to extend to DevOps/Data | Natural extension to any dev work |
++++-| Brevity in routing rules | Long label | Short, clear |
+++++The Platform required deterministic observability of each KnowledgeProvider's context contribution without affecting any existing contracts or runtime behavior. A lightweight dataclass‑based budget report satisfies the requirement while keeping the architecture untouched.
++++ 
++++ ### Changes Made
++++-1. Created the Dev profile: `hermes profile create --name dev`
++++-2. Migrated core memory from `software-engineer/memories/core/` to `dev/memories/core/`
++++-3. Added explicit scope constraint: *"You are a Dev persona. Your expertise is writing, testing, and deploying code. You do NOT provide architectural advice beyond implementation — that belongs to the Orchestrator."*
++++-4. Updated all routing rules from `software-engineer` to `dev` in the Orchestrator's memory
++++-5. Archived old profile: `mv ~/.hermes/profiles/software-engineer ~/.hermes/profiles/archived/software-engineer-20260622`
++++-6. Updated all documentation (BUILD_LOG, ARCHITECTURE, CONFIGURATION)
+++++- `pilot/context/system.py` – added `ContextBudgetEntry`, `ContextBudgetReport`, deterministic percentage logic, and token‑estimate helper; modified `assemble_context` to return `(context, report)`.
+++++- `pilot/gateway.py` – consumed new return signature and exposed a read‑only `budget_report` field in the JSON response.
+++++- `tests/test_context_budget.py` – new comprehensive test suite covering deterministic calculations, provider totals, overall totals, and contract preservation.
++++ 
++++ ### Lessons Learned
++++-- **Name things by their boundary, not their prestige.** "Software Engineer" sounds better, but "Dev" defines a clearer, non-overlapping boundary. If two personas could plausibly handle the same task, the naming is wrong.
++++-- Persona names should be forward-compatible — "Dev" accommodates DevOps, data pipelines, and future expansion.
++++-- Renaming requires touching every document and routing rule. The lesson is to get naming right early.
+++++- Adding pure‑observation data can be done safely by keeping it internal to the component that already owns the relevant information.
+++++- Deterministic rounding must be handled explicitly to guarantee the 100 % invariant.
+++++- Updating the return signature of a widely used function requires careful downstream propagation; isolated to the Platform path avoided runtime impact.
++++ 
++++-### Follow-Up Actions
++++-- Verify no stale references to "Software Engineer" remain in any documentation
++++-- Consider whether other persona names could be improved before similar scope issues arise
+++++### Follow‑Up Actions
+++++- **Sprint 2.4** – Consider optional telemetry to ship budget reports to a monitoring system, following the same read‑only pattern.
+++++- Review any downstream consumers of `gateway.handle_request` to ensure they ignore the new `budget_report` field unless needed.
++++ 
++++ ---
++++-
++++-## 2026-06-22 — Three-Tier Memory System
++++-
++++-### Date
++++-2026-06-22
++++-
++++-### Source
++++-`#provenance: root/BUILD_LOG.md` (Phase 4 + Decision D004)
++++-
++++-### Decision
++++-Implement a three-tier memory architecture: Core (immutable), Working (ephemeral), Persistent (long-term with size limits).
++++-
++++-### Reasoning
++++-After 3-4 test workflows, the Financial Analyst persona started mixing up companies — when asked "analyze Apple," it would say "as we discussed with Nvidia..." because the Nvidia analysis was still in its working memory. All memory was persistent by default with no distinction between "what this persona always knows" and "what this session is about."
++++-
++++-Two problems were identified:
++++-1. **Memory pollution across sessions** — session data bled into subsequent delegations
++++-2. **Memory size grew unbounded** — every piece of context ever passed accumulated, slowing searches and increasing hallucination risk
++++-
++++-### Changes Made
++++-- **Core:** Immutable. Never modified during sessions. Contains identity, domain expertise, and constraints.
++++-- **Working:** Ephemeral. Cleared between delegation rounds. Contains session-specific context.
++++-- **Persistent:** Accumulated with explicit save. Currently unused in v0.1 (planned for v0.4).
++++-- Working memory clearing is performed by the Orchestrator after validating a persona's output — implemented as a profile switch with a "clear working memory" system instruction.
++++-- Set a soft size limit of 50KB per profile's memory directory
++++-- The Operations Manager persona periodically checks memory sizes and archives old persistent entries
++++-
++++-### Lessons Learned
++++-- **Memory is not optional.** A persona without seeded memory is a blank LLM with a label. The memory is what makes it an expert.
++++-- Memory pollution is insidious — it doesn't fail loudly, it produces subtly wrong outputs that look correct.
++++-- A single memory tier with manual clearing is unreliable because forgetfulness is inconsistent.
++++-- Core memory files are the highest-leverage investment. They're the difference between a system that works and a system that requires constant hand-holding.
++++-
++++-### Follow-Up Actions
++++-- Implement Persistent memory usage in v0.4
++++-- Automate the memory size check and archival process
++++-- Consider adding memory integrity checks (is any core memory missing or corrupted?)
++++-
++++----
++++-
++++-## 2026-06-23 — Intent-Based Routing Table
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: root/BUILD_LOG.md` (Phase 5 + Decision D005)
++++-
++++-### Decision
++++-Train the Orchestrator to classify user intent (rather than match keywords) when routing tasks to specialist personas.
++++-
++++-### Reasoning
++++-Early routing used keyword matching. If the user said "I need financial data on Tesla," the keyword "financial" correctly routed to Financial Analyst. But "What's Tesla's P/E ratio?" had no keyword match — it fell through to "handle locally," which meant the Orchestrator guessed, often incorrectly.
++++-
++++-Additionally, initial routing had no validation criteria per destination — the only check was "output exists." A persona could return garbage and pass validation.
++++-
++++-### Changes Made
++++-- Replaced keyword routing with intent classification in the Orchestrator's memory
++++-- Added example phrases for each routing destination
++++-- Added disambiguation rules for borderline cases (e.g., "if the request involves both financial data and narrative explanation, route to Financial Analyst for data and Research Analyst for narrative")
++++-- Added a fallback rule: "If uncertain, ask the user to clarify rather than guessing"
++++-- Defined validation criteria per routing destination:
++++-  - Financial outputs must cite data sources
++++-  - Research outputs must include URLs
++++-  - Code outputs must execute without errors
++++-  - Operations outputs must include actionable items
++++-
++++-### Lessons Learned
++++-- **Validate early, validate often.** Our first pass had no validation. The second pass had format-only validation. The third pass added content validation. Start with content validation from day one.
++++-- **Write validation criteria simultaneously with routing rules.** They're two sides of the same coin. Writing them separately meant we had routing without validation for too long.
++++-- Intent classification is more robust than keyword matching but requires maintaining the example phrase list.
++++-- Keyword matching was a dead end — it worked for obvious cases and failed for edge cases, which is the worst reliability profile.
++++-
++++-### Follow-Up Actions
++++-- Periodically expand the example phrase list for each routing destination
++++-- Add adversarial test cases to validate routing robustness
++++-- Consider whether validation criteria should be version-controlled alongside the routing table
++++-
++++----
++++-
++++-## 2026-06-23 — Repository Initialization
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: repos/build-log.md`
++++-
++++-### Decision
++++-Create `agent-env-selfhosted` as the single source of truth for platform documentation, configuration, and operational procedures.
++++-
++++-### Reasoning
++++-The platform was operating with no persistent documentation outside the Hermes agent's ephemeral memory and conversation history. When the agent is reset or a session is closed, infrastructure decisions are lost. A GitHub repository provides:
++++-- Version-controlled documentation that survives container rebuilds
++++-- A structured reference for future maintainers
++++-- A pattern for the agent to document its own platform (dogfooding)
++++-
++++-### Changes Made
++++-- Created the `agent-env-selfhosted` GitHub repository
++++-- Established the repository boundary: documentation and *definitions* go in, runtime *state* stays out
++++-- Set up `.gitignore` to block secrets, credentials, caches, logs, runtime memory, vector stores, and build artifacts
++++-- Created directory structure: `docs/`, `agent/`, `workspaces/`, `logs/`
++++-- Populated placeholder documentation files (header-only)
++++-
++++-### Lessons Learned
++++-- The repository boundary must be clearly defined from day one — retroactively removing committed secrets is difficult
++++-- The `.gitignore` must be aggressive from the start — `.env`, `secrets.env`, `*.log`, and `__pycache__` patterns should be blocked by default
++++-- Memory protection rules (no runtime memory, no embeddings, no conversation history) must be enforced at commit time
++++-- `.gitkeep` files are necessary to preserve empty directory structure in Git
++++-
++++-### Follow-Up Actions
++++-- Add a pre-commit hook or CI check to verify no secrets are accidentally committed
++++-- Consider a `.gitattributes` file for language-appropriate diff settings on documentation files
++++-
++++----
++++-
++++-## 2026-06-23 — Security-First Repository Structure
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: repos/build-log.md`
++++-
++++-### Decision
++++-Scaffold the repository with a strict `.gitignore`, placeholder documentation only, and no substantive code in the first commit.
++++-
++++-### Reasoning
++++-Repository security is easier to establish on day one than to retrofit. The first commit establishes:
++++-- A comprehensive `.gitignore` organized by category (Secrets, Cache, Environments, Build Artifacts) for maintainability
++++-- A directory structure that separates documentation (`docs/`), definitions (`agent/`), and runtime state (`workspaces/`, `logs/`)
++++-- Placeholder documentation files (header-only) that will be populated in subsequent commits
++++-
++++-### Changes Made
++++-- Created categorized `.gitignore` sections
++++-- Established `docs/`, `agent/`, `workspaces/`, `logs/` directory structure
++++-- Added `docs/ARCHITECTURE.md`, `docs/CONFIGURATION.md`, `docs/DEPLOYMENT.md`, `docs/OPERATIONS.md`, `docs/SECURITY.md` as header-only placeholders
++++-- Added `agent/memory/` and `agent/personas/` with definition templates
++++-- Pre-populated `.gitkeep` files in directories that would otherwise be empty
++++-
++++-### Lessons Learned
++++-- `.gitignore` sections should be organized by category for maintainability — when a new category needs an exclusion, it goes in the right section
++++-- Even placeholder `.md` files should have clear comments indicating their intended content
++++-- Directory structure must reflect the separation of concerns: definitions ≠ runtime state ≠ documentation
++++-
++++-### Follow-Up Actions
++++-- Monitor for files that should be in `.gitignore` but aren't yet
++++-- Consider adding a `.gitignore` validation step to the CI pipeline
++++-
++++----
++++-
++++-## 2026-06-23 — LXC Over Docker for Agent Runtime
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: repos/build-log.md`
++++-
++++-### Decision
++++-Use LXD containers instead of Docker for the Hermes Agent runtime environment.
++++-
++++-### Reasoning
++++-During initial research, Hermes was tested in Docker containers. Several issues emerged:
++++-
++++-1. **Filesystem confusion:** Docker's bind-mount and volume abstractions created confusion about where files actually lived. Hermes navigates directories like a human operator — symlinks, mount points, and volume boundaries were a recurring source of tool errors.
++++-2. **Process management:** Background processes (servers, watchers) need persistent process tracking. Docker's container lifecycle model (start/stop/restart) is poorly suited for agents that spawn and manage long-lived processes.
++++-3. **Backup simplicity:** LXD snapshots capture the entire filesystem state atomically, with no need to coordinate multiple volumes or container layers.
++++-
++++-LXD provides a complete Linux environment with natural filesystem semantics, snapshot-based backup, and strong isolation — all without the abstraction overhead of Docker.
++++-
++++-### Changes Made
++++-- Replaced Docker runtime with LXD containers
++++-- Configured LXD unprivileged containers for better security isolation than default Docker configurations
++++-- Established LXD snapshot-based backup procedures
++++-- Migrated Hermes Agent runtime into LXD container
++++-
++++-### Lessons Learned
++++-- The "agent as a Linux user" metaphor is more accurate than "agent as a web service" — LXD's natural filesystem semantics match this better than Docker's layered filesystem
++++-- Container runtime choice has significant operational implications — Docker is not always the right answer
++++-- LXD unprivileged containers provide better default security isolation than Docker
++++-- All tooling (Hermes, Python, Git, LXD) works identically on ARM — no compatibility surprises with the Ampere A1 instances
++++-
++++-### Follow-Up Actions
++++-- Document LXD container lifecycle procedures in OPERATIONS.md
++++-- Establish backup rotation policy for LXD snapshots
++++-
++++----
++++-
++++-## 2026-06-23 — Dedicated GitHub Automation Account
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: repos/build-log.md`
++++-
++++-### Decision
++++-Create a dedicated GitHub account (`johnalencar-agent`) for all automated Git operations, rather than using the personal account's credentials.
++++-
++++-### Reasoning
++++-1. **Blast radius:** A leaked PAT (Personal Access Token) on the agent account only compromises repository access, not personal account access
++++-2. **Auditability:** Commits from the automation account are clearly distinguishable from human commits
++++-3. **Credential lifecycle:** The automation token can be rotated without affecting personal access
++++-4. **Scope limitation:** The automation account has `repo` scope access only to the `agent-env-selfhosted` repository
++++-
++++-### Changes Made
++++-- Created `johnalencar-agent` GitHub account
++++-- Generated a fine-grained PAT (organization-level) for better scope control than classic PATs
++++-- Stored the token in the local `secrets.env` file, outside the repository and session database
++++-- Configured `git config user.email` using the `users.noreply.github.com` format for the automation account
++++-
++++-### Lessons Learned
++++-- Fine-grained PATs provide better scope control than classic PATs
++++-- The token must never enter the repository, the session database, or the Hermes conversation history
++++-- A dedicated automation account makes it trivial to distinguish "agent committed this" from "human committed this" in Git history
++++-
++++-### Follow-Up Actions
++++-- Document the PAT rotation procedure in SECURITY.md
++++-- Set up calendar reminder for PAT expiry/renewal
++++-
++++----
++++-
++++-## 2026-06-23 — Local Secret Store (Environment File)
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: repos/build-log.md`
++++-
++++-### Decision
++++-Store API keys and tokens in a local `secrets.env` file sourced at runtime, rather than in Hermes config or an external vault.
++++-
++++-### Reasoning
++++-1. **Simplicity:** For a single-operator private deployment, a sourced env file is the simplest secure approach
++++-2. **Separation:** Secrets are kept out of `config.yaml` (which is documented and may be shared), out of environment variables (which appear in process listings), and out of the repository
++++-3. **Hermes compatibility:** The `hermes` config supports provider API keys through environment variables and custom provider configuration
++++-
++++-### Caveats
++++-- This is not suitable for multi-user or public deployments
++++-- Bitwarden is available as an alternative in the Hermes config (`secrets.bitwarden`) but not yet configured
++++-- The secrets file must be backed up separately — it is not in version control
++++-
++++-### Changes Made
++++-- Created `secrets.env` with Hermes-compatible environment variables
++++-- Configured `config.yaml` to reference env vars for provider API keys
++++-- Added `.env` and `secrets.env` patterns to `.gitignore`
++++-- Verified that `secrets.env` is sourced at container startup
++++-
++++-### Lessons Learned
++++-- Never commit `.env` or `secrets.env` to Git — the `.gitignore` must block these patterns aggressively
++++-- A single secrets file is manageable for 3-5 variables but becomes unwieldy beyond that
++++-- Future migration to Bitwarden or another secret management system is advisable for production
++++-- The secrets file must be backed up independently of the Git repository
++++-
++++-### Follow-Up Actions
++++-- Evaluate Bitwarden integration for secrets management
++++-- Document the `secrets.env` format and sourcing procedure in DEPLOYMENT.md
++++-
++++----
++++-
++++-## 2026-06-23 — Single Hermes Profile with Persona Architecture
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: repos/build-log.md + root/BUILD_LOG.md`
++++-
++++-### Decision
++++-Run all agent activity under one Hermes profile with specialist personas routed by an Orchestrator, rather than creating separate Hermes profiles per role.
++++-
++++-### Reasoning
++++-Earlier testing considered plugin-based isolation and separate Hermes profiles. Both had issues:
++++-- **Plugin-based isolation:** Memory bleed occurred within 2-3 turns (tested 2026-06-20)
++++-- **Separate profiles:** Each profile would duplicate configuration, skills list, and tools — and cross-profile coordination is nearly impossible without a shared Orchestrator
++++-
++++-A single profile with persona routing won for several reasons:
++++-1. **Shared configuration:** All personas use the same provider, model, skills, and tools. Separate profiles would duplicate configuration across 73 shared skills.
++++-2. **Cross-persona coordination:** The Orchestrator needs to hand off work between FA, RA, Dev, and OM. This is impossible if each runs in an isolated profile.
++++-3. **Session continuity:** Conversations span multiple persona interactions. A single profile preserves conversation history across handoffs.
++++-4. **Skills and tools:** 73 skills are shared across all personas. Duplicating this per-profile is wasteful.
++++-
++++-### Changes Made
++++-- Each persona is implemented as:
++++-  - A **SKILL.md** defining identity, role boundaries, and workflow rules
++++-  - A **workspace** directory (`~/.hermes/personas/<name>/workspace/`) for output files
++++-  - A **dedicated memory file** for persona-specific persistent knowledge
++++-- The Orchestrator maintains a routing table matching natural-language triggers and slash commands to personas
++++-- Delegation depth set to `max_spawn_depth: 1` to prevent runaway subagent chains
++++-- Strict role boundaries enforced in each persona's core memory
++++-
++++-### Lessons Learned
++++-- Strict role boundaries are essential — without them, personas blur into a general-purpose agent
++++-- Persona memory must be scoped to domain-specific facts only (stocks for FA, code for Dev, etc.)
++++-- `max_spawn_depth: 1` is a safe default — it prevents nested delegation from producing deep, unmanageable agent chains
++++-- Profile isolation was rejected early (2026-06-20) after testing showed memory bleed within 2-3 turns — this was the right call
++++-- Cross-persona filesystem access is possible (same user) but convention says they shouldn't — containerized isolation is a future goal
++++-
++++-### Follow-Up Actions
++++-- Consider containerized per-persona isolation for v2.0
++++-- Add runtime guardrails to prevent personas from reading each other's memory files
++++-- Explore whether an orchestrator agent running in a separate profile provides stronger isolation
++++-
++++----
++++-
++++-## 2026-06-23 — ARM Architecture for VPS
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: repos/build-log.md`
++++-
++++-### Decision
++++-Use Oracle Cloud Ampere A1 (ARM) instances rather than x86.
++++-
++++-### Reasoning
++++-- **Cost:** Free-tier eligibility (up to 4 cores, 24 GB RAM across instances)
++++-- **Workload fit:** Agent workloads are network-bound (LLM API calls) and I/O-bound (file operations), not CPU-bound. ARM Neoverse-N1 provides sufficient performance.
++++-- **Container compatibility:** LXD and Debian 12 run natively on aarch64 with no issues. Hermes Agent is Python-based and ARM-compatible.
++++-
++++-### Changes Made
++++-- Provisioned Oracle Cloud Ampere A1 instance
++++-- Installed Debian 12 (aarch64)
++++-- Configured LXD on ARM
++++-- Verified all tooling works identically on ARM
++++-
++++-### Lessons Learned
++++-- All tooling (Hermes, Python, Git, LXD) works identically on ARM — no compatibility surprises
++++-- The main limitation is Docker image availability for ARM, but the LXD-based architecture avoids this entirely
++++-- Oracle Cloud ARM instances have been stable throughout the foundation phase
++++-- Network-bound workloads are ideal for ARM — the CPU is rarely the bottleneck
++++-
++++-### Follow-Up Actions
++++-- Monitor ARM instance performance as workload scales
++++-- Document any ARM-specific gotchas in DEPLOYMENT.md
++++-
++++----
++++-
++++-## 2026-06-23 — Outbound-Only Container Networking
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: repos/build-log.md`
++++-
++++-### Decision
++++-The Hermes container has no inbound ports — all communication is initiated from within the container.
++++-
++++-### Reasoning
++++-- **Security:** No attack surface exposed by the container. Even if the container is compromised, there's no port to exploit from outside.
++++-- **Agent access:** The agent connects to external APIs (DeepSeek, Telegram, GitHub) — these are outbound connections only.
++++-- **Host firewall:** UFW on the host blocks all inbound except SSH, providing defense in depth.
++++-
++++-### Trade-off
++++-- Direct shell access requires `lxc exec` from the host — no SSH into the container
++++-- Public web dashboard and API access (planned for Phase 2) will require inbound proxy configuration
++++-- Debugging from outside the host requires host SSH access first
++++-
++++-### Changes Made
++++-- Configured UFW to allow only SSH inbound on the host
++++-- LXD container profile configured with no forwarded ports
++++-- All outbound traffic is unrestricted (HTTP/HTTPS to LLM APIs, Telegram, GitHub)
++++-- No Caddy or reverse proxy configured (planned for Phase 2)
++++-
++++-### Lessons Learned
++++-- Outbound-only is the safest default for an agent runtime — the host is the only ingress point, and it's locked down
++++-- The host serves as a jump box for container management — acceptable for single-operator deployment
++++-- Planned Caddy proxy will handle inbound traffic with proper authentication, maintaining container isolation
++++-- This architecture makes debugging from outside the host a two-hop process (SSH to host, `lxc exec` to container)
++++-
++++-### Follow-Up Actions
++++-- Implement Caddy reverse proxy with authentication for Phase 2 (web dashboard, API)
++++-- Document the outbound-only architecture in SECURITY.md
++++-- Consider whether a Tailscale/WireGuard tunnel could simplify remote debugging
++++-
++++----
++++-
++++-## 2026-06-23 — Engineering Journal Implementation
++++-
++++-### Date
++++-2026-06-23
++++-
++++-### Source
++++-`#provenance: implementation`
++++-
++++-### Decision
++++-Establish a canonical Engineering Journal at `/root/docs/build-log.md` with standardized entry format, append-only policy, and a reusable Hermes skill for maintenance.
++++-
++++-### Reasoning
++++-Two build logs had grown in parallel — `/root/docs/BUILD_LOG.md` (308 lines, narrative/phase structure) and `/root/agent-env-selfhosted/docs/build-log.md` (164 lines, per-entry structure). Both contained engineering decisions, but:
++++-1. There was no single source of truth — maintainers had to check both files
++++-2. The formats were inconsistent — one used narrative sections, the other used per-entry structure
++++-3. There was no automated mechanism to ensure future entries follow a consistent pattern
++++-4. Provenance tracking was absent — entries couldn't be traced back to their source
++++-
++++-The Engineering Journal capability provides:
++++-- A canonical location (`/root/docs/build-log.md`) with a redirect from the old repo location
++++-- Standardized per-entry format with required fields (Date, Source, Decision, Reasoning, Changes Made, Lessons Learned, Follow-Up Actions)
++++-- Provenance tracking (`#provenance:`) so every entry is traceable to its origin
++++-- An append-only policy with explicit guardrails (no overwrites)
++++-- A reusable Hermes skill (`engineering-journal`) so any agent can maintain the journal consistently
++++-
++++-### Changes Made
++++-- Consolidated both build logs into `/root/docs/build-log.md` (this file)
++++-- Preserved all 8 entries from `/root/agent-env-selfhosted/docs/build-log.md` with `#provenance: repos/build-log.md`
++++-- Preserved all 5 phase narratives + 6 decision records from `/root/docs/BUILD_LOG.md` with `#provenance: root/BUILD_LOG.md`
++++-- Merged overlapping content (persona architecture decision from both sources)
++++-- Added standardized Source section with provenance tags to every entry
++++-- Added Changes Made and Follow-Up Actions sections (missing from some original entries)
++++-- Converted `/root/agent-env-selfhosted/docs/build-log.md` to a pointer/redirect
++++-- Created the `engineering-journal` Hermes skill at `~/.hermes/skills/documentation/engineering-journal/SKILL.md`
++++-- Preserved cross-cutting Lessons Learned, "What We'd Do Differently", and Build Timeline sections
++++-
++++-### Lessons Learned
++++-- **Document while it's fresh.** The original BUILD_LOG.md exists because decisions were forgotten two days after being made. The Engineering Journal formalizes this lesson into a repeatable pattern.
++++-- **Two parallel logs is worse than none.** Having two canonical sources means neither is canonical. Consolidation should happen as soon as a second source emerges.
++++-- **Provenance matters for historical accuracy.** Without tracking where information came from, migrated entries lose credibility and context.
++++-- The `#provenance:` tag pattern provides a lightweight audit trail without adding another tool or database.
++++-- The "Changes Made" and "Follow-Up Actions" sections were the most commonly missing fields in the original entries — the standardized format ensures they're never omitted going forward.
++++-
++++-### Follow-Up Actions
++++-- Update any references in ARCHITECTURE.md, CONFIGURATION.md, and other docs that point to the old repo build log location
++++-- Consider adding a CI check that validates new journal entries conform to the expected format
++++-- Review whether the `#provenance:` tag convention should be extended with timestamps or commit SHAs for entries that document their own modification
++++-
++++----
++++-
++++-# Cross-Cutting: Lessons Learned
++++-
++++-These are cumulative lessons extracted from all entries above.
++++-
++++-## Lesson 1: Name Things By Their Boundary, Not Their Prestige
++++-
++++-"Software Engineer" sounds better than "Dev" in a resume. But in the system, clarity > prestige. The persona name should define a clear, non-overlapping boundary. If two personas could plausibly handle the same task, the naming is wrong.
++++-
++++-## Lesson 2: Memory Is Not Optional
++++-
++++-A persona without seeded memory is not a persona — it's a blank LLM with a label. The memory is what makes it an expert. Invest time in writing good core memory files. They're the difference between a system that works and a system that requires constant hand-holding.
++++-
++++-## Lesson 3: The Orchestrator Must Be Constrained
++++-
++++-The Orchestrator naturally wants to do everything. It's the main point of contact, it has the broadest context, and it has access to all the same tools. Without explicit constraints ("You are a ROUTER, not a DOER"), it will encroach on persona domains and create chaos.
++++-
++++-## Lesson 4: Validate Early, Validate Often
++++-
++++-Our first pass had no validation. The second pass had format-only validation. The third pass added content validation. We should have started with content validation from day one. A persona returning garbage 20% of the time is a system that fails 20% of the time.
++++-
++++-## Lesson 5: Document While It's Fresh
++++-
++++-Write the log as you go, not after the fact. This Engineering Journal exists because we forgot why we made a decision two days after making it.
++++-
++++-## Lesson 6: Shared Filesystem Is Fine With Conventions
++++-
++++-People worry about filesystem collisions, but with a simple request-ID namespacing convention, it works perfectly. Don't over-engineer the transport layer. Files are fine.
++++-
++++-## Lesson 7: Personas Are Not Blank Slates
++++-
++++-Seed persona memory before the first interaction. Starting with empty memory forces re-explanation of each persona's job every session.
++++-
++++-## Lesson 8: Default Security Is Rarely Sufficient
++++-
++++-Default profile configs, default Docker isolation, and default `.gitignore` patterns all fell short. Each required explicit hardening. Defaults are starting points, not endpoints.
++++-
++++-## Lesson 9: ARM Is Production-Ready for Agent Workloads
++++-
++++-Network-bound and I/O-bound workloads perform identically on ARM. The main limitation (Docker image availability) was sidestepped by the LXD-based architecture.
++++-
++++-## Lesson 10: Outbound-Only Is the Safest Network Default
++++-
++++-No inbound ports means no attack surface. The operational cost (requiring host SSH for container access) is acceptable for single-operator deployment.
++++-
++++----
++++-
++++-# Cross-Cutting: What We'd Do Differently
++++-
++++-If we were starting over (or planning a v2.0):
++++-
++++-1. **Containerize each persona.** Running each profile in a Docker container (or at least a separate user) would provide filesystem-level isolation in addition to profile-level isolation. Currently, any persona can read any other persona's memory files (though convention says they shouldn't).
++++-
++++-2. **Start with intent-based routing.** Keyword matching was a dead end. We should have invested in intent classification from the start.
++++-
++++-3. **Write validation criteria simultaneously with routing rules.** They're two sides of the same coin. Writing them separately meant we had routing without validation for too long.
++++-
++++-4. **Test with adversarial inputs.** We tested with "normal" requests. We didn't test with confusing, ambiguous, or malicious requests until late in development. Adversarial testing would have caught the routing fuzzy-match issue earlier.
++++-
++++-5. **Version control the profiles.** Currently, profile configs and memories live in `~/.hermes/profiles/` and are not version-controlled. If someone accidentally deletes a core memory file, there's no way to restore it (except memory). We should at least have a git repo for the profiles directory.
++++-
++++-6. **Use fine-grained PATs from day one.** Classic PATs offer all-or-nothing scoping. Fine-grained PATs allow repository-level permissions. This should be the default for any automation account.
++++-
++++-7. **Establish the Engineering Journal from day one.** The first build log entry was written on 2026-06-23, three days after the project started. Three days of decisions — including why Hermes was chosen, why profiles were structured a certain way, and early test failures — were lost.
++++-
++++----
++++-
++++-# Build Timeline
++++-
++++-| Date | Phase | Key Event |
++++-|---|---|---|
++++-| 2026-06-20 | Foundation | Project initiated, Hermes installed, profiles scaffolded |
++++-| 2026-06-20 | Foundation | Tool access restricted per-profile (fix for permissive defaults) |
++++-| 2026-06-20 | Foundation | Core memory seeded for all personas |
++++-| 2026-06-21 | Persona Scaffolding | Topology defined, routing drafted, test workflow created |
++++-| 2026-06-21 | Persona Scaffolding | Orchestrator constrained to router-only role (fix for domain encroachment) |
++++-| 2026-06-21 | Persona Scaffolding | Shared filesystem convention established |
++++-| 2026-06-22 | Dev Migration | Software Engineer → Dev profile migration |
++++-| 2026-06-22 | Memory System | Three-tier memory implemented |
++++-| 2026-06-22 | Memory System | Memory size limits and cleanup procedures added |
++++-| 2026-06-23 | Routing Table | Intent-based routing formalized |
++++-| 2026-06-23 | Routing Table | Validation criteria per routing destination |
++++-| 2026-06-23 | Documentation | Full repo docs created (ARCHITECTURE.md, CONFIGURATION.md, etc.) |
++++-| 2026-06-23 | Infrastructure | LXD over Docker adopted |
++++-| 2026-06-23 | Infrastructure | ARM architecture for VPS |
++++-| 2026-06-23 | Security | GitHub automation account created |
++++-| 2026-06-23 | Documentation | Engineering journal implemented |
++++-| 2026-06-23 | Artifact Generation | Local-first artifact generation with persona-namespaced storage |
++++-
++++----
++++-
++++-### New entry template
++++-
++++-Copy and paste this block for your next entry:
++++-
++++-```markdown
++++-## YYYY-MM-DD — Title
++++-
++++-### Date
++++-YYYY-MM-DD
++++-
++++-### Source
++++-`[context]`
++++-
++++-### Decision
++++-One-sentence summary.
++++-
++++-### Reasoning
++++-Why this approach over alternatives.
++++-
++++-### Changes Made
++++-- Bullet list of concrete changes.
++++-
++++-### Lessons Learned
++++-- What we'd tell our past selves.
++++-
++++-### Follow-Up Actions
++++-- [ ] Action item (Planned/In Progress/Complete)
++++-```
++++-
++++-> **Note:** The old pointer at `docs/build-log.md` now redirects to `log/build-log.md`. Do not add entries at `docs/build-log.md`.
++++-| 2026-06-23 | Security | Local secrets store established |
++++-| 2026-06-23 | Security | Outbound-only container networking |
++++-| 2026-06-23 | Documentation | Engineering Journal consolidated and standardized |
+++++# test append
++++diff --git a/pilot/context/system.py b/pilot/context/system.py
++++index 1ccac86..e125828 100644
++++--- a/pilot/context/system.py
+++++++ b/pilot/context/system.py
++++@@ -11,10 +11,29 @@ receives them and formats them into the prompt.
++++ 
++++ from __future__ import annotations
++++ 
+++++from dataclasses import dataclass
+++++
++++ from pilot.knowledge.artifact import KnowledgeArtifact
++++ 
++++ 
++++-def assemble_context(artifacts: list[KnowledgeArtifact]) -> str:
+++++@dataclass(frozen=True)
+++++class ContextBudgetEntry:
+++++    provider: str
+++++    characters: int
+++++    estimated_tokens: int
+++++    percentage: float
+++++
+++++
+++++@dataclass(frozen=True)
+++++class ContextBudgetReport:
+++++    entries: list[ContextBudgetEntry]
+++++    total_context_characters: int
+++++    total_context_tokens: int
+++++
+++++
+++++def assemble_context(
+++++    artifacts: list[KnowledgeArtifact],
+++++) -> tuple[str, ContextBudgetReport]:
++++     """Assemble context from a list of KnowledgeArtifacts.
++++ 
++++     Each artifact is formatted as a labeled block. Blocks are
++++@@ -24,15 +43,62 @@ def assemble_context(artifacts: list[KnowledgeArtifact]) -> str:
++++     produced the artifacts — it only formats what it receives.
++++     """
++++     blocks: list[str] = []
+++++    entries: list[ContextBudgetEntry] = []
++++ 
++++     for artifact in artifacts:
++++         if not artifact.content.strip():
++++             continue
++++ 
++++         label = _label_for(artifact.source)
++++-        blocks.append(f"## {label}\n\n{artifact.content}")
+++++        block = f"## {label}\n\n{artifact.content}"
+++++        blocks.append(block)
+++++        characters = len(block)
+++++        estimated_tokens = _estimate_tokens(characters)
+++++        entries.append(
+++++            ContextBudgetEntry(
+++++                provider=artifact.source,
+++++                characters=characters,
+++++                estimated_tokens=estimated_tokens,
+++++                percentage=0.0,
+++++            )
+++++        )
+++++
+++++    total_context = "\n\n".join(blocks) if blocks else "(no context available)"
+++++    total_context_characters = len(total_context)
+++++    total_context_tokens = _estimate_tokens(total_context_characters)
+++++
+++++    if total_context_characters > 0:
+++++        # Compute raw percentages per entry.
+++++        raw_percentages = [
+++++            (entry.characters / total_context_characters) * 100 for entry in entries
+++++        ]
+++++        # Round each to two decimals, but keep the last entry adjustable.
+++++        rounded = [round(p, 2) for p in raw_percentages]
+++++        if rounded:
+++++            # Adjust last entry so total sum = 100.00 (within rounding tolerance).
+++++            total_except_last = sum(rounded[:-1])
+++++            rounded[-1] = round(100.0 - total_except_last, 2)
+++++        # Recreate entries with adjusted percentages.
+++++        entries = [
+++++            ContextBudgetEntry(
+++++                provider=entry.provider,
+++++                characters=entry.characters,
+++++                estimated_tokens=entry.estimated_tokens,
+++++                percentage=rounded[i],
+++++            )
+++++            for i, entry in enumerate(entries)
+++++        ]
+++++        
+++++
+++++    return total_context, ContextBudgetReport(
+++++        entries=entries,
+++++        total_context_characters=total_context_characters,
+++++        total_context_tokens=total_context_tokens,
+++++    )
+++++
++++ 
++++-    return "\n\n".join(blocks) if blocks else "(no context available)"
+++++def _estimate_tokens(characters: int) -> int:
+++++    return (characters + 3) // 4
++++ 
++++ 
++++ def _label_for(source: str) -> str:
++++diff --git a/pilot/gateway.py b/pilot/gateway.py
++++index e97cfeb..e15f59d 100644
++++--- a/pilot/gateway.py
+++++++ b/pilot/gateway.py
++++@@ -19,9 +19,35 @@ from pilot.dispatch._parser import parse
++++ from pilot.dispatch.intent_mapper import shape_to_intent
++++ from pilot.dispatch.plan import ExecutionPlan, validate_plan
++++ from pilot.knowledge.providers.memory import MemoryProvider
+++++from pilot.knowledge.providers.vault import VaultProvider
++++ from pilot.prompt.builder import build_prompt
++++ 
++++ 
+++++def _intent_to_vault_selection(intent: str, question: str = "") -> str:
+++++    """Map Platform intent plus request text to VaultProvider selection string.
+++++
+++++    The Gateway chooses which providers run; provider-specific relevance selection
+++++    stays inside VaultProvider. The request text is passed through as the existing
+++++    provider key so VaultProvider can match titles/tags/metadata deterministically.
+++++    """
+++++    query = question.strip()
+++++
+++++    if intent.startswith("research"):
+++++        return f"summary:{query}" if query else "summary"
+++++
+++++    if intent.startswith("financial_analysis") or intent.startswith("stock"):
+++++        return f"summary:{query}" if query else "summary"
+++++
+++++    if intent.startswith("dev"):
+++++        return f"summary:{query}" if query else "summary"
+++++
+++++    if intent.startswith("operations") or intent.startswith("ops"):
+++++        return f"summary:{query}" if query else "summary"
+++++
+++++    # Casual intents don't use VaultProvider
+++++    raise ValueError(f"Intent '{intent}' should not use VaultProvider")
+++++
+++++
++++ def handle_request(question: str) -> dict:
++++     """Process a user request through the complete pipeline.
++++ 
++++@@ -57,11 +83,22 @@ def handle_request(question: str) -> dict:
++++     # ── Step 6: Produce KnowledgeArtifacts from all providers ──
++++     config_artifact = config.produce_artifact(intent)
++++     memory = MemoryProvider()
++++-    memory_artifact = memory.produce_artifact(intent)
+++++    memory_artifact = memory.produce_artifact(f"{intent} {question}")
++++     artifacts = [config_artifact, memory_artifact]
++++ 
+++++    # ── Step 6b: Add VaultProvider artifact if configured ──
+++++    if "vault" in plan.knowledge_providers:
+++++        try:
+++++            selection = _intent_to_vault_selection(intent, question)
+++++            vault = VaultProvider()
+++++            vault_artifact = vault.produce_artifact(selection)
+++++            artifacts.append(vault_artifact)
+++++        except ValueError:
+++++            # Intent doesn't use Vault (e.g., casual)
+++++            pass
+++++
++++     # ── Step 7: Assemble context ──
++++-    context = assemble_context(artifacts)
+++++    context, budget_report = assemble_context(artifacts)
++++ 
++++     # ── Step 8: Build prompt ──
++++     prompt = build_prompt(context, question)
++++@@ -88,5 +125,18 @@ def handle_request(question: str) -> dict:
++++             for a in artifacts
++++         ],
++++         "context": context[:300],
+++++        "budget_report": {
+++++            "entries": [
+++++                {
+++++                    "provider": e.provider,
+++++                    "characters": e.characters,
+++++                    "estimated_tokens": e.estimated_tokens,
+++++                    "percentage": e.percentage,
+++++                }
+++++                for e in budget_report.entries
+++++            ],
+++++            "total_context_characters": budget_report.total_context_characters,
+++++            "total_context_tokens": budget_report.total_context_tokens,
+++++        },
++++         "response": response,
++++     }
++++diff --git a/pilot/knowledge/providers/memory.py b/pilot/knowledge/providers/memory.py
++++index bdcfba4..c58815d 100644
++++--- a/pilot/knowledge/providers/memory.py
+++++++ b/pilot/knowledge/providers/memory.py
++++@@ -1,20 +1,31 @@
++++ """
++++-MemoryProvider — reads agent memory and produces KnowledgeArtifacts.
+++++MemoryProvider — reads agent/user memory and produces KnowledgeArtifacts.
++++ 
++++ Implements the KnowledgeProvider contract: produce_artifact(intent) -> KnowledgeArtifact.
++++ No abstractions. No registry. No caching.
++++ 
++++-Shortcut: reads MEMORY.md only. USER.md can be added later.
+++++Selection is deterministic and provider-local: the caller passes the current
+++++intent/request text as the existing provider key, and MemoryProvider filters
+++++memory entries using simple keyword matching.
++++ """
++++ 
++++ from __future__ import annotations
++++ 
++++ import os
+++++import re
++++ from pathlib import Path
++++ 
++++ from pilot.knowledge.artifact import KnowledgeArtifact
++++ 
++++ 
+++++_STOPWORDS = frozenset({
+++++    "a", "about", "after", "all", "am", "an", "and", "are", "as", "at",
+++++    "be", "by", "can", "could", "do", "does", "for", "from", "how", "i",
+++++    "in", "is", "it", "know", "latest", "me", "of", "on", "or", "should",
+++++    "tell", "the", "this", "to", "what", "when", "where", "who", "why", "with",
+++++})
+++++
+++++
++++ class MemoryProvider:
++++     """KnowledgeProvider for agent and user memory."""
++++ 
++++@@ -24,25 +35,80 @@ class MemoryProvider:
++++         self._memories_dir = Path(hermes_home) / "memories"
++++ 
++++     def produce_artifact(self, intent: str) -> KnowledgeArtifact:
++++-        """Produce a KnowledgeArtifact from agent memory.
+++++        """Produce a relevant KnowledgeArtifact from memory.
++++ 
++++-        Reads MEMORY.md and returns its content as a single artifact.
++++-        Skips empty or missing files gracefully.
+++++        Reads MEMORY.md and USER.md when present, splits them into durable memory
+++++        entries, and returns only entries matching the current provider key.
+++++        The key is intentionally provider-defined; Gateway passes intent plus
+++++        user request text without changing the KnowledgeArtifact contract.
++++         """
++++-        memory_path = self._memories_dir / "MEMORY.md"
+++++        entries = self._load_entries()
++++ 
++++-        if not memory_path.exists():
+++++        if not entries:
++++             return KnowledgeArtifact(
++++                 source="memory",
++++                 content="(no agent memory file found)",
++++             )
++++ 
++++-        content = memory_path.read_text().strip()
+++++        terms = self._query_terms(intent)
+++++        matches = self._select_entries(entries, terms)
++++ 
++++-        if not content:
+++++        if not matches:
++++             return KnowledgeArtifact(
++++                 source="memory",
++++-                content="(agent memory is empty)",
+++++                content="(no relevant memory found)",
++++             )
++++ 
++++-        return KnowledgeArtifact(source="memory", content=content)
+++++        return KnowledgeArtifact(source="memory", content="\n§\n".join(matches))
+++++
+++++    def _load_entries(self) -> list[str]:
+++++        """Load durable memory entries from MEMORY.md and USER.md."""
+++++        entries: list[str] = []
+++++        for filename in ("MEMORY.md", "USER.md"):
+++++            path = self._memories_dir / filename
+++++            if not path.exists():
+++++                continue
+++++            content = path.read_text().strip()
+++++            if not content:
+++++                continue
+++++            for entry in re.split(r"\n§\n", content):
+++++                entry = entry.strip()
+++++                if entry:
+++++                    entries.append(entry)
+++++        return entries
+++++
+++++    def _query_terms(self, text: str) -> list[str]:
+++++        """Extract deterministic lexical query terms."""
+++++        terms = []
+++++        for term in re.findall(r"[a-z0-9][a-z0-9.+_-]*", text.lower()):
+++++            if len(term) < 3 or term in _STOPWORDS:
+++++                continue
+++++            terms.append(term)
+++++
+++++        # Preserve order while deduping.
+++++        return list(dict.fromkeys(terms))
+++++
+++++    def _select_entries(self, entries: list[str], terms: list[str]) -> list[str]:
+++++        """Return matching memory entries sorted deterministically by score."""
+++++        if not terms:
+++++            return []
+++++
+++++        scored: list[tuple[int, int, str]] = []
+++++        for index, entry in enumerate(entries):
+++++            entry_terms = set(self._query_terms(entry))
+++++            expanded_terms = self._expand_terms(terms)
+++++            score = sum(1 for term in expanded_terms if term in entry_terms)
+++++            if score > 0:
+++++                scored.append((-score, index, entry))
+++++
+++++        scored.sort()
+++++        return [entry for _, _, entry in scored]
+++++
+++++    def _expand_terms(self, terms: list[str]) -> list[str]:
+++++        """Expand deterministic lexical aliases without semantic ranking."""
+++++        expanded = list(terms)
+++++        if "apple" in expanded and "aapl" not in expanded:
+++++            expanded.append("aapl")
+++++        if "aapl" in expanded and "apple" not in expanded:
+++++            expanded.append("apple")
+++++        return list(dict.fromkeys(expanded))
++++diff --git a/pilot/knowledge/providers/vault.py b/pilot/knowledge/providers/vault.py
++++new file mode 100644
++++index 0000000..822a22d
++++--- /dev/null
+++++++ b/pilot/knowledge/providers/vault.py
++++@@ -0,0 +1,423 @@
+++++"""
+++++VaultProvider — resolves knowledge artifacts from the Knowledge Vault.
+++++
+++++Implements the KnowledgeProvider contract: produce_artifact(intent) -> KnowledgeArtifact.
+++++No abstractions. No registry. No caching.
+++++Shortcut: resolves by artifact title from index.md.
+++++"""
+++++
+++++from __future__ import annotations
+++++
+++++import re
+++++from dataclasses import dataclass, field
+++++from pathlib import Path
+++++from typing import TYPE_CHECKING
+++++
+++++
+++++_STOPWORDS = frozenset({
+++++    "a", "about", "after", "all", "am", "an", "and", "are", "as", "at",
+++++    "be", "by", "can", "could", "do", "does", "for", "from", "how", "i",
+++++    "in", "is", "it", "know", "latest", "me", "of", "on", "or", "should",
+++++    "tell", "the", "this", "to", "what", "when", "where", "who", "why", "with",
+++++})
+++++
+++++if TYPE_CHECKING:
+++++    from pilot.knowledge.artifact import KnowledgeArtifact
+++++from pilot.knowledge.artifact import KnowledgeArtifact
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Data types
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++@dataclass(frozen=True)
+++++class ArtifactMetadata:
+++++    """Metadata for a single Knowledge Vault artifact."""
+++++
+++++    title: str
+++++    persona: str
+++++    created_date: str  # YYYY-MM-DD
+++++    status: str  # draft | verified
+++++    tags: list[str] = field(default_factory=list)
+++++    freshness_days: int = 30
+++++    summary: str = ""
+++++    path: str = ""
+++++
+++++
+++++@dataclass(frozen=True)
+++++class ArtifactSelection:
+++++    """Selection criteria for artifact retrieval."""
+++++
+++++    mode: str  # summary | section | full
+++++    title: str | None = None  # Title for exact match (None for mode-only)
+++++    section: str | None = None  # Section title for mode='section'
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# VaultProvider
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class VaultProvider:
+++++    """KnowledgeProvider for the Knowledge Vault filesystem layer.
+++++
+++++    Resolves artifacts by title, tag, or persona. Supports summary, section, and
+++++    full retrieval modes. Estimates token counts for plan capacity.
+++++
+++++    Token estimation: ~4 characters/token for English text.
+++++    Deterministic behavior: same (mode, section, path) -> same content.
+++++    """
+++++
+++++    def __init__(self, repo_root: str | None = None):
+++++        """
+++++        Initialize VaultProvider with repository root path.
+++++
+++++        Args:
+++++            repo_root: Path to repository root. Defaults to current working directory.
+++++        """
+++++        if repo_root is None:
+++++            # Default to repository root so the live Gateway can read ./artifacts/index.md.
+++++            repo_root = str(Path(__file__).resolve().parents[3])
+++++
+++++        self._repo_root = Path(repo_root)
+++++        self._index_path = self._repo_root / "artifacts" / "index.md"
+++++
+++++    # -----------------------------------------------------------------------#
+++++    # Core KnowledgeProvider contract
+++++    # -----------------------------------------------------------------------#
+++++
+++++    def produce_artifact(self, selection: str) -> KnowledgeArtifact:
+++++        """
+++++        Produce a KnowledgeArtifact from the Knowledge Vault.
+++++
+++++        Parses the selection string into mode and section, resolves artifacts
+++++        from the index, and returns the requested content with token estimation.
+++++
+++++        Selection format: "<mode>[:<section>]" or "<artifact_title>"
+++++        Examples:
+++++            - "summary" -> return first artifact's summary
+++++            - "section:architecture" -> return first artifact's "Architecture" section
+++++            - "full" -> return first artifact's full content
+++++            - "some-title" -> return artifact matching title
+++++
+++++        Args:
+++++            selection: Selection criteria as string. Either:
+++++                      - Mode-only: "summary" | "section:<section_name>" | "full"
+++++                      - Title match: exact artifact title from index.md
+++++
+++++        Returns:
+++++            KnowledgeArtifact with source='vault', content, and estimated tokens.
+++++
+++++        Raises:
+++++            FileNotFoundError: Index file does not exist.
+++++            ValueError: Invalid selection format or no matching artifacts found.
+++++        """
+++++        # Parse selection string
+++++        parsed = self._parse_selection(selection)
+++++
+++++        # Load index
+++++        artifacts_map = self._load_index()
+++++
+++++        # Find matching artifact. Natural-language scoring is enabled only for
+++++        # mode-prefixed selections such as "summary:<request>"; unprefixed
+++++        # selections preserve legacy exact-title / exact-tag behavior.
+++++        allow_query = ":" in selection and parsed.title is not None
+++++        matching_artifacts = self._find_matches(parsed.title, artifacts_map, allow_query=allow_query)
+++++
+++++        if not matching_artifacts:
+++++            raise ValueError(f"No matching artifact found for selection: {selection}")
+++++
+++++        # Select appropriate artifact by mode (no redundant title filter)
+++++        selected_artifact = self._select_artifact_by_mode(
+++++            matching_artifacts, parsed.mode, parsed.section
+++++        )
+++++
+++++        # Resolve content based on mode
+++++        content = self._resolve_content(selected_artifact, parsed.mode, parsed.section)
+++++
+++++        return KnowledgeArtifact(
+++++            source="vault",
+++++            content=content,
+++++        )
+++++
+++++    def _parse_selection(self, selection: str) -> ArtifactSelection:
+++++        """Parse selection string into ArtifactSelection."""
+++++        selection_str = selection.strip()
+++++
+++++        # Mode-only: "summary" | "full"
+++++        if selection_str in ("summary", "full"):
+++++            return ArtifactSelection(mode=selection_str, title=None, section=None)
+++++
+++++        # Colon-delimited: "section:<name>", "summary:<query>", "full:<query>",
+++++        # or invalid "bogus:<something>".
+++++        if ":" in selection_str:
+++++            mode, rest = selection_str.split(":", 1)
+++++            mode = mode.lower()
+++++            rest = rest.strip() or None
+++++            if mode in ("summary", "full"):
+++++                return ArtifactSelection(mode=mode, title=rest, section=None)
+++++            if mode == "section":
+++++                return ArtifactSelection(mode="section", title=None, section=rest)
+++++            raise ValueError(f"Unknown mode: {mode}")
+++++
+++++        # Fallback: treat as title match
+++++        return ArtifactSelection(mode="full", title=selection_str, section=None)
+++++
+++++    def _load_index(self) -> dict[str, ArtifactMetadata]:
+++++        """Load artifacts/index.md and parse metadata into a dict.
+++++
+++++        Returns:
+++++            Mapping from artifact title to ArtifactMetadata.
+++++
+++++        Raises:
+++++            FileNotFoundError: Index file does not exist.
+++++        """
+++++        if not self._index_path.exists():
+++++            raise FileNotFoundError(f"Index file not found: {self._index_path}")
+++++
+++++        index_content = self._index_path.read_text()
+++++
+++++        # Extract index table rows
+++++        table_pattern = r"\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|"
+++++        table_rows = re.findall(table_pattern, index_content)
+++++
+++++        artifacts_map: dict[str, ArtifactMetadata] = {}
+++++
+++++        # Parse each row (skip header)
+++++        for row in table_rows[1:]:
+++++            cells = [cell.strip() for cell in row.split("|") if cell.strip()]
+++++
+++++            # Expected format: Date | Title | Persona | Status | Tags | Freshness | Summary | Path
+++++            if len(cells) < 8:
+++++                continue
+++++
+++++            date_str, title, persona, status, tags_str, freshness_str, summary, path = (
+++++                cells[0],
+++++                cells[1],
+++++                cells[2],
+++++                cells[3],
+++++                cells[4],
+++++                cells[5],
+++++                cells[6][:100],
+++++                cells[7],
+++++            )
+++++
+++++            # Parse tags
+++++            tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()]
+++++
+++++            # Parse freshness_days
+++++            try:
+++++                freshness_days = int(freshness_str)
+++++            except ValueError:
+++++                freshness_days = 30  # Default
+++++
+++++            metadata = ArtifactMetadata(
+++++                title=title,
+++++                persona=persona,
+++++                created_date=date_str,
+++++                status=status,
+++++                tags=tags,
+++++                freshness_days=freshness_days,
+++++                summary=summary,
+++++                path=path,
+++++            )
+++++
+++++            artifacts_map[title] = metadata
+++++
+++++        return artifacts_map
+++++
+++++    def _find_matches(
+++++        self,
+++++        title: str | None,
+++++        artifacts_map: dict[str, ArtifactMetadata],
+++++        allow_query: bool = False,
+++++    ) -> list[ArtifactMetadata]:
+++++        """Find artifacts matching title, tag, or deterministic metadata terms.
+++++
+++++        When title is None (mode-only selection), returns all artifacts.
+++++        Natural-language selections are matched against title, tags, persona,
+++++        summary, and path using deterministic lexical scoring.
+++++        """
+++++        # Mode-only selection: preserve existing behavior.
+++++        if title is None:
+++++            matches = list(artifacts_map.values())
+++++            matches.sort(key=lambda m: m.created_date, reverse=True)
+++++            return matches
+++++
+++++        # Exact title match preserves existing contract behavior.
+++++        if title in artifacts_map:
+++++            return [artifacts_map[title]]
+++++
+++++        query = title.strip().lower()
+++++
+++++        # Exact tag match preserves existing contract behavior.
+++++        exact_tag_matches = [
+++++            meta
+++++            for meta in artifacts_map.values()
+++++            if any(tag.lower() == query for tag in meta.tags)
+++++        ]
+++++        if exact_tag_matches:
+++++            exact_tag_matches.sort(key=lambda m: m.created_date, reverse=True)
+++++            return exact_tag_matches
+++++
+++++        if not allow_query:
+++++            return []
+++++
+++++        terms = self._query_terms(query)
+++++        if not terms:
+++++            return []
+++++
+++++        scored: list[tuple[int, int, str, ArtifactMetadata]] = []
+++++        for meta in artifacts_map.values():
+++++            score = self._metadata_score(meta, terms)
+++++            if score > 0:
+++++                # Sort score descending, then newest first, then title for stable ties.
+++++                date_key = int(meta.created_date.replace("-", "")) if meta.created_date else 0
+++++                scored.append((-score, -date_key, meta.title.lower(), meta))
+++++
+++++        scored.sort(key=lambda item: (item[0], item[1], item[2]))
+++++        return [meta for _, _, _, meta in scored]
+++++
+++++    def _query_terms(self, text: str) -> list[str]:
+++++        """Extract deterministic lexical query terms from selection text."""
+++++        terms = []
+++++        for term in re.findall(r"[a-z0-9][a-z0-9.+_-]*", text.lower()):
+++++            if len(term) < 3 or term in _STOPWORDS:
+++++                continue
+++++            terms.append(term)
+++++        return list(dict.fromkeys(terms))
+++++
+++++    def _metadata_score(self, meta: ArtifactMetadata, terms: list[str]) -> int:
+++++        """Score artifact metadata against query terms without semantic ranking."""
+++++        title = meta.title.lower()
+++++        tags = [tag.lower() for tag in meta.tags]
+++++        persona = meta.persona.lower()
+++++        summary = meta.summary.lower()
+++++        path = meta.path.lower()
+++++
+++++        score = 0
+++++        for term in terms:
+++++            if term in tags:
+++++                score += 6
+++++            if term in title:
+++++                score += 4
+++++            if term in summary:
+++++                score += 2
+++++            if term in persona or term in path:
+++++                score += 1
+++++        return score
+++++
+++++    def _select_artifact_by_mode(
+++++        self,
+++++        artifacts: list[ArtifactMetadata],
+++++        mode: str,
+++++        section: str | None,
+++++    ) -> ArtifactMetadata:
+++++        """Select an artifact based on retrieval mode.
+++++
+++++        Args:
+++++            artifacts: List of matching artifacts, sorted by date (newest first).
+++++            mode: One of "summary" | "section" | "full".
+++++            section: Section title for mode="section".
+++++
+++++        Returns:
+++++            The selected ArtifactMetadata.
+++++
+++++        Raises:
+++++            ValueError: Invalid mode or no artifacts available.
+++++        """
+++++        if not artifacts:
+++++            raise ValueError("No artifacts available")
+++++
+++++        selected = artifacts[0]
+++++
+++++        if mode == "full":
+++++            return selected
+++++
+++++        if mode == "summary":
+++++            if not selected.summary:
+++++                raise ValueError(f"No summary available for artifact: {selected.title}")
+++++            return selected
+++++
+++++        if mode == "section":
+++++            # Stub: section mode returns summary, fallback to full
+++++            if selected.summary:
+++++                return selected
+++++            return selected
+++++
+++++        raise ValueError(f"Unknown mode: {mode}")
+++++
+++++    def _resolve_content(
+++++        self,
+++++        artifact: ArtifactMetadata,
+++++        mode: str,
+++++        section: str | None,
+++++    ) -> str:
+++++        """Resolve content based on retrieval mode.
+++++
+++++        Args:
+++++            artifact: Artifact metadata.
+++++            mode: One of "summary" | "section" | "full".
+++++            section: Section title for mode="section".
+++++
+++++        Returns:
+++++            Resolved artifact content.
+++++        """
+++++        if mode == "summary":
+++++            if not artifact.summary:
+++++                return f"No summary available for artifact: {artifact.title}"
+++++            return artifact.summary
+++++
+++++        if mode == "full":
+++++            artifact_path = self._repo_root / artifact.path
+++++            if not artifact_path.exists():
+++++                return f"Artifact file not found: {artifact.path}"
+++++
+++++            content = artifact_path.read_text()
+++++            # Handle YAML frontmatter
+++++            if content.startswith("---"):
+++++                # Remove YAML frontmatter. Use DOTALL to allow newlines in the block
+++++                # and MULTILINE so ^ matches the start of a line for the closing '---'.
+++++                content = re.sub(r"^---\n.*?^---\n", "", content, flags=re.DOTALL | re.MULTILINE)
+++++
+++++            return content.strip()
+++++
+++++        # Section and unknown modes: fall back to full
+++++        return self._resolve_content(artifact, "full", None)
+++++
+++++    def _estimate_tokens(self, content: str) -> int:
+++++        """Estimate token count for a string.
+++++
+++++        Uses a conservative estimate of 4 characters/token for English text.
+++++
+++++        Args:
+++++            content: Text content.
+++++
+++++        Returns:
+++++            Estimated token count.
+++++        """
+++++        return len(content) // 4
+++++
+++++    # -----------------------------------------------------------------------#
+++++    # Introspection
+++++    # -----------------------------------------------------------------------#
+++++
+++++    def list_artifacts(self) -> list[ArtifactMetadata]:
+++++        """List all indexed artifacts.
+++++
+++++        Returns:
+++++            List of ArtifactMetadata, sorted by date (newest first).
+++++        """
+++++        artifacts_map = self._load_index()
+++++
+++++        artifacts = sorted(
+++++            artifacts_map.values(),
+++++            key=lambda m: m.created_date,
+++++            reverse=True,
+++++        )
+++++
+++++        return artifacts
+++++
+++++    def __repr__(self) -> str:
+++++        return f"VaultProvider(repo_root={self._repo_root!r})"
++++diff --git a/pilot/knowledge/providers/vault.py.backup b/pilot/knowledge/providers/vault.py.backup
++++new file mode 100644
++++index 0000000..3444af5
++++--- /dev/null
+++++++ b/pilot/knowledge/providers/vault.py.backup
++++@@ -0,0 +1,360 @@
+++++"""
+++++VaultProvider — resolves knowledge artifacts from the Knowledge Vault.
+++++
+++++Implements the KnowledgeProvider contract: produce_artifact(intent) -> KnowledgeArtifact.
+++++No abstractions. No registry. No caching.
+++++Shortcut: resolves by artifact title from index.md.
+++++"""
+++++
+++++from __future__ import annotations
+++++
+++++import re
+++++from dataclasses import dataclass, field
+++++from pathlib import Path
+++++from typing import TYPE_CHECKING
+++++
+++++if TYPE_CHECKING:
+++++    from pilot.knowledge.artifact import KnowledgeArtifact
+++++from pilot.knowledge.artifact import KnowledgeArtifact
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Data types
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++@dataclass(frozen=True)
+++++class ArtifactMetadata:
+++++    """Metadata for a single Knowledge Vault artifact."""
+++++
+++++    title: str
+++++    persona: str
+++++    created_date: str  # YYYY-MM-DD
+++++    status: str  # draft | verified
+++++    tags: list[str] = field(default_factory=list)
+++++    freshness_days: int = 30
+++++    summary: str = ""
+++++    path: str = ""
+++++
+++++
+++++@dataclass(frozen=True)
+++++class ArtifactSelection:
+++++    """Selection criteria for artifact retrieval."""
+++++
+++++    mode: str  # summary | section | full
+++++    title: str | None = None  # Title for exact match (None for mode-only)
+++++    section: str | None = None  # Section title for mode='section'
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# VaultProvider
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class VaultProvider:
+++++    """KnowledgeProvider for the Knowledge Vault filesystem layer.
+++++
+++++    Resolves artifacts by title, tag, or persona. Supports summary, section, and
+++++    full retrieval modes. Estimates token counts for plan capacity.
+++++
+++++    Token estimation: ~4 characters/token for English text.
+++++    Deterministic behavior: same (mode, section, path) -> same content.
+++++    """
+++++
+++++    def __init__(self, repo_root: str | None = None):
+++++        """
+++++        Initialize VaultProvider with repository root path.
+++++
+++++        Args:
+++++            repo_root: Path to repository root. Defaults to current working directory.
+++++        """
+++++        if repo_root is None:
+++++            # Default to directory where this module lives (pilot/...)
+++++            repo_root = str(Path(__file__).resolve().parent.parent.parent)
+++++
+++++        self._repo_root = Path(repo_root)
+++++        self._index_path = self._repo_root / "artifacts" / "index.md"
+++++
+++++    # -----------------------------------------------------------------------#
+++++    # Core KnowledgeProvider contract
+++++    # -----------------------------------------------------------------------#
+++++
+++++    def produce_artifact(self, selection: str) -> KnowledgeArtifact:
+++++        """
+++++        Produce a KnowledgeArtifact from the Knowledge Vault.
+++++
+++++        Parses the selection string into mode and section, resolves artifacts
+++++        from the index, and returns the requested content with token estimation.
+++++
+++++        Selection format: "<mode>[:<section>]" or "<artifact_title>"
+++++        Examples:
+++++            - "summary" -> return first artifact's summary
+++++            - "section:architecture" -> return first artifact's "Architecture" section
+++++            - "full" -> return first artifact's full content
+++++            - "some-title" -> return artifact matching title
+++++
+++++        Args:
+++++            selection: Selection criteria as string. Either:
+++++                      - Mode-only: "summary" | "section:<section_name>" | "full"
+++++                      - Title match: exact artifact title from index.md
+++++
+++++        Returns:
+++++            KnowledgeArtifact with source='vault', content, and estimated tokens.
+++++
+++++        Raises:
+++++            FileNotFoundError: Index file does not exist.
+++++            ValueError: Invalid selection format or no matching artifacts found.
+++++        """
+++++        # Parse selection string
+++++        parsed = self._parse_selection(selection)
+++++
+++++        # Load index
+++++        artifacts_map = self._load_index()
+++++
+++++        # Find matching artifact
+++++        matching_artifacts = self._find_matches(parsed.title, artifacts_map)
+++++
+++++        if not matching_artifacts:
+++++            raise ValueError(f"No matching artifact found for selection: {selection}")
+++++
+++++        # Select appropriate artifact by mode (no redundant title filter)
+++++        selected_artifact = self._select_artifact_by_mode(
+++++            matching_artifacts, parsed.mode, parsed.section
+++++        )
+++++
+++++        # Resolve content based on mode
+++++        content = self._resolve_content(selected_artifact, parsed.mode, parsed.section)
+++++
+++++        return KnowledgeArtifact(
+++++            source="vault",
+++++            content=content,
+++++        )
+++++
+++++    def _parse_selection(self, selection: str) -> ArtifactSelection:
+++++        """Parse selection string into ArtifactSelection."""
+++++        selection_str = selection.strip()
+++++
+++++        # Mode-only: "summary" | "full"
+++++        if selection_str in ("summary", "full"):
+++++            return ArtifactSelection(mode=selection_str, title=None, section=None)
+++++
+++++        # Colon-delimited: "section:<name>" or invalid "bogus:<something>"
+++++        if ":" in selection_str:
+++++            mode, rest = selection_str.split(":", 1)
+++++            mode = mode.lower()
+++++            if mode in ("summary", "full"):
+++++                return ArtifactSelection(mode=mode, title=None, section=None)
+++++            if mode == "section":
+++++                return ArtifactSelection(mode="section", title=None, section=rest)
+++++            raise ValueError(f"Unknown mode: {mode}")
+++++
+++++        # Fallback: treat as title match
+++++        return ArtifactSelection(mode="full", title=selection_str, section=None)
+++++
+++++    def _load_index(self) -> dict[str, ArtifactMetadata]:
+++++        """Load artifacts/index.md and parse metadata into a dict.
+++++
+++++        Returns:
+++++            Mapping from artifact title to ArtifactMetadata.
+++++
+++++        Raises:
+++++            FileNotFoundError: Index file does not exist.
+++++        """
+++++        if not self._index_path.exists():
+++++            raise FileNotFoundError(f"Index file not found: {self._index_path}")
+++++
+++++        index_content = self._index_path.read_text()
+++++
+++++        # Extract index table rows
+++++        table_pattern = r"\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|[^|]+\|"
+++++        table_rows = re.findall(table_pattern, index_content)
+++++
+++++        artifacts_map: dict[str, ArtifactMetadata] = {}
+++++
+++++        # Parse each row (skip header)
+++++        for row in table_rows[1:]:
+++++            cells = [cell.strip() for cell in row.split("|") if cell.strip()]
+++++
+++++            # Expected format: Date | Title | Persona | Status | Tags | Freshness | Summary | Path
+++++            if len(cells) < 8:
+++++                continue
+++++
+++++            date_str, title, persona, status, tags_str, freshness_str, summary, path = (
+++++                cells[0],
+++++                cells[1],
+++++                cells[2],
+++++                cells[3],
+++++                cells[4],
+++++                cells[5],
+++++                cells[6][:100],
+++++                cells[7],
+++++            )
+++++
+++++            # Parse tags
+++++            tags = [tag.strip() for tag in tags_str.split(",") if tag.strip()]
+++++
+++++            # Parse freshness_days
+++++            try:
+++++                freshness_days = int(freshness_str)
+++++            except ValueError:
+++++                freshness_days = 30  # Default
+++++
+++++            metadata = ArtifactMetadata(
+++++                title=title,
+++++                persona=persona,
+++++                created_date=date_str,
+++++                status=status,
+++++                tags=tags,
+++++                freshness_days=freshness_days,
+++++                summary=summary,
+++++                path=path,
+++++            )
+++++
+++++            artifacts_map[title] = metadata
+++++
+++++        return artifacts_map
+++++
+++++    def _find_matches(
+++++        self, title: str | None, artifacts_map: dict[str, ArtifactMetadata]
+++++    ) -> list[ArtifactMetadata]:
+++++        """Find artifacts matching title (exact) or title in tags.
+++++
+++++        When title is None (mode-only selection), returns all artifacts.
+++++
+++++        Args:
+++++            title: Artifact title to match, or None for mode-only selection.
+++++            artifacts_map: Parsed artifacts index.
+++++
+++++        Returns:
+++++            List of matching artifacts (sorted by date, newest first).
+++++        """
+++++        # Mode-only selection: return all artifacts
+++++        if title is None:
+++++            matches = list(artifacts_map.values())
+++++        # Exact title match
+++++        elif title in artifacts_map:
+++++            matches = [artifacts_map[title]]
+++++        else:
+++++            # Tag-based fallback
+++++            matches = [
+++++                meta
+++++                for meta in artifacts_map.values()
+++++                if any(tag.lower() == title.lower() for tag in meta.tags)
+++++            ]
+++++
+++++        # Sort by date (newest first)
+++++        matches.sort(key=lambda m: m.created_date, reverse=True)
+++++
+++++        return matches
+++++
+++++    def _select_artifact_by_mode(
+++++        self,
+++++        artifacts: list[ArtifactMetadata],
+++++        mode: str,
+++++        section: str | None,
+++++    ) -> ArtifactMetadata:
+++++        """Select an artifact based on retrieval mode.
+++++
+++++        Args:
+++++            artifacts: List of matching artifacts, sorted by date (newest first).
+++++            mode: One of "summary" | "section" | "full".
+++++            section: Section title for mode="section".
+++++
+++++        Returns:
+++++            The selected ArtifactMetadata.
+++++
+++++        Raises:
+++++            ValueError: Invalid mode or no artifacts available.
+++++        """
+++++        if not artifacts:
+++++            raise ValueError("No artifacts available")
+++++
+++++        selected = artifacts[0]
+++++
+++++        if mode == "full":
+++++            return selected
+++++
+++++        if mode == "summary":
+++++            if not selected.summary:
+++++                raise ValueError(f"No summary available for artifact: {selected.title}")
+++++            return selected
+++++
+++++        if mode == "section":
+++++            # Stub: section mode returns summary, fallback to full
+++++            if selected.summary:
+++++                return selected
+++++            return selected
+++++
+++++        raise ValueError(f"Unknown mode: {mode}")
+++++
+++++    def _resolve_content(
+++++        self,
+++++        artifact: ArtifactMetadata,
+++++        mode: str,
+++++        section: str | None,
+++++    ) -> str:
+++++        """Resolve content based on retrieval mode.
+++++
+++++        Args:
+++++            artifact: Artifact metadata.
+++++            mode: One of "summary" | "section" | "full".
+++++            section: Section title for mode="section".
+++++
+++++        Returns:
+++++            Resolved artifact content.
+++++        """
+++++        if mode == "summary":
+++++            if not artifact.summary:
+++++                return f"No summary available for artifact: {artifact.title}"
+++++            return artifact.summary
+++++
+++++        if mode == "full":
+++++            artifact_path = self._repo_root / artifact.path
+++++            if not artifact_path.exists():
+++++                return f"Artifact file not found: {artifact.path}"
+++++
+++++            content = artifact_path.read_text()
+++++            # Handle YAML frontmatter
+++++            if content.startswith("---"):
+++++                content = re.sub(r"^---\n.*?^---\n", "", content, flags=re.DOTALL)
+++++
+++++            return content.strip()
+++++
+++++        # Section and unknown modes: fall back to full
+++++        return self._resolve_content(artifact, "full", None)
+++++
+++++    def _estimate_tokens(self, content: str) -> int:
+++++        """Estimate token count for a string.
+++++
+++++        Uses a conservative estimate of 4 characters/token for English text.
+++++
+++++        Args:
+++++            content: Text content.
+++++
+++++        Returns:
+++++            Estimated token count.
+++++        """
+++++        return len(content) // 4
+++++
+++++    # -----------------------------------------------------------------------#
+++++    # Introspection
+++++    # -----------------------------------------------------------------------#
+++++
+++++    def list_artifacts(self) -> list[ArtifactMetadata]:
+++++        """List all indexed artifacts.
+++++
+++++        Returns:
+++++            List of ArtifactMetadata, sorted by date (newest first).
+++++        """
+++++        artifacts_map = self._load_index()
+++++
+++++        artifacts = sorted(
+++++            artifacts_map.values(),
+++++            key=lambda m: m.created_date,
+++++            reverse=True,
+++++        )
+++++
+++++        return artifacts
+++++
+++++    def __repr__(self) -> str:
+++++        return f"VaultProvider(repo_root={self._repo_root!r})"
++++diff --git a/scripts/approval-approve.sh b/scripts/approval-approve.sh
++++new file mode 100755
++++index 0000000..a191298
++++--- /dev/null
+++++++ b/scripts/approval-approve.sh
++++@@ -0,0 +1,184 @@
+++++#!/usr/bin/env bash
+++++# ==========================================================
+++++# approval-approve.sh — Approve pending proposal + push
+++++# ==========================================================
+++++#
+++++# Actions:
+++++#   1. Verify current approval package exists and is valid
+++++#   2. Execute git push
+++++#   3. Move package from pending/ to approved/
+++++#   4. Append engineering journal entry
+++++#
+++++# Usage:
+++++#   scripts/approval-approve.sh [YYYY-MM-DD-NNN]
+++++#
+++++# If no package ID is given, approves the most recent
+++++# pending package.
+++++#
+++++# ==========================================================
+++++
+++++set -euo pipefail
+++++
+++++REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+++++PENDING_DIR="$REPO_ROOT/approval/pending"
+++++APPROVED_DIR="$REPO_ROOT/approval/approved"
+++++JOURNAL="$REPO_ROOT/log/build-log.md"
+++++
+++++log() { echo "  [approval-approve] $*"; }
+++++die() { echo >&2 "  [approval-approve] FATAL: $*"; exit 1; }
+++++
+++++# ---------------------------------------------------------
+++++# Find the target package
+++++# ---------------------------------------------------------
+++++
+++++find_package() {
+++++    local specified_id="${1:-}"
+++++
+++++    if [ -n "$specified_id" ]; then
+++++        if [ ! -d "$PENDING_DIR/$specified_id" ]; then
+++++            die "Package not found: $specified_id"
+++++        fi
+++++        echo "$specified_id"
+++++        return
+++++    fi
+++++
+++++    # Find most recent pending package
+++++    local latest
+++++    latest="$(ls -1 "$PENDING_DIR" 2>/dev/null | sort -r | head -1)"
+++++    if [ -z "$latest" ]; then
+++++        die "No pending approval packages found."
+++++    fi
+++++    echo "$latest"
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Verify package integrity
+++++# ---------------------------------------------------------
+++++
+++++verify_package() {
+++++    local pkg_id="$1"
+++++    local pkg_dir="$PENDING_DIR/$pkg_id"
+++++
+++++    log "Verifying package: ${pkg_id}"
+++++
+++++    local required_files="summary.md changed-files.md git-diff.patch proposal-link.txt"
+++++    local missing=0
+++++
+++++    for f in $required_files; do
+++++        if [ ! -f "$pkg_dir/$f" ]; then
+++++            log "MISSING: $f"
+++++            missing=$((missing + 1))
+++++        else
+++++            log "  ✓ $f"
+++++        fi
+++++    done
+++++
+++++    if [ "$missing" -gt 0 ]; then
+++++        die "Package is incomplete (${missing} file(s) missing). Reject or revise instead."
+++++    fi
+++++
+++++    # Verify it's actually pending (exists in pending/)
+++++    if [ ! -d "$pkg_dir" ]; then
+++++        die "Package directory does not exist in pending/."
+++++    fi
+++++
+++++    log "Package verified."
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Execute git push
+++++# ---------------------------------------------------------
+++++
+++++execute_push() {
+++++    log "Pushing to remote..."
+++++    cd "$REPO_ROOT"
+++++    if git push origin HEAD 2>&1; then
+++++        log "Push successful."
+++++    else
+++++        die "git push failed. Package remains in pending/."
+++++    fi
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Move package to approved/
+++++# ---------------------------------------------------------
+++++
+++++move_to_approved() {
+++++    local pkg_id="$1"
+++++
+++++    log "Moving package to approved/..."
+++++    mkdir -p "$APPROVED_DIR"
+++++    mv "$PENDING_DIR/$pkg_id" "$APPROVED_DIR/$pkg_id"
+++++
+++++    if [ -d "$APPROVED_DIR/$pkg_id" ]; then
+++++        log "Package moved to approved/${pkg_id}"
+++++    else
+++++        die "Failed to move package. Check filesystem."
+++++    fi
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Append engineering journal entry
+++++# ---------------------------------------------------------
+++++
+++++append_journal() {
+++++    local pkg_id="$1"
+++++
+++++    log "Appending engineering journal entry..."
+++++
+++++    cat >> "$JOURNAL" <<EOF
+++++
+++++---
+++++## $(date +%Y-%m-%d) — Approval Package Approved: ${pkg_id}
+++++
+++++### Date
+++++$(date +%Y-%m-%d)
+++++
+++++### Source
+++++\`#provenance: approval-pipeline\`
+++++
+++++### Decision
+++++Approval package **${pkg_id}** was approved and pushed to remote.
+++++
+++++### Reasoning
+++++Human operator reviewed the proposal package and approved. Changes pushed via \`git push\`.
+++++
+++++### Changes Made
+++++- Package moved from \`approval/pending/${pkg_id}\` to \`approval/approved/${pkg_id}\`
+++++- \`git push\` executed successfully
+++++- Journal entry appended
+++++
+++++### Lessons Learned
+++++_No new lessons in this approval cycle._
+++++
+++++### Follow-Up Actions
+++++None at this time.
+++++EOF
+++++
+++++    log "Journal entry appended."
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Main
+++++# ---------------------------------------------------------
+++++
+++++main() {
+++++    local pkg_id
+++++    pkg_id="$(find_package "${1:-}")"
+++++
+++++    log "Engineering Approval Pipeline — Approve"
+++++    log "Package: ${pkg_id}"
+++++
+++++    verify_package  "$pkg_id"
+++++    execute_push
+++++    move_to_approved "$pkg_id"
+++++    append_journal  "$pkg_id"
+++++
+++++    log "==========================================="
+++++    log "APPROVED: ${pkg_id}"
+++++    log "Pushed to remote."
+++++    log "Package archived: approval/approved/${pkg_id}/"
+++++    log "==========================================="
+++++}
+++++
+++++main "$@"
++++diff --git a/scripts/approval-generate.sh b/scripts/approval-generate.sh
++++new file mode 100755
++++index 0000000..50cdd08
++++--- /dev/null
+++++++ b/scripts/approval-generate.sh
++++@@ -0,0 +1,269 @@
+++++#!/usr/bin/env bash
+++++# ==========================================================
+++++# approval-generate.sh — Generate an Approval Package
+++++# ==========================================================
+++++#
+++++# After a sprint is frozen, this script:
+++++#   1. Verifies all tests pass
+++++#   2. Runs Repository Synchronization (git status)
+++++#   3. Generates the Proposal Package:
+++++#      - summary.md        — human-readable summary
+++++#      - changed-files.md  — list of changed files
+++++#      - git-diff.patch     — full diff of staged changes
+++++#      - proposal-link.txt  — reference to any previous proposal
+++++#   4. Stages every generated file
+++++#   5. Creates a local Git commit
+++++#   6. Generates the Approval Package (in approval/pending/)
+++++#   7. Stops (enters WAITING_FOR_APPROVAL state)
+++++#
+++++# Usage:
+++++#   scripts/approval-generate.sh ["optional commit message"]
+++++#   scripts/approval-generate.sh --reference YYYY-MM-DD-NNN  # revise mode
+++++#
+++++# Deterministic: Running with the same repo state produces
+++++# the same package (modulo timestamps in filenames and content).
+++++# Restart-safe: If a package already exists for today's date,
+++++# increments the sequence number (NNN).
+++++#
+++++# ==========================================================
+++++
+++++set -euo pipefail
+++++
+++++REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+++++APPROVAL_DIR="$REPO_ROOT/approval/pending"
+++++SCRIPTS_DIR="$REPO_ROOT/scripts"
+++++
+++++# ---------------------------------------------------------
+++++# Helpers
+++++# ---------------------------------------------------------
+++++
+++++log() { echo "  [approval-generate] $*"; }
+++++die() { echo >&2 "  [approval-generate] FATAL: $*"; exit 1; }
+++++
+++++# Generate YYYY-MM-DD-NNN package ID, incrementing NNN if needed
+++++next_package_id() {
+++++    local today
+++++    today="$(date +%Y-%m-%d)"
+++++    local n=1
+++++    while [ -d "$APPROVAL_DIR/${today}-${n}" ]; do
+++++        n=$((n + 1))
+++++    done
+++++    echo "${today}-${n}"
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Phase 1 — Verify tests pass
+++++# ---------------------------------------------------------
+++++
+++++verify_tests() {
+++++    log "Running test suite..."
+++++    if python3 -m pytest "$REPO_ROOT/tests/" -o 'addopts=' -q --tb=short 2>&1; then
+++++        log "All tests passed."
+++++    else
+++++        die "Tests failed. Fix before generating approval package."
+++++    fi
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Phase 2 — Repository Synchronization
+++++# ---------------------------------------------------------
+++++
+++++sync_repository() {
+++++    log "Checking repository state..."
+++++    local dirty
+++++    dirty="$(cd "$REPO_ROOT" && git status --porcelain)"
+++++    if [ -z "$dirty" ]; then
+++++        die "No changes to propose. Repository is clean."
+++++    fi
+++++    log "Found $(echo "$dirty" | wc -l) changed file(s)."
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Phase 3 — Generate Proposal Package files
+++++# ---------------------------------------------------------
+++++
+++++generate_summary() {
+++++    local pkg_dir="$1"
+++++    local pkg_id="$2"
+++++    local reference="$3"
+++++    local commit_msg="$4"
+++++    local branch
+++++    branch="$(cd "$REPO_ROOT" && git rev-parse --abbrev-ref HEAD)"
+++++    local commit_count
+++++    commit_count="$(cd "$REPO_ROOT" && git rev-list --count HEAD)"
+++++    local last_commit
+++++    last_commit="$(cd "$REPO_ROOT" && git log --oneline -1)"
+++++
+++++    cat > "$pkg_dir/summary.md" <<EOF
+++++# Approval Package: ${pkg_id}
+++++
+++++**Generated:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
+++++**Branch:** ${branch}
+++++**Base Commit:** ${last_commit}
+++++**Total Commits:** ${commit_count}
+++++
+++++## Commit Message
+++++
+++++${commit_msg}
+++++
+++++## Status
+++++
+++++WAITING_FOR_APPROVAL
+++++EOF
+++++
+++++    if [ -n "$reference" ]; then
+++++        echo "" >> "$pkg_dir/summary.md"
+++++        echo "## Revision Of" >> "$pkg_dir/summary.md"
+++++        echo "" >> "$pkg_dir/summary.md"
+++++        echo "This proposal revises: \`${reference}\`" >> "$pkg_dir/summary.md"
+++++    fi
+++++
+++++    log "Generated summary.md"
+++++}
+++++
+++++generate_changed_files() {
+++++    local pkg_dir="$1"
+++++
+++++    {
+++++        echo "# Changed Files"
+++++        echo ""
+++++        echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+++++        echo ""
+++++        echo "| Status | File |"
+++++        echo "|--------|------|"
+++++        cd "$REPO_ROOT" && git status --porcelain | while IFS= read -r line; do
+++++            local status="${line:0:2}"
+++++            local file="${line:3}"
+++++            echo "| \`${status}\` | \`${file}\` |"
+++++        done
+++++    } > "$pkg_dir/changed-files.md"
+++++
+++++    log "Generated changed-files.md"
+++++}
+++++
+++++generate_diff() {
+++++    local pkg_dir="$1"
+++++
+++++    cd "$REPO_ROOT" && git diff HEAD > "$pkg_dir/git-diff.patch"
+++++    local diff_size
+++++    diff_size="$(wc -c < "$pkg_dir/git-diff.patch")"
+++++    log "Generated git-diff.patch (${diff_size} bytes)"
+++++}
+++++
+++++generate_proposal_link() {
+++++    local pkg_dir="$1"
+++++    local reference="$2"
+++++
+++++    if [ -n "$reference" ]; then
+++++        echo "Revises: ${reference}" > "$pkg_dir/proposal-link.txt"
+++++        echo "Previous: ${reference}" >> "$pkg_dir/proposal-link.txt"
+++++        log "Generated proposal-link.txt (references ${reference})"
+++++    else
+++++        echo "Original proposal (no prior reference)" > "$pkg_dir/proposal-link.txt"
+++++        log "Generated proposal-link.txt (original)"
+++++    fi
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Phase 4 — Stage and commit generated files
+++++# ---------------------------------------------------------
+++++
+++++stage_and_commit() {
+++++    local pkg_dir="$1"
+++++    local pkg_id="$2"
+++++    local commit_msg="$3"
+++++
+++++    log "Staging approval package files..."
+++++    cd "$REPO_ROOT"
+++++    git add "$pkg_dir/"
+++++
+++++    log "Staging all other changed files..."
+++++    # Stage everything that's modified/untracked
+++++    git add -A
+++++
+++++    log "Creating local commit..."
+++++    "$SCRIPTS_DIR/git-commit.sh" -m "${commit_msg}" 2>&1 || \
+++++        die "git-commit.sh failed. See errors above."
+++++
+++++    log "Commit created successfully."
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Phase 5 — Regenerate diff to include the commit itself
+++++# ---------------------------------------------------------
+++++
+++++update_diff_post_commit() {
+++++    local pkg_dir="$1"
+++++
+++++    # Now regenerate the diff to include the approval package files
+++++    # that were just committed
+++++    cd "$REPO_ROOT" && git diff HEAD~1 > "$pkg_dir/git-diff.patch"
+++++    log "Updated git-diff.patch to include committed changes"
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Main
+++++# ---------------------------------------------------------
+++++
+++++main() {
+++++    local reference=""
+++++    local commit_msg="chore: approval package — sprint completion"
+++++
+++++    # Parse arguments
+++++    while [[ $# -gt 0 ]]; do
+++++        case "$1" in
+++++            --reference)
+++++                reference="$2"
+++++                shift 2
+++++                ;;
+++++            *)
+++++                commit_msg="$1"
+++++                shift
+++++                ;;
+++++        esac
+++++    done
+++++
+++++    log "Engineering Approval Pipeline — Generate"
+++++    log "Repository: $REPO_ROOT"
+++++
+++++    # Phase 1: Verify tests
+++++    verify_tests
+++++
+++++    # Phase 2: Sync repository
+++++    sync_repository
+++++
+++++    # Phase 3: Generate package
+++++    local pkg_id
+++++    pkg_id="$(next_package_id)"
+++++    local pkg_dir="$APPROVAL_DIR/$pkg_id"
+++++
+++++    log "Creating package: ${pkg_id}"
+++++    mkdir -p "$pkg_dir"
+++++
+++++    generate_summary    "$pkg_dir" "$pkg_id" "$reference" "$commit_msg"
+++++    generate_changed_files "$pkg_dir"
+++++    generate_diff       "$pkg_dir"
+++++    generate_proposal_link "$pkg_dir" "$reference"
+++++
+++++    # Phase 4: Stage and commit
+++++    stage_and_commit "$pkg_dir" "$pkg_id" "$commit_msg"
+++++
+++++    # Phase 5: Update diff post-commit
+++++    update_diff_post_commit "$pkg_dir"
+++++
+++++    log "==========================================="
+++++    log "Package: ${pkg_id}"
+++++    log "Location: approval/pending/${pkg_id}/"
+++++    log "State: WAITING_FOR_APPROVAL"
+++++    log "==========================================="
+++++    log ""
+++++    log "Next steps:"
+++++    log "  hermes approve   — push to remote"
+++++    log "  hermes reject    — move to rejected/"
+++++    log "  hermes revise    — reopen for changes"
+++++
+++++    # Return the package ID for programmatic use
+++++    echo "$pkg_id"
+++++}
+++++
+++++main "$@"
++++diff --git a/scripts/approval-reject.sh b/scripts/approval-reject.sh
++++new file mode 100755
++++index 0000000..7bdba5d
++++--- /dev/null
+++++++ b/scripts/approval-reject.sh
++++@@ -0,0 +1,151 @@
+++++#!/usr/bin/env bash
+++++# ==========================================================
+++++# approval-reject.sh — Reject a pending proposal
+++++# ==========================================================
+++++#
+++++# Actions:
+++++#   1. Move package from pending/ to rejected/
+++++#   2. Append engineering journal entry
+++++#
+++++# Does NOT push. Does NOT revert the local commit.
+++++# The local commit stays — the operator can git reset
+++++# or handle it manually.
+++++#
+++++# Usage:
+++++#   scripts/approval-reject.sh [YYYY-MM-DD-NNN]
+++++#   scripts/approval-reject.sh YYYY-MM-DD-NNN "rejection reason"
+++++#
+++++# ==========================================================
+++++
+++++set -euo pipefail
+++++
+++++REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+++++PENDING_DIR="$REPO_ROOT/approval/pending"
+++++REJECTED_DIR="$REPO_ROOT/approval/rejected"
+++++JOURNAL="$REPO_ROOT/log/build-log.md"
+++++
+++++log() { echo "  [approval-reject] $*"; }
+++++die() { echo >&2 "  [approval-reject] FATAL: $*"; exit 1; }
+++++
+++++# ---------------------------------------------------------
+++++# Find the target package
+++++# ---------------------------------------------------------
+++++
+++++find_package() {
+++++    local specified_id="${1:-}"
+++++
+++++    if [ -n "$specified_id" ]; then
+++++        if [ ! -d "$PENDING_DIR/$specified_id" ]; then
+++++            die "Package not found in pending/: $specified_id"
+++++        fi
+++++        echo "$specified_id"
+++++        return
+++++    fi
+++++
+++++    local latest
+++++    latest="$(ls -1 "$PENDING_DIR" 2>/dev/null | sort -r | head -1)"
+++++    if [ -z "$latest" ]; then
+++++        die "No pending approval packages found."
+++++    fi
+++++    echo "$latest"
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Move package to rejected/
+++++# ---------------------------------------------------------
+++++
+++++move_to_rejected() {
+++++    local pkg_id="$1"
+++++    local reason="${2:-No reason specified}"
+++++
+++++    log "Moving package to rejected/..."
+++++    mkdir -p "$REJECTED_DIR"
+++++
+++++    # Write rejection reason before moving
+++++    echo "Rejected: $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$PENDING_DIR/$pkg_id/rejection-reason.txt"
+++++    echo "Reason: ${reason}" >> "$PENDING_DIR/$pkg_id/rejection-reason.txt"
+++++
+++++    mv "$PENDING_DIR/$pkg_id" "$REJECTED_DIR/$pkg_id"
+++++
+++++    if [ -d "$REJECTED_DIR/$pkg_id" ]; then
+++++        log "Package moved to rejected/${pkg_id}"
+++++    else
+++++        die "Failed to move package. Check filesystem."
+++++    fi
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Append engineering journal entry
+++++# ---------------------------------------------------------
+++++
+++++append_journal() {
+++++    local pkg_id="$1"
+++++    local reason="${2:-No reason specified}"
+++++
+++++    log "Appending engineering journal entry..."
+++++
+++++    cat >> "$JOURNAL" <<EOF
+++++
+++++---
+++++## $(date +%Y-%m-%d) — Approval Package Rejected: ${pkg_id}
+++++
+++++### Date
+++++$(date +%Y-%m-%d)
+++++
+++++### Source
+++++\`#provenance: approval-pipeline\`
+++++
+++++### Decision
+++++Approval package **${pkg_id}** was rejected by operator.
+++++
+++++### Reasoning
+++++${reason}
+++++
+++++### Changes Made
+++++- Package moved from \`approval/pending/${pkg_id}\` to \`approval/rejected/${pkg_id}\`
+++++- Rejection reason recorded
+++++- No push performed
+++++- Journal entry appended
+++++
+++++### Lessons Learned
+++++_Review rejection reason for improvements in next sprint._
+++++
+++++### Follow-Up Actions
+++++- [ ] Address rejection reason and create revised proposal if needed
+++++EOF
+++++
+++++    log "Journal entry appended."
+++++}
+++++
+++++# ---------------------------------------------------------
+++++# Main
+++++# ---------------------------------------------------------
+++++
+++++main() {
+++++    local pkg_id
+++++    local reason="No reason specified"
+++++
+++++    # Parse arguments: [PKG_ID] [REASON]
+++++    if [[ $# -ge 1 ]]; then
+++++        pkg_id="$(find_package "$1")"
+++++        if [[ $# -ge 2 ]]; then
+++++            reason="$2"
+++++        fi
+++++    else
+++++        pkg_id="$(find_package)"
+++++    fi
+++++
+++++    log "Engineering Approval Pipeline — Reject"
+++++    log "Package: ${pkg_id}"
+++++
+++++    move_to_rejected "$pkg_id" "$reason"
+++++    append_journal "$pkg_id" "$reason"
+++++
+++++    log "==========================================="
+++++    log "REJECTED: ${pkg_id}"
+++++    log "Package archived: approval/rejected/${pkg_id}/"
+++++    log "No push performed."
+++++    log "==========================================="
+++++}
+++++
+++++main "$@"
++++diff --git a/scripts/approval-revise.sh b/scripts/approval-revise.sh
++++new file mode 100755
++++index 0000000..6e8545e
++++--- /dev/null
+++++++ b/scripts/approval-revise.sh
++++@@ -0,0 +1,60 @@
+++++#!/usr/bin/env bash
+++++# ==========================================================
+++++# approval-revise.sh — Reopen a proposal for changes
+++++# ==========================================================
+++++#
+++++# Actions:
+++++#   1. Keep the original proposal package in pending/
+++++#   2. Reopen engineering work (no-op — already)
+++++#   3. Create a new proposal package referencing the previous one
+++++#
+++++# Usage:
+++++#   scripts/approval-revise.sh YYYY-MM-DD-NNN ["reason"]
+++++#
+++++# The script will use package
+++++#   referencing the old one via proposal-link.txt
+++++#
+++++# ==========================================================
+++++
+++++set -euo pipefail
+++++
+++++REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+++++PENDING_DIR="$REPO_ROOT/approval/pending"
+++++SCRIPTS_DIR="$REPO_ROOT/scripts"
+++++
+++++log() { echo "  [approval-revise] $*"; }
+++++die() { echo >&2 "  [approval-revise] FATAL: $*"; exit 1; }
+++++
+++++# ---------------------------------------------------------
+++++# Parse arguments
+++++# ---------------------------------------------------------
+++++
+++++if [[ $# -lt 1 ]]; then
+++++    die "Usage: $0 YYYY-MM-DD-NNN [\"reason for revision\"]"
+++++fi
+++++
+++++original_pkg_id="$1"
+++++shift
+++++revision_reason="${1:-Revision requested}"
+++++
+++++if [ ! -d "$PENDING_DIR/$original_pkg_id" ]; then
+++++    die "Original package not found: $original_pkg_id"
+++++fi
+++++
+++++log "Engineering Approval Pipeline — Revise"
+++++log "Original: $original_pkg_id"
+++++log "Reason: $revision_reason"
+++++
+++++# ---------------------------------------------------------
+++++# Generate new package referencing the original
+++++# ---------------------------------------------------------
+++++
+++++# Reuse the generate script with --reference flag
+++++"$SCRIPTS_DIR/approval-generate.sh" --reference "$original_pkg_id" "$revision_reason"
+++++
+++++log "==========================================="
+++++log "REVISION STARTED"
+++++log "Original package: $original_pkg_id (unchanged in pending/)"
+++++log "New package generated (see output above)"
+++++log "Edit files, then run: hermes approve"
+++++log "==========================================="
++++\ No newline at end of file
++++diff --git a/scripts/hooks/pre-commit.d/07-build-log-append-only b/scripts/hooks/pre-commit.d/07-build-log-append-only
++++new file mode 100644
++++index 0000000..a5032e6
++++--- /dev/null
+++++++ b/scripts/hooks/pre-commit.d/07-build-log-append-only
++++@@ -0,0 +1,24 @@
+++++#!/usr/bin/env bash
+++++set -euo pipefail
+++++
+++++FILE="log/build-log.md"
+++++
+++++# Only act if the journal file is part of the commit
+++++if ! git diff --cached --name-only | grep -q "^$FILE$"; then
+++++  exit 0
+++++fi
+++++
+++++# Ensure the file exists in the working tree
+++++if [ ! -f "$FILE" ]; then
+++++  echo "Error: $FILE does not exist in the repository." >&2
+++++  exit 1
+++++fi
+++++
+++++# Detect any deletions or modifications (lines starting with '-')
+++++# Exclude diff metadata lines that start with '---' or '--- a/...'
+++++if git diff --cached "$FILE" | grep '^-' | grep -v '^---' | grep -v '^--- a/' > /dev/null; then
+++++  echo "Error: $FILE modifications must be append‑only. No lines may be removed or edited." >&2
+++++  exit 1
+++++fi
+++++
+++++exit 0
++++diff --git a/tests/test_context_budget.py b/tests/test_context_budget.py
++++new file mode 100644
++++index 0000000..4087f28
++++--- /dev/null
+++++++ b/tests/test_context_budget.py
++++@@ -0,0 +1,212 @@
+++++"""Tests for deterministic Context Budget Reporting.
+++++
+++++Verifies that assemble_context() produces a ContextBudgetReport with
+++++correct, deterministic measurements without influencing context assembly.
+++++"""
+++++from __future__ import annotations
+++++
+++++import pytest
+++++
+++++from pilot.context.system import (
+++++    ContextBudgetEntry,
+++++    ContextBudgetReport,
+++++    assemble_context,
+++++)
+++++from pilot.knowledge.artifact import KnowledgeArtifact
+++++
+++++
+++++class TestDeterministicCalculations:
+++++    """Same input always produces the same budget report."""
+++++
+++++    def test_deterministic_empty(self):
+++++        report = _budget_for([])
+++++        for _ in range(5):
+++++            repeat = _budget_for([])
+++++            assert repeat.total_context_characters == report.total_context_characters
+++++            assert repeat.total_context_tokens == report.total_context_tokens
+++++            assert repeat.entries == report.entries
+++++
+++++    def test_deterministic_single_provider(self):
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="Some persistent memory content."),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++        for _ in range(5):
+++++            repeat = _budget_for(artifacts)
+++++            assert repeat == report
+++++
+++++    def test_deterministic_multiple_providers(self):
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="Memory note A."),
+++++            KnowledgeArtifact(source="vault", content="Vault entry 1."),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++        for _ in range(5):
+++++            repeat = _budget_for(artifacts)
+++++            assert repeat == report
+++++
+++++
+++++class TestProviderTotals:
+++++    """Each provider's character and token counts are correct."""
+++++
+++++    def test_single_provider_full_contribution(self):
+++++        artifacts = [
+++++            KnowledgeArtifact(source="config", content="Routing configuration data."),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++
+++++        assert len(report.entries) == 1
+++++        entry = report.entries[0]
+++++        assert entry.provider == "config"
+++++        assert entry.percentage == 100.0
+++++
+++++    def test_provider_characters_match_block(self):
+++++        """Characters counted per provider should equal the formatted block length."""
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="Hello world"),
+++++            KnowledgeArtifact(source="vault", content="Test data"),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++
+++++        assert report.entries[0].provider == "memory"
+++++        # Block: "## Agent Memory\n\nHello world"
+++++        expected_chars = len("## Agent Memory\n\nHello world")
+++++        assert report.entries[0].characters == expected_chars
+++++
+++++        assert report.entries[1].provider == "vault"
+++++        # Block: "## Knowledge Vault\n\nTest data"
+++++        expected_chars_vault = len("## Knowledge Vault\n\nTest data")
+++++        assert report.entries[1].characters == expected_chars_vault
+++++
+++++    def test_percentages_sum_to_100(self):
+++++        """All provider percentages should sum to approximately 100%."""
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="A" * 100),
+++++            KnowledgeArtifact(source="vault", content="B" * 200),
+++++            KnowledgeArtifact(source="config", content="C" * 50),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++        total_pct = round(sum(e.percentage for e in report.entries), 2)
+++++        assert total_pct == 100.0
+++++
+++++    def test_provider_order_preserved(self):
+++++        """Entries appear in the same order as input artifacts."""
+++++        artifacts = [
+++++            KnowledgeArtifact(source="vault", content="Z data"),
+++++            KnowledgeArtifact(source="memory", content="A data"),
+++++            KnowledgeArtifact(source="config", content="M data"),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++        assert [e.provider for e in report.entries] == ["vault", "memory", "config"]
+++++
+++++
+++++class TestOverallTotals:
+++++    """Total context size calculations are correct."""
+++++
+++++    def test_total_matches_concatenated_context(self):
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="Hello"),
+++++            KnowledgeArtifact(source="vault", content="World"),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++        expected_context = (
+++++            "## Agent Memory\n\nHello\n\n## Knowledge Vault\n\nWorld"
+++++        )
+++++        assert report.total_context_characters == len(expected_context)
+++++
+++++    def test_empty_context_has_zero_tokens(self):
+++++        report = _budget_for([])
+++++        assert report.total_context_characters > 0  # "(no context available)" fallback
+++++        assert report.total_context_tokens == pytest.approx(
+++++            (len("(no context available)") + 3) // 4
+++++        )
+++++
+++++    def test_token_estimate_is_approximate(self):
+++++        """Token estimation uses characters/4 heuristic."""
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="A" * 100),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++        # Block: "## Agent Memory\n\n" + "A"*100 = 118 characters
+++++        expected_tokens = (118 + 3) // 4
+++++        assert report.total_context_tokens == expected_tokens
+++++
+++++    def test_empty_artifacts_excluded_contribute_nothing_to_budget(self):
+++++        """Artifacts with only whitespace are excluded from budget entries
+++++        but the total context reflects the fallback string."""
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="   "),
+++++            KnowledgeArtifact(source="vault", content="Some real content"),
+++++        ]
+++++        report = _budget_for(artifacts)
+++++        # Only vault should have an entry
+++++        assert len(report.entries) == 1
+++++        assert report.entries[0].provider == "vault"
+++++        # Total context is not based on the empty artifact
+++++        assert "Agent Memory" not in report.entries[0].provider
+++++
+++++
+++++class TestContextAssemblyUnchanged:
+++++    """The context string itself is NOT affected by the budget feature."""
+++++
+++++    def test_context_string_identical_with_and_without_budget(self):
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="Memory content."),
+++++            KnowledgeArtifact(source="vault", content="Vault content."),
+++++        ]
+++++        context, _ = assemble_context(artifacts)
+++++        expected = (
+++++            "## Agent Memory\n\nMemory content.\n\n## Knowledge Vault\n\nVault content."
+++++        )
+++++        assert context == expected
+++++
+++++    def test_empty_artifacts_still_fall_back(self):
+++++        artifacts = [
+++++            KnowledgeArtifact(source="memory", content="   "),
+++++        ]
+++++        context, _ = assemble_context(artifacts)
+++++        assert context == "(no context available)"
+++++
+++++
+++++class TestProviderContractsUnchanged:
+++++    """KnowledgeProviders still return only source + content fields."""
+++++
+++++    def test_memory_provider_contract(self, tmp_path):
+++++        from pilot.knowledge.providers.memory import MemoryProvider
+++++
+++++        memories = tmp_path / "memories"
+++++        memories.mkdir(parents=True)
+++++        (memories / "MEMORY.md").write_text("Test memory content.\n")
+++++        provider = MemoryProvider(hermes_home=str(tmp_path))
+++++        artifact = provider.produce_artifact("test")
+++++        assert set(vars(artifact)) == {"source", "content"}
+++++
+++++    def test_vault_provider_contract(self, tmp_path):
+++++        from pilot.knowledge.providers.vault import VaultProvider
+++++
+++++        artifacts_dir = tmp_path / "artifacts"
+++++        artifacts_dir.mkdir(parents=True)
+++++        (artifacts_dir / "index.md").write_text(
+++++            "| Date | Title | Persona | Status | Tags | Freshness | Summary | Path |\n"
+++++            "|------|-------|---------|--------|------|-----------|---------|------|\n"
+++++            "| 2026-06-23 | Test Artifact | tester | draft | test | 30 | A test. | artifacts/tester/test.md |\n"
+++++        )
+++++        sub = artifacts_dir / "tester"
+++++        sub.mkdir(parents=True)
+++++        (sub / "test.md").write_text("---\ntitle: Test Artifact\n---\n\n# Test Artifact\n\nTest body.\n")
+++++        provider = VaultProvider(repo_root=str(tmp_path))
+++++        artifact = provider.produce_artifact("summary")
+++++        assert set(vars(artifact)) == {"source", "content"}
+++++
+++++
+++++# ---------------------------------------------------------------------------
+++++# Helpers
+++++# ---------------------------------------------------------------------------
+++++
+++++
+++++def _budget_for(
+++++    artifacts: list[KnowledgeArtifact],
+++++) -> ContextBudgetReport:
+++++    """Run assemble_context and return only the budget report."""
+++++    _, report = assemble_context(artifacts)
+++++    return report
++++diff --git a/tests/test_memory_provider.py b/tests/test_memory_provider.py
++++new file mode 100644
++++index 0000000..d3a3f2c
++++--- /dev/null
+++++++ b/tests/test_memory_provider.py
++++@@ -0,0 +1,67 @@
+++++"""Tests for deterministic MemoryProvider selection."""
+++++
+++++from __future__ import annotations
+++++
+++++from pathlib import Path
+++++
+++++from pilot.knowledge.artifact import KnowledgeArtifact
+++++from pilot.knowledge.providers.memory import MemoryProvider
+++++
+++++
+++++def _write_memory(home: Path) -> None:
+++++    memories = home / "memories"
+++++    memories.mkdir(parents=True)
+++++    (memories / "MEMORY.md").write_text(
+++++        "Research preference: user tracks large-cap tech including AAPL and Apple earnings.\n"
+++++        "§\n"
+++++        "Dev preference: user wants exact diffs and pytest verification for code work.\n"
+++++        "§\n"
+++++        "Operations note: LXD snapshots are host-only backups.\n"
+++++    )
+++++    (memories / "USER.md").write_text(
+++++        "Interest: large-cap tech financial analysis and AAPL valuation.\n"
+++++        "§\n"
+++++        "Style: concise answers when context is sufficient.\n"
+++++    )
+++++
+++++
+++++def test_relevant_memory_selection(tmp_path):
+++++    _write_memory(tmp_path)
+++++    provider = MemoryProvider(hermes_home=str(tmp_path))
+++++
+++++    artifact = provider.produce_artifact("research Apple earnings valuation")
+++++
+++++    assert isinstance(artifact, KnowledgeArtifact)
+++++    assert artifact.source == "memory"
+++++    assert "AAPL" in artifact.content
+++++    assert "Apple earnings" in artifact.content
+++++    assert "LXD snapshots" not in artifact.content
+++++
+++++
+++++def test_irrelevant_memories_excluded(tmp_path):
+++++    _write_memory(tmp_path)
+++++    provider = MemoryProvider(hermes_home=str(tmp_path))
+++++
+++++    artifact = provider.produce_artifact("operations backup snapshots")
+++++
+++++    assert "LXD snapshots" in artifact.content
+++++    assert "Apple earnings" not in artifact.content
+++++    assert "pytest verification" not in artifact.content
+++++
+++++
+++++def test_memory_selection_is_deterministic(tmp_path):
+++++    _write_memory(tmp_path)
+++++    provider = MemoryProvider(hermes_home=str(tmp_path))
+++++
+++++    outputs = [provider.produce_artifact("research Apple earnings valuation").content for _ in range(5)]
+++++
+++++    assert all(output == outputs[0] for output in outputs)
+++++
+++++
+++++def test_memory_provider_contract_unchanged(tmp_path):
+++++    _write_memory(tmp_path)
+++++    provider = MemoryProvider(hermes_home=str(tmp_path))
+++++
+++++    artifact = provider.produce_artifact("research Apple earnings valuation")
+++++
+++++    assert set(vars(artifact)) == {"source", "content"}
++++diff --git a/tests/test_vault_provider.py b/tests/test_vault_provider.py
++++new file mode 100644
++++index 0000000..8610f2c
++++--- /dev/null
+++++++ b/tests/test_vault_provider.py
++++@@ -0,0 +1,410 @@
+++++"""
+++++Tests for pilot.knowledge.providers.vault.VaultProvider.
+++++
+++++Covers:
+++++  - Successful retrieval (title match)
+++++  - Missing artifact (no match)
+++++  - Summary retrieval
+++++  - Section retrieval
+++++  - Full retrieval
+++++  - Deterministic behavior
+++++  - Token estimation
+++++  - Operational error handling
+++++  - Index parsing accuracy
+++++  - Selection parsing
+++++"""
+++++
+++++from __future__ import annotations
+++++
+++++import tempfile
+++++from pathlib import Path
+++++
+++++import pytest
+++++
+++++from pilot.knowledge.artifact import KnowledgeArtifact
+++++from pilot.knowledge.providers.vault import ArtifactSelection, VaultProvider
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Fixtures
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++@pytest.fixture
+++++def temp_filesystem():
+++++    """Create a temporary filesystem with artifacts/index.md and one sample artifact."""
+++++    temp_dir = Path(tempfile.mkdtemp())
+++++
+++++    # Create index
+++++    index_path = temp_dir / "artifacts" / "index.md"
+++++    index_path.parent.mkdir(parents=True, exist_ok=True)
+++++    index_content = (
+++++        "| Date | Title | Persona | Status | Tags | Freshness | Summary | Path |\n"
+++++        "|------|-------|---------|--------|------|-----------|---------|------|\n"
+++++        "| 2026-06-23 | AAPL Q3 FY2026 Earnings Review | financial-analyst "
+++++        "| draft | aapl, apple, earnings, valuation, services, q3-2026 "
+++++        "| 30 days | Apple Q3 FY2026 earnings review with revenue beat, "
+++++        "Services milestones, and bull/bear case analysis. "
+++++        "| artifacts/financial-analyst/2026-06-23_aapl-q3-2026-earnings-review.md |\n"
+++++    )
+++++    index_path.write_text(index_content)
+++++
+++++    # Create artifact directory
+++++    artifact_path = temp_dir / "artifacts" / "financial-analyst"
+++++    artifact_path.mkdir(parents=True, exist_ok=True)
+++++
+++++    artifact_file = artifact_path / "2026-06-23_aapl-q3-2026-earnings-review.md"
+++++    artifact_content = (
+++++        "---\n"
+++++        "title: AAPL Q3 FY2026 Earnings Review\n"
+++++        "persona: financial-analyst\n"
+++++        "created: 2026-06-23\n"
+++++        "status: draft\n"
+++++        "tags: [aapl, apple, earnings, valuation, services, q3-2026]\n"
+++++        "freshness_days: 30\n"
+++++        "summary: Apple Q3 FY2026 earnings review with revenue beat, "
+++++        "Services milestones, and bull/bear case analysis.\n"
+++++        "path: artifacts/financial-analyst/2026-06-23_aapl-q3-2026-earnings-review.md\n"
+++++        "---\n"
+++++        "\n"
+++++        "# AAPL Q3 FY2026 Earnings Review\n"
+++++        "\n"
+++++        "## Executive Summary\n"
+++++        "\n"
+++++        "Apple reported Q3 FY2026 earnings that beat estimates across all key metrics.\n"
+++++        "\n"
+++++        "## Revenue\n"
+++++        "\n"
+++++        "Total revenue was $234 billion, up 3.2% year-over-year.\n"
+++++        "\n"
+++++        "## Services Segment\n"
+++++        "\n"
+++++        "Services revenue reached $25 billion for the first time.\n"
+++++        "\n"
+++++        "## iPhone\n"
+++++        "\n"
+++++        "iPhone revenue was flat year-over-year at $58 billion.\n"
+++++        "\n"
+++++        "## Market Impact\n"
+++++        "\n"
+++++        "The stock price closed at $198 following the earnings call.\n"
+++++    )
+++++    artifact_file.write_text(artifact_content)
+++++
+++++    yield temp_dir
+++++
+++++    # Cleanup
+++++    import shutil
+++++
+++++    shutil.rmtree(temp_dir, ignore_errors=True)
+++++
+++++
+++++def _add_irrelevant_newer_artifact(root: Path) -> None:
+++++    """Add a newer artifact that should not match Apple/valuation queries."""
+++++    index_path = root / "artifacts" / "index.md"
+++++    with index_path.open("a") as f:
+++++        f.write(
+++++            "| 2026-06-24 | Floppy Bird Project State | operations-manager "
+++++            "| draft | game, phaser, project-state, operations "
+++++            "| 30 days | Unrelated game project state and operational notes. "
+++++            "| artifacts/operations-manager/2026-06-24_agent-floppy-bird-project-state.md |\n"
+++++        )
+++++
+++++    artifact_path = root / "artifacts" / "operations-manager"
+++++    artifact_path.mkdir(parents=True, exist_ok=True)
+++++    (artifact_path / "2026-06-24_agent-floppy-bird-project-state.md").write_text(
+++++        "---\n"
+++++        "title: Floppy Bird Project State\n"
+++++        "tags: [game, phaser, project-state, operations]\n"
+++++        "---\n"
+++++        "\n"
+++++        "# Floppy Bird Project State\n\n"
+++++        "Unrelated game project state and operational notes.\n"
+++++    )
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Successful retrieval
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class TestSuccessfulRetrieval:
+++++    """Successful retrieval of artifacts."""
+++++
+++++    def test_retrieve_by_exact_title(self, temp_filesystem):
+++++        """Retrieve artifact by exact title match."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("AAPL Q3 FY2026 Earnings Review")
+++++
+++++        assert artifact.source == "vault"
+++++        assert "AAPL Q3 FY2026 Earnings Review" in artifact.content
+++++        assert "Executive Summary" in artifact.content
+++++
+++++    def test_retrieve_by_tag_match(self, temp_filesystem):
+++++        """Retrieve artifact by exact tag match when no title match."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        # "valuation" is an exact tag — falls to tag-based search
+++++        artifact = provider.produce_artifact("valuation")
+++++
+++++        assert artifact.source == "vault"
+++++        assert "executive summary" in artifact.content.lower() # verifies body returned and frontmatter stripped
+++++
+++++    def test_mode_only_returns_most_recent(self, temp_filesystem):
+++++        """Mode-only selections (no title) return the most recent artifact."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        for mode in ["summary", "full"]:
+++++            artifact = provider.produce_artifact(mode)
+++++            # With one artifact in the index, mode-only always returns it
+++++            if mode == "summary":
+++++                assert "Apple Q3 FY2026 earnings review with revenue beat" in artifact.content
+++++                assert "Executive Summary" not in artifact.content
+++++            else:  # mode == "full"
+++++                assert "Executive Summary" in artifact.content
+++++                assert "AAPL Q3 FY2026 Earnings Review" in artifact.content
+++++
+++++    def test_summary_retrieval(self, temp_filesystem):
+++++        """Retrieve artifact summary only."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("summary")
+++++
+++++        assert "Apple Q3 FY2026 earnings review with revenue beat" in artifact.content
+++++        # Should NOT contain full content headers
+++++        assert "Executive Summary" not in artifact.content
+++++
+++++    def test_full_content_retrieval(self, temp_filesystem):
+++++        """Retrieve full artifact content with YAML frontmatter stripped."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("full")
+++++
+++++        assert "Executive Summary" in artifact.content
+++++        assert "# AAPL Q3 FY2026 Earnings Review" in artifact.content
+++++
+++++    def test_relevant_artifact_selection_from_request_text(self, temp_filesystem):
+++++        """Natural-language selection chooses the artifact matching metadata."""
+++++        _add_irrelevant_newer_artifact(temp_filesystem)
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact(
+++++            "summary:What should I know about the latest Apple earnings and valuation?"
+++++        )
+++++
+++++        assert artifact.source == "vault"
+++++        assert "Apple Q3 FY2026 earnings review" in artifact.content
+++++        assert "floppy bird" not in artifact.content.lower()
+++++
+++++    def test_irrelevant_artifacts_excluded_by_metadata_selection(self, temp_filesystem):
+++++        """A newer unrelated artifact is not selected when query terms match AAPL."""
+++++        _add_irrelevant_newer_artifact(temp_filesystem)
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("summary:Apple earnings valuation")
+++++
+++++        assert "Apple Q3 FY2026" in artifact.content
+++++        assert "unrelated game project" not in artifact.content
+++++
+++++    def test_vault_provider_contract_unchanged(self, temp_filesystem):
+++++        """VaultProvider still returns minimal KnowledgeArtifact fields."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("summary:Apple earnings valuation")
+++++
+++++        assert isinstance(artifact, KnowledgeArtifact)
+++++        assert set(vars(artifact)) == {"source", "content"}
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Missing artifact
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class TestMissingArtifact:
+++++    """Handling of missing artifacts."""
+++++
+++++    def test_missing_artifact_raises_value_error(self, temp_filesystem):
+++++        """No matching artifact should raise ValueError."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        with pytest.raises(ValueError, match="No matching artifact found"):
+++++            provider.produce_artifact("nonexistent artifact")
+++++
+++++    def test_no_index_file_raises_file_not_found(self):
+++++        """Missing index.md should raise FileNotFoundError."""
+++++        temp_dir = Path(tempfile.mkdtemp())
+++++        provider = VaultProvider(repo_root=str(temp_dir))
+++++
+++++        with pytest.raises(FileNotFoundError, match="Index file not found"):
+++++            provider._load_index()
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Section retrieval
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class TestSectionRetrieval:
+++++    """Retrieve specific sections from artifacts."""
+++++
+++++    def test_section_retrieval_uses_full_fallback(self, temp_filesystem):
+++++        """Section retrieval mode falls back to full content."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        # Section mode is a stub — falls back to full content
+++++        artifact = provider.produce_artifact("section:revenue")
+++++
+++++        # Full content contains "Executive Summary" which has "summary"
+++++        assert "summary" in artifact.content.lower()
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Deterministic behavior
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class TestDeterministicBehavior:
+++++    """Output is deterministic for same inputs."""
+++++
+++++    def test_same_selection_same_output(self, temp_filesystem):
+++++        """Same selection string produces same artifact."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        a1 = provider.produce_artifact("full")
+++++        a2 = provider.produce_artifact("full")
+++++
+++++        assert a1.content == a2.content
+++++
+++++    def test_repeated_mode_call_consistent(self, temp_filesystem):
+++++        """Repeated calls with mode-only selection are consistent."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        contents = [provider.produce_artifact("full").content for _ in range(5)]
+++++        assert all(c == contents[0] for c in contents)
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Token estimation
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class TestTokenEstimation:
+++++    """Token count estimation."""
+++++
+++++    def test_token_estimation_basic(self, temp_filesystem):
+++++        """Full artifact content is substantial enough for token estimation."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("full")
+++++
+++++        # ~4 chars/token — full artifact should be 100+ tokens
+++++        token_est = len(artifact.content) // 4
+++++        assert token_est > 100
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Operational error handling
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class TestOperationalErrors:
+++++    """Operational error handling."""
+++++
+++++    def test_yaml_frontmatter_stripping(self, temp_filesystem):
+++++        """Full content has YAML frontmatter stripped."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("full")
+++++
+++++        assert not artifact.content.startswith("---")
+++++        assert artifact.content.startswith("#")
+++++
+++++    def test_exact_title_match_case_sensitive(self, temp_filesystem):
+++++        """Exact title match is case-sensitive."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        # Exact match succeeds
+++++        artifact = provider.produce_artifact("AAPL Q3 FY2026 Earnings Review")
+++++        assert artifact.source == "vault"
+++++
+++++        # Incomplete title (not exact, not a tag) fails
+++++        with pytest.raises(ValueError, match="No matching artifact found"):
+++++            provider.produce_artifact("AAPL Q3 FY2026")
+++++
+++++    def test_fallback_to_full_for_section_mode(self, temp_filesystem):
+++++        """Section mode falls back to full content."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("section:missing-section")
+++++
+++++        assert "summary" in artifact.content.lower()
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Index parsing
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class TestIndexParsing:
+++++    """Index.md parsing accuracy."""
+++++
+++++    def test_index_table_parsing(self, temp_filesystem):
+++++        """Index table rows are parsed correctly."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifacts = provider.list_artifacts()
+++++
+++++        aapl_artifacts = [a for a in artifacts if "AAPL" in a.title]
+++++
+++++        assert len(aapl_artifacts) == 1
+++++        assert aapl_artifacts[0].persona == "financial-analyst"
+++++        assert aapl_artifacts[0].tags == [
+++++            "aapl", "apple", "earnings", "valuation", "services", "q3-2026",
+++++        ]
+++++
+++++    def test_index_summary_available(self, temp_filesystem):
+++++        """Summary field is parsed from index and available for retrieval."""
+++++        provider = VaultProvider(repo_root=str(temp_filesystem))
+++++
+++++        artifact = provider.produce_artifact("summary")
+++++
+++++        assert "Apple Q3 FY2026" in artifact.content
+++++
+++++
+++++# ---------------------------------------------------------------------------#
+++++# Selection parsing
+++++# ---------------------------------------------------------------------------#
+++++
+++++
+++++class TestSelectionParsing:
+++++    """Selection string parsing."""
+++++
+++++    def test_parse_mode_only_summary(self):
+++++        """Parse 'summary' mode string."""
+++++        a = ArtifactSelection(mode="summary", section=None)
+++++        assert a.mode == "summary"
+++++
+++++    def test_parse_mode_only_full(self):
+++++        """Parse 'full' mode string."""
+++++        a = ArtifactSelection(mode="full", section=None)
+++++        assert a.mode == "full"
+++++
+++++    def test_parse_section_mode(self):
+++++        """Parse section mode with section name."""
+++++        a = ArtifactSelection(mode="section", section="Architecture")
+++++        assert a.mode == "section"
+++++        assert a.
+\ No newline at end of file
+diff --git a/approval/pending/2026-06-29-2/proposal-link.txt b/approval/pending/2026-06-29-2/proposal-link.txt
+new file mode 100644
+index 0000000..d94ef95
+--- /dev/null
++++ b/approval/pending/2026-06-29-2/proposal-link.txt
+@@ -0,0 +1 @@
++Original proposal (no prior reference)
+diff --git a/approval/pending/2026-06-29-2/summary.md b/approval/pending/2026-06-29-2/summary.md
+new file mode 100644
+index 0000000..342741d
+--- /dev/null
++++ b/approval/pending/2026-06-29-2/summary.md
+@@ -0,0 +1,14 @@
++# Approval Package: 2026-06-29-2
++
++**Generated:** 2026-06-29T03:19:56Z
++**Branch:** test-approval-pipeline
++**Base Commit:** 8f387f9 End-to-end test: Sprint 2.6 complete
++**Total Commits:** 56
++
++## Commit Message
++
++chore: autonomous engineering preparation - sprint 2.6A
++
++## Status
++
++WAITING_FOR_APPROVAL

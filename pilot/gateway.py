@@ -18,8 +18,8 @@ from pilot.dispatch._classifier import classify
 from pilot.dispatch._parser import parse
 from pilot.dispatch.intent_mapper import shape_to_intent
 from pilot.dispatch.plan import ExecutionPlan, validate_plan
-from pilot.knowledge.providers.memory import MemoryProvider
-from pilot.knowledge.providers.vault import VaultProvider
+from pilot.provider_registry import get_provider
+# Providers will be dynamically loaded via ProviderRegistry
 from pilot.prompt.builder import build_prompt
 
 
@@ -80,22 +80,15 @@ def handle_request(question: str) -> dict:
     # ── Step 5: Validate plan (contract requirement) ──
     validate_plan(plan)
 
-    # ── Step 6: Produce KnowledgeArtifacts from all providers ──
+    # ── Step 6: Produce KnowledgeArtifacts from all providers via Context Orchestrator ──
     config_artifact = config.produce_artifact(intent)
-    memory = MemoryProvider()
-    memory_artifact = memory.produce_artifact(f"{intent} {question}")
-    artifacts = [config_artifact, memory_artifact]
-
-    # ── Step 6b: Add VaultProvider artifact if configured ──
-    if "vault" in plan.knowledge_providers:
-        try:
-            selection = _intent_to_vault_selection(intent, question)
-            vault = VaultProvider()
-            vault_artifact = vault.produce_artifact(selection)
-            artifacts.append(vault_artifact)
-        except ValueError:
-            # Intent doesn't use Vault (e.g., casual)
-            pass
+    # Run KnowledgeOrchestrator to collect artifacts from registered providers
+    from pilot.context.knowledge_orchestrator import run as orchestrator_run
+    provider_artifacts = orchestrator_run(plan, intent, question)
+    # Apply ContextSelector (currently a no‑op) for future metadata‑first lazy loading
+    from pilot.context.context_selector import select_artifacts
+    provider_artifacts = select_artifacts(provider_artifacts)
+    artifacts = [config_artifact] + provider_artifacts
 
     # ── Step 7: Assemble context ──
     context, budget_report = assemble_context(artifacts)

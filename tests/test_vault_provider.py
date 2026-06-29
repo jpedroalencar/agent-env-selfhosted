@@ -214,7 +214,8 @@ class TestSuccessfulRetrieval:
         artifact = provider.produce_artifact("summary:Apple earnings valuation")
 
         assert isinstance(artifact, KnowledgeArtifact)
-        assert set(vars(artifact)) == {"source", "content"}
+        # New canonical artifact shape with extended fields
+        assert set(vars(artifact)) == {"source", "content", "metadata", "priority", "estimated_tokens", "loaded"}
 
 
 # ---------------------------------------------------------------------------#

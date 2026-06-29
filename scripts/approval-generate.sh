@@ -4,13 +4,14 @@
 # ==========================================================
 #
 # After a sprint is frozen, this script:
-#   1. Verifies all tests pass
+#   1. Verifies all tests pass (captures results)
 #   2. Runs Repository Synchronization (git status)
 #   3. Generates the Proposal Package:
-#      - summary.md        — human-readable summary
+#      - summary.md        — human‑readable summary
 #      - changed-files.md  — list of changed files
 #      - git-diff.patch     — full diff of staged changes
 #      - proposal-link.txt  — reference to any previous proposal
+#      - test-results.md   — pytest output
 #   4. Stages every generated file
 #   5. Creates a local Git commit
 #   6. Generates the Approval Package (in approval/pending/)
@@ -22,7 +23,7 @@
 #
 # Deterministic: Running with the same repo state produces
 # the same package (modulo timestamps in filenames and content).
-# Restart-safe: If a package already exists for today's date,
+# Restart‑safe: If a package already exists for today's date,
 # increments the sequence number (NNN).
 #
 # ==========================================================
@@ -36,9 +37,8 @@ SCRIPTS_DIR="$REPO_ROOT/scripts"
 # ---------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------
-
 log() { echo "  [approval-generate] $*"; }
-die() { echo >&2 "  [approval-generate] FATAL: $*"; exit 1; }
+ die() { echo >&2 "  [approval-generate] FATAL: $*"; exit 1; }
 
 # Generate YYYY-MM-DD-NNN package ID, incrementing NNN if needed
 next_package_id() {
@@ -52,22 +52,22 @@ next_package_id() {
 }
 
 # ---------------------------------------------------------
-# Phase 1 — Verify tests pass
+# Phase 1 — Verify tests pass and capture results
 # ---------------------------------------------------------
-
 verify_tests() {
     log "Running test suite..."
-    if python3 -m pytest "$REPO_ROOT/tests/" -o 'addopts=' -q --tb=short 2>&1; then
+    local result_file="${1}/test-results.md"
+    if python3 -m pytest "$REPO_ROOT/tests/" -o 'addopts=' -q --tb=short > "$result_file" 2>&1; then
         log "All tests passed."
     else
-        die "Tests failed. Fix before generating approval package."
+        log "Tests failed – see $result_file"
+        die "Test suite failed."
     fi
 }
 
 # ---------------------------------------------------------
 # Phase 2 — Repository Synchronization
 # ---------------------------------------------------------
-
 sync_repository() {
     log "Checking repository state..."
     local dirty
@@ -81,7 +81,6 @@ sync_repository() {
 # ---------------------------------------------------------
 # Phase 3 — Generate Proposal Package files
 # ---------------------------------------------------------
-
 generate_summary() {
     local pkg_dir="$1"
     local pkg_id="$2"
@@ -123,7 +122,6 @@ EOF
 
 generate_changed_files() {
     local pkg_dir="$1"
-
     {
         echo "# Changed Files"
         echo ""
@@ -137,13 +135,11 @@ generate_changed_files() {
             echo "| \`${status}\` | \`${file}\` |"
         done
     } > "$pkg_dir/changed-files.md"
-
     log "Generated changed-files.md"
 }
 
 generate_diff() {
     local pkg_dir="$1"
-
     cd "$REPO_ROOT" && git diff HEAD > "$pkg_dir/git-diff.patch"
     local diff_size
     diff_size="$(wc -c < "$pkg_dir/git-diff.patch")"
@@ -153,7 +149,6 @@ generate_diff() {
 generate_proposal_link() {
     local pkg_dir="$1"
     local reference="$2"
-
     if [ -n "$reference" ]; then
         echo "Revises: ${reference}" > "$pkg_dir/proposal-link.txt"
         echo "Previous: ${reference}" >> "$pkg_dir/proposal-link.txt"
@@ -167,7 +162,6 @@ generate_proposal_link() {
 # ---------------------------------------------------------
 # Phase 4 — Stage and commit generated files
 # ---------------------------------------------------------
-
 stage_and_commit() {
     local pkg_dir="$1"
     local pkg_id="$2"
@@ -178,92 +172,56 @@ stage_and_commit() {
     git add "$pkg_dir/"
 
     log "Staging all other changed files..."
-    # Stage everything that's modified/untracked
     git add -A
 
     log "Creating local commit..."
     "$SCRIPTS_DIR/git-commit.sh" -m "${commit_msg}" 2>&1 || \
-        die "git-commit.sh failed. See errors above."
-
+        die "git-commit.sh failed."
     log "Commit created successfully."
 }
 
 # ---------------------------------------------------------
 # Phase 5 — Regenerate diff to include the commit itself
 # ---------------------------------------------------------
-
 update_diff_post_commit() {
     local pkg_dir="$1"
-
-    # Now regenerate the diff to include the approval package files
-    # that were just committed
     cd "$REPO_ROOT" && git diff HEAD~1 > "$pkg_dir/git-diff.patch"
-    log "Updated git-diff.patch to include committed changes"
+    log "Regenerated diff after commit."
 }
 
 # ---------------------------------------------------------
 # Main
 # ---------------------------------------------------------
-
 main() {
+    local commit_msg="${1:-Generated approval package}" 
     local reference=""
-    local commit_msg="chore: approval package — sprint completion"
+    # Detect optional --reference flag
+    if [[ "$commit_msg" == --reference* ]]; then
+        reference="${commit_msg#--reference }"
+        commit_msg="${2:-Generated approval package}"
+    fi
 
-    # Parse arguments
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --reference)
-                reference="$2"
-                shift 2
-                ;;
-            *)
-                commit_msg="$1"
-                shift
-                ;;
-        esac
-    done
-
-    log "Engineering Approval Pipeline — Generate"
-    log "Repository: $REPO_ROOT"
-
-    # Phase 1: Verify tests
-    verify_tests
-
-    # Phase 2: Sync repository
-    sync_repository
-
-    # Phase 3: Generate package
     local pkg_id
-    pkg_id="$(next_package_id)"
+    pkg_id=$(next_package_id)
     local pkg_dir="$APPROVAL_DIR/$pkg_id"
-
-    log "Creating package: ${pkg_id}"
     mkdir -p "$pkg_dir"
 
-    generate_summary    "$pkg_dir" "$pkg_id" "$reference" "$commit_msg"
+    log "Package ID: $pkg_id"
+    # Phase 1 – test suite (captures results)
+    verify_tests "$pkg_dir"
+    # Phase 2 – repository check
+    sync_repository
+    # Phase 3 – generate files
+    generate_summary "$pkg_dir" "$pkg_id" "$reference" "$commit_msg"
     generate_changed_files "$pkg_dir"
-    generate_diff       "$pkg_dir"
+    generate_diff "$pkg_dir"
     generate_proposal_link "$pkg_dir" "$reference"
-
-    # Phase 4: Stage and commit
+    # Phase 4 – stage & commit
     stage_and_commit "$pkg_dir" "$pkg_id" "$commit_msg"
-
-    # Phase 5: Update diff post-commit
+    # Phase 5 – update diff after commit
     update_diff_post_commit "$pkg_dir"
 
-    log "==========================================="
-    log "Package: ${pkg_id}"
-    log "Location: approval/pending/${pkg_id}/"
-    log "State: WAITING_FOR_APPROVAL"
-    log "==========================================="
-    log ""
-    log "Next steps:"
-    log "  hermes approve   — push to remote"
-    log "  hermes reject    — move to rejected/"
-    log "  hermes revise    — reopen for changes"
-
-    # Return the package ID for programmatic use
-    echo "$pkg_id"
+    log "Approval package $pkg_id created under $pkg_dir"
 }
 
 main "$@"

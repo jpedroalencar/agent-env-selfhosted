@@ -179,7 +179,9 @@ class TestProviderContractsUnchanged:
         (memories / "MEMORY.md").write_text("Test memory content.\n")
         provider = MemoryProvider(hermes_home=str(tmp_path))
         artifact = provider.produce_artifact("test")
-        assert set(vars(artifact)) == {"source", "content"}
+        # Validate new canonical artifact shape
+        assert set(vars(artifact)) == {"source", "content", "metadata", "priority", "estimated_tokens", "loaded"}
+
 
     def test_vault_provider_contract(self, tmp_path):
         from pilot.knowledge.providers.vault import VaultProvider
@@ -196,7 +198,7 @@ class TestProviderContractsUnchanged:
         (sub / "test.md").write_text("---\ntitle: Test Artifact\n---\n\n# Test Artifact\n\nTest body.\n")
         provider = VaultProvider(repo_root=str(tmp_path))
         artifact = provider.produce_artifact("summary")
-        assert set(vars(artifact)) == {"source", "content"}
+        assert set(vars(artifact)) == {"source", "content", "metadata", "priority", "estimated_tokens", "loaded"}
 
 
 # ---------------------------------------------------------------------------

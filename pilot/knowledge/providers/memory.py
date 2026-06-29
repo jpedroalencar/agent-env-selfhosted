@@ -26,6 +26,8 @@ _STOPWORDS = frozenset({
 })
 
 
+from pilot.provider_registry import register
+
 class MemoryProvider:
     """KnowledgeProvider for agent and user memory."""
 
@@ -47,7 +49,9 @@ class MemoryProvider:
         if not entries:
             return KnowledgeArtifact(
                 source="memory",
-                content="(no agent memory file found)",
+                content=None,
+                loaded=False,
+                estimated_tokens=0,
             )
 
         terms = self._query_terms(intent)
@@ -57,9 +61,16 @@ class MemoryProvider:
             return KnowledgeArtifact(
                 source="memory",
                 content="(no relevant memory found)",
+                loaded=False,
             )
 
-        return KnowledgeArtifact(source="memory", content="\n§\n".join(matches))
+        content = "\n§\n".join(matches)
+        return KnowledgeArtifact(
+            source="memory",
+            content=content,
+            loaded=True,
+            estimated_tokens=len(content.split()),
+        )
 
     def _load_entries(self) -> list[str]:
         """Load durable memory entries from MEMORY.md and USER.md."""
@@ -112,3 +123,6 @@ class MemoryProvider:
         if "aapl" in expanded and "apple" not in expanded:
             expanded.append("apple")
         return list(dict.fromkeys(expanded))
+
+# Register provider
+register('memory', MemoryProvider)
