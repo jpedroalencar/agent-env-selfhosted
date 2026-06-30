@@ -105,7 +105,7 @@ git commit "$@"
 # Phase 2 -- Post-commit verification
 # ---------------------------------------------------------
 
-EXPECTED="Author: John P. Alencar <johnpalencar@hotmail.com> | Committer: johnalencar-agent <johnalencar-agent@users.noreply.github.com>"
+EXPECTED="Author: John P. Alencar <johnpalencar@hotmail.com> | Committer: johnalencar-agent <johnalencar.agent@gmail.com>"
 ACTUAL=$(git log --format='Author: %an <%ae> | Committer: %cn <%ce>' -1)
 
 if [ "$ACTUAL" != "$EXPECTED" ]; then
