@@ -2,24 +2,28 @@
 Platform Gateway — entry point for all user requests.
 
 Orchestrates the complete Platform → Adapter → Model pipeline.
-
 Pipeline:
   User Request → Parser → Classifier → ConfigProvider.lookup(intent)
   → ExecutionPlan → Knowledge Providers → Context System
-  → Prompt Builder → Hermes Runtime
-"""
+  → Prompt Builder → AgentAdapter.execute()
 
+The Gateway depends on the AgentAdapter *interface* (pilot.agent_adapter),
+not on any concrete runtime implementation. The concrete adapter is
+injected via the ``adapter`` parameter, defaulting to HermesAdapter
+when none is provided.
+"""
 from __future__ import annotations
 
-from adapters.hermes.model import call_model
+from typing import Optional
+
+from pilot.agent_adapter import AgentAdapter
 from pilot.config_provider import ConfigProvider
 from pilot.context.system import assemble_context
 from pilot.dispatch._classifier import classify
 from pilot.dispatch._parser import parse
 from pilot.dispatch.intent_mapper import shape_to_intent
 from pilot.dispatch.plan import ExecutionPlan, validate_plan
-from pilot.provider_registry import get_provider
-# Providers will be dynamically loaded via ProviderRegistry
+
 from pilot.prompt.builder import build_prompt
 
 
@@ -48,14 +52,22 @@ def _intent_to_vault_selection(intent: str, question: str = "") -> str:
     raise ValueError(f"Intent '{intent}' should not use VaultProvider")
 
 
-def handle_request(question: str) -> dict:
+def handle_request(question: str, adapter: Optional[AgentAdapter] = None) -> dict:
     """Process a user request through the complete pipeline.
 
     Deterministic: same input always produces the same output.
     No model calls until the final step.
 
-    Returns a dict with the full pipeline trace.
+    Args:
+        question: Raw user request text.
+        adapter: AgentAdapter implementation. Defaults to HermesAdapter.
+
+    Returns:
+        A dict with the full pipeline trace.
     """
+    # adapter is injected by the caller; plan is created below and
+    # threaded into HermesAdapter when no adapter is provided.
+
     # ── Step 1: Parse — extract signals from raw text ──
     parsed = parse(question)
     shape = classify(parsed)
@@ -87,7 +99,7 @@ def handle_request(question: str) -> dict:
     provider_artifacts = orchestrator_run(plan, intent, question)
     # Apply ContextSelector (currently a no‑op) for future metadata‑first lazy loading
     from pilot.context.context_selector import select_artifacts
-    provider_artifacts = select_artifacts(provider_artifacts)
+    provider_artifacts = select_artifacts(plan, provider_artifacts)
     artifacts = [config_artifact] + provider_artifacts
 
     # ── Step 7: Assemble context ──
@@ -96,8 +108,11 @@ def handle_request(question: str) -> dict:
     # ── Step 8: Build prompt ──
     prompt = build_prompt(context, question)
 
-    # ── Step 9: Call model ──
-    response = call_model(prompt)
+    # ── Step 9: Execute via AgentAdapter (interface, not concrete class) ──
+    if adapter is None:
+        from adapters.hermes.executor import HermesAdapter
+        adapter = HermesAdapter(plan=plan)
+    response = adapter.execute(prompt)
 
     return {
         "parse": {
