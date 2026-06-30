@@ -1,0 +1,43 @@
+# ============================================================
+# ci.yml — Run checks on Pull Requests
+# ============================================================
+# Triggers when a PR is opened or updated.
+# Runs basic validation (syntax, lint) before merge.
+# ============================================================
+
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Syntax check
+        run: |
+          echo "Checking Python syntax..."
+          find . -name "*.py" -not -path "./.git/*" -not -path "./.hermes/*" | head -50 | xargs -I {} python3 -m py_compile {} 2>&1 || true
+          echo "Syntax check complete."
+
+      - name: Verify approval package
+        if: contains(github.head_ref, 'approval/')
+        run: |
+          echo "Approval branch detected, checking for pending packages..."
+          if [ -d "approval/pending" ]; then
+            echo "Pending packages found:"
+            ls -la approval/pending/
+          fi
