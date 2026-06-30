@@ -24,6 +24,10 @@ id_ed25519.pub
 *.pub
 **/secrets/**
 !**/secrets/**.md
+**/git-identity.md
+**/Git-identity.md
+**/GIT-IDENTITY.md
+**/Git-IDENTITY.md
 
 # ──────────────────────────────────────────────
 # Cache & Runtime
@@ -128,6 +132,7 @@ yarn-error.log*
 *.7z
 *.rar
 *.bak
+*.backup
 /backups/
 
 # ──────────────────────────────────────────────
