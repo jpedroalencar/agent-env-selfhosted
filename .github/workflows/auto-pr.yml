@@ -3,6 +3,9 @@
 # ============================================================
 # Triggers on push to any branch except main.
 # Creates or updates a Draft Pull Request for the branch.
+#
+# The PR body includes diff stats for easy review.
+# When the reviewer approves → pr-review.yml handles the merge.
 # ============================================================
 
 name: Auto Draft PR
@@ -23,16 +26,65 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check for existing PR
         id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH="${GITHUB_REF_NAME}"
           OWNER="${GITHUB_REPOSITORY%/*}"
-          EXISTING=$(curl -s -H "Authorization: Bearer *** -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls?state=open&head=${OWNER}:${BRANCH}" \
-            | python3 -c "import sys,json; prs=json.load(sys.stdin); print(next((p['number'] for p in prs if p.get('draft')), ''))" 2>/dev/null || echo "")
+          EXISTING=$(gh pr list --state open --head "$BRANCH" --json number,isDraft \
+            -q '[?isDraft==`true`].number | .[0]' 2>/dev/null || echo "")
           echo "existing_pr=${EXISTING}" >> "$GITHUB_OUTPUT"
+
+      - name: Build PR content
+        id: content
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+
+          # Get diff stats
+          STATS=$(git diff --stat origin/main...HEAD 2>/dev/null || echo "Unable to compute diff stats")
+          FILES_CHANGED=$(git diff --name-only origin/main...HEAD 2>/dev/null | wc -l || echo "?")
+          COMMITS=$(git rev-list --count origin/main...HEAD 2>/dev/null || echo "?")
+          LAST_COMMIT=$(git log --oneline -1)
+
+          # Build body
+          cat <<EOF > /tmp/pr_body.md
+          ## Summary
+
+          Automated Draft PR for branch \`${BRANCH}\`.
+
+          **Commits:** ${COMMITS}
+          **Files changed:** ${FILES_CHANGED}
+          **Latest:** ${LAST_COMMIT}
+
+          ---
+
+          ### Diff Stats
+
+          \`\`\`
+          ${STATS}
+          \`\`\`
+
+          ---
+
+          ## Review Checklist
+
+          - [ ] Code quality and readability
+          - [ ] Tests pass (check CI status)
+          - [ ] No sensitive data exposed
+          - [ ] Documentation updated if needed
+
+          ---
+
+          **To approve:** Click "Approve" → PR merges automatically.
+          **To reject:** Click "Request changes" → PR closes, please comment why.
+          EOF
+
+          echo "body_file=/tmp/pr_body.md" >> "$GITHUB_OUTPUT"
 
       - name: Create or update Draft PR
         env:
@@ -40,18 +92,17 @@ jobs:
         run: |
           BRANCH="${GITHUB_REF_NAME}"
           TITLE="Draft: ${BRANCH}"
-          BODY="## Summary\n\nAutomated Draft PR for branch \`${BRANCH}\`.\n\n**Commit:** ${{ github.sha }}\n**Author:** ${{ github.actor }}"
 
           if [ -n "${{ steps.check.outputs.existing_pr }}" ]; then
             echo "Updating existing Draft PR #${{ steps.check.outputs.existing_pr }}"
             gh pr edit "${{ steps.check.outputs.existing_pr }}" \
               --title "$TITLE" \
-              --body "$BODY"
+              --body-file "${{ steps.content.outputs.body_file }}"
           else
             echo "Creating new Draft PR for $BRANCH"
             gh pr create \
               --title "$TITLE" \
-              --body "$BODY" \
+              --body-file "${{ steps.content.outputs.body_file }}" \
               --head "$BRANCH" \
               --base main \
               --draft

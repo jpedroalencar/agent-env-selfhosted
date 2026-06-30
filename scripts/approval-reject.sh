@@ -2,107 +2,102 @@
 # ==========================================================
 # approval-reject.sh — Reject a pending proposal
 # ==========================================================
+# Wrapper around approval_service Python module.
 #
 # Actions:
-#   1. Move package from pending/ to rejected/
-#   2. Append engineering journal entry
+#   1. Write rejection reason to package
+#   2. Create rejected record (JSON)
+#   3. Move package directory to rejected/
+#   4. Append engineering journal entry
 #
 # Does NOT push. Does NOT revert the local commit.
-# The local commit stays — the operator can git reset
-# or handle it manually.
 #
 # Usage:
-#   scripts/approval-reject.sh [YYYY-MM-DD-NNN]
-#   scripts/approval-reject.sh YYYY-MM-DD-NNN "rejection reason"
+#   scripts/approval-reject.sh [PROPOSAL_ID] ["reason"]
 #
+# If no ID is given, rejects the most recent pending package.
 # ==========================================================
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PENDING_DIR="$REPO_ROOT/approval/pending"
-REJECTED_DIR="$REPO_ROOT/approval/rejected"
-JOURNAL="$REPO_ROOT/log/build-log.md"
 
-log() { echo "  [approval-reject] $*"; }
-die() { echo >&2 "  [approval-reject] FATAL: $*"; exit 1; }
+python3 - "$REPO_ROOT" "$@" <<'PYEOF'
+import sys, pathlib, shutil, datetime
 
-# ---------------------------------------------------------
-# Find the target package
-# ---------------------------------------------------------
+repo = pathlib.Path(sys.argv[1])
+sys.path.insert(0, str(repo))
+from approval_service import (
+    PENDING_DIR, REJECTED_DIR, _create_approval_record
+)
 
-find_package() {
-    local specified_id="${1:-}"
+proposal_id = sys.argv[2] if len(sys.argv) > 2 else None
+reason = sys.argv[3] if len(sys.argv) > 3 else "No reason specified"
 
-    if [ -n "$specified_id" ]; then
-        if [ ! -d "$PENDING_DIR/$specified_id" ]; then
-            die "Package not found in pending/: $specified_id"
-        fi
-        echo "$specified_id"
-        return
-    fi
+# Find the pending package directory
+if proposal_id:
+    pkg_dir = PENDING_DIR / proposal_id
+    if not pkg_dir.exists():
+        print(f"ERROR: Package not found: {proposal_id}", file=sys.stderr)
+        sys.exit(1)
+else:
+    dirs = sorted(
+        [d for d in PENDING_DIR.iterdir() if d.is_dir()],
+        key=lambda d: d.stat().st_mtime,
+        reverse=True
+    )
+    if not dirs:
+        print("ERROR: No pending approval packages found.", file=sys.stderr)
+        sys.exit(1)
+    pkg_dir = dirs[0]
+    proposal_id = pkg_dir.name
 
-    local latest
-    latest="$(ls -1 "$PENDING_DIR" 2>/dev/null | sort -r | head -1)"
-    if [ -z "$latest" ]; then
-        die "No pending approval packages found."
-    fi
-    echo "$latest"
-}
+print(f"[approval-reject] Package: {proposal_id}")
+print(f"[approval-reject] Reason: {reason}")
 
-# ---------------------------------------------------------
-# Move package to rejected/
-# ---------------------------------------------------------
+# Write rejection reason to package before moving
+rejection_file = pkg_dir / "rejection-reason.txt"
+now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+rejection_file.write_text(f"Rejected: {now}\nReason: {reason}\n")
+print("[approval-reject] Rejection reason recorded.")
 
-move_to_rejected() {
-    local pkg_id="$1"
-    local reason="${2:-No reason specified}"
+# Create rejected record via the service
+rejected_path = _create_approval_record("rejected", proposal_id, {"rejection_reason": reason})
+print(f"[approval-reject] Rejected record: {rejected_path.name}")
 
-    log "Moving package to rejected/..."
-    mkdir -p "$REJECTED_DIR"
+# Move package directory to rejected/
+rejected_dir = REJECTED_DIR / proposal_id
+rejected_dir.mkdir(parents=True, exist_ok=True)
+for item in pkg_dir.iterdir():
+    dest = rejected_dir / item.name
+    if item.is_dir():
+        shutil.copytree(item, dest, dirs_exist_ok=True)
+    else:
+        shutil.copy2(item, dest)
+shutil.rmtree(pkg_dir)
+print(f"[approval-reject] Package moved to approval/rejected/{proposal_id}/")
 
-    # Write rejection reason before moving
-    echo "Rejected: $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$PENDING_DIR/$pkg_id/rejection-reason.txt"
-    echo "Reason: ${reason}" >> "$PENDING_DIR/$pkg_id/rejection-reason.txt"
-
-    mv "$PENDING_DIR/$pkg_id" "$REJECTED_DIR/$pkg_id"
-
-    if [ -d "$REJECTED_DIR/$pkg_id" ]; then
-        log "Package moved to rejected/${pkg_id}"
-    else
-        die "Failed to move package. Check filesystem."
-    fi
-}
-
-# ---------------------------------------------------------
 # Append engineering journal entry
-# ---------------------------------------------------------
-
-append_journal() {
-    local pkg_id="$1"
-    local reason="${2:-No reason specified}"
-
-    log "Appending engineering journal entry..."
-
-    cat >> "$JOURNAL" <<EOF
-
+journal = repo / "log" / "build-log.md"
+if journal.exists():
+    entry = f"""
 ---
-## $(date +%Y-%m-%d) — Approval Package Rejected: ${pkg_id}
+## {now[:10]} — Approval Package Rejected: {proposal_id}
 
 ### Date
-$(date +%Y-%m-%d)
+{now[:10]}
 
 ### Source
-\`#provenance: approval-pipeline\`
+`#provenance: approval-pipeline`
 
 ### Decision
-Approval package **${pkg_id}** was rejected by operator.
+Approval package **{proposal_id}** was rejected by operator.
 
 ### Reasoning
-${reason}
+{reason}
 
 ### Changes Made
-- Package moved from \`approval/pending/${pkg_id}\` to \`approval/rejected/${pkg_id}\`
+- Package moved from `approval/pending/{proposal_id}/` to `approval/rejected/{proposal_id}/`
 - Rejection reason recorded
 - No push performed
 - Journal entry appended
@@ -112,40 +107,10 @@ _Review rejection reason for improvements in next sprint._
 
 ### Follow-Up Actions
 - [ ] Address rejection reason and create revised proposal if needed
-EOF
+"""
+    with open(journal, "a") as f:
+        f.write(entry)
+    print("[approval-reject] Journal entry appended.")
 
-    log "Journal entry appended."
-}
-
-# ---------------------------------------------------------
-# Main
-# ---------------------------------------------------------
-
-main() {
-    local pkg_id
-    local reason="No reason specified"
-
-    # Parse arguments: [PKG_ID] [REASON]
-    if [[ $# -ge 1 ]]; then
-        pkg_id="$(find_package "$1")"
-        if [[ $# -ge 2 ]]; then
-            reason="$2"
-        fi
-    else
-        pkg_id="$(find_package)"
-    fi
-
-    log "Engineering Approval Pipeline — Reject"
-    log "Package: ${pkg_id}"
-
-    move_to_rejected "$pkg_id" "$reason"
-    append_journal "$pkg_id" "$reason"
-
-    log "==========================================="
-    log "REJECTED: ${pkg_id}"
-    log "Package archived: approval/rejected/${pkg_id}/"
-    log "No push performed."
-    log "==========================================="
-}
-
-main "$@"
+print(f"[approval-reject] REJECTED: {proposal_id}")
+PYEOF
