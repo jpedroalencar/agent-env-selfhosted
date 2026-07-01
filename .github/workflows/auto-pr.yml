@@ -39,18 +39,21 @@ jobs:
             -q '[?isDraft==`true`].number | .[0]' 2>/dev/null || echo "")
           echo "existing_pr=${EXISTING}" >> "$GITHUB_OUTPUT"
 
-      - name: Build PR content
-        id: content
+      - name: Create or update Draft PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH="${GITHUB_REF_NAME}"
+          TITLE="Draft: ${BRANCH}"
+
+          # Get diff stats
           STATS=$(git diff --stat origin/main...HEAD 2>/dev/null || echo "Unable to compute diff stats")
           FILES_CHANGED=$(git diff --name-only origin/main...HEAD 2>/dev/null | wc -l || echo "?")
           COMMITS=$(git rev-list --count origin/main...HEAD 2>/dev/null || echo "?")
           LAST_COMMIT=$(git log --oneline -1)
 
-          # Build body using heredoc with variable substitution
-          cat > /tmp/pr_body.md <<EOF
-          ## Summary
+          # Build body
+          BODY="## Summary
 
           Automated Draft PR for branch \`${BRANCH}\`.
 
@@ -77,29 +80,19 @@ jobs:
 
           ---
 
-          **To approve:** Click "Approve" → PR merges automatically.
-          **To reject:** Click "Request changes" → PR closes, please comment why.
-          EOF
-
-          echo "body_file=/tmp/pr_body.md" >> "$GITHUB_OUTPUT"
-
-      - name: Create or update Draft PR
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH="${GITHUB_REF_NAME}"
-          TITLE="Draft: ${BRANCH}"
+          **To approve:** Click \"Approve\" → PR merges automatically.
+          **To reject:** Click \"Request changes\" → PR closes, please comment why."
 
           if [ -n "${{ steps.check.outputs.existing_pr }}" ]; then
             echo "Updating existing Draft PR #${{ steps.check.outputs.existing_pr }}"
             gh pr edit "${{ steps.check.outputs.existing_pr }}" \
               --title "$TITLE" \
-              --body-file /tmp/pr_body.md
+              --body "$BODY"
           else
             echo "Creating new Draft PR for $BRANCH"
             gh pr create \
               --title "$TITLE" \
-              --body-file /tmp/pr_body.md \
+              --body "$BODY" \
               --head "$BRANCH" \
               --base main \
               --draft
