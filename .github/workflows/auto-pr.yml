@@ -35,7 +35,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH="${GITHUB_REF_NAME}"
-          OWNER="${GITHUB_REPOSITORY%/*}"
           EXISTING=$(gh pr list --state open --head "$BRANCH" --json number,isDraft \
             -q '[?isDraft==`true`].number | .[0]' 2>/dev/null || echo "")
           echo "existing_pr=${EXISTING}" >> "$GITHUB_OUTPUT"
@@ -44,15 +43,13 @@ jobs:
         id: content
         run: |
           BRANCH="${GITHUB_REF_NAME}"
-
-          # Get diff stats
           STATS=$(git diff --stat origin/main...HEAD 2>/dev/null || echo "Unable to compute diff stats")
           FILES_CHANGED=$(git diff --name-only origin/main...HEAD 2>/dev/null | wc -l || echo "?")
           COMMITS=$(git rev-list --count origin/main...HEAD 2>/dev/null || echo "?")
           LAST_COMMIT=$(git log --oneline -1)
 
-          # Build body
-          cat <<EOF > /tmp/pr_body.md
+          # Build body using heredoc with variable substitution
+          cat > /tmp/pr_body.md <<EOF
           ## Summary
 
           Automated Draft PR for branch \`${BRANCH}\`.
@@ -97,12 +94,12 @@ jobs:
             echo "Updating existing Draft PR #${{ steps.check.outputs.existing_pr }}"
             gh pr edit "${{ steps.check.outputs.existing_pr }}" \
               --title "$TITLE" \
-              --body-file "${{ steps.content.outputs.body_file }}"
+              --body-file /tmp/pr_body.md
           else
             echo "Creating new Draft PR for $BRANCH"
             gh pr create \
               --title "$TITLE" \
-              --body-file "${{ steps.content.outputs.body_file }}" \
+              --body-file /tmp/pr_body.md \
               --head "$BRANCH" \
               --base main \
               --draft
