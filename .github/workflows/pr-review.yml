@@ -1,0 +1,255 @@
+# ============================================================
+# pr-review.yml — Automatic Approval/Rejection on PR Review
+# ============================================================
+# Triggers when a PR review is submitted.
+#
+# Approved  → merge PR to main, create approval record
+# Rejected  → close PR, create rejection record
+#
+# No manual steps required. Human reviews on GitHub,
+# everything else is automatic.
+# ============================================================
+
+name: PR Review → Approval
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  handle-review:
+    runs-on: ubuntu-latest
+    if: github.event.review.state == 'approved' || github.event.review.state == 'changes_requested'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Extract PR info
+        id: info
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          REVIEW_STATE="${{ github.event.review.state }}"
+          REVIEWER="${{ github.event.review.user.login }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "review_state=$REVIEW_STATE" >> "$GITHUB_OUTPUT"
+          echo "reviewer=$REVIEWER" >> "$GITHUB_OUTPUT"
+          echo "pr_title=$PR_TITLE" >> "$GITHUB_OUTPUT"
+
+          echo "PR #$PR_NUMBER by branch $BRANCH"
+          echo "Review: $REVIEW_STATE by $REVIEWER"
+
+      # ── APPROVED ──────────────────────────────────────────
+      - name: Merge PR (approved)
+        if: steps.info.outputs.review_state == 'approved'
+        run: |
+          PR_NUMBER="${{ steps.info.outputs.pr_number }}"
+          BRANCH="${{ steps.info.outputs.branch }}"
+
+          echo "Approving PR #$PR_NUMBER..."
+
+          # Regular merge (preserves original commit authorship)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main
+          git checkout origin/main
+          git merge --no-ff "origin/$BRANCH" -m "merge: PR #${PR_NUMBER} approved by @${{ steps.info.outputs.reviewer }}
+
+          Approved via GitHub PR review.
+          Branch: ${BRANCH}
+          Reviewer: ${{ steps.info.outputs.reviewer }}" || {
+            echo "Merge conflict — cannot auto-merge"
+            exit 1
+          }
+
+          # Push to main
+          git push origin HEAD:main
+
+          echo "PR #$PR_NUMBER merged to main."
+
+      - name: Create approval record
+        if: steps.info.outputs.review_state == 'approved'
+        run: |
+          python3 - <<'PYEOF'
+          import sys, pathlib, datetime, json
+
+          repo = pathlib.Path(".")
+          sys.path.insert(0, str(repo))
+          from approval_service import (
+              APPROVAL_ROOT, APPROVED_DIR, PROPOSAL_ROOT, _next_id, _write_json, _timestamp
+          )
+
+          pr_number = "${{ steps.info.outputs.pr_number }}"
+          branch = "${{ steps.info.outputs.branch }}"
+          reviewer = "${{ steps.info.outputs.reviewer }}"
+          pr_title = "${{ steps.info.outputs.pr_title }}"
+
+          record_id = _next_id("_rec")
+          record = {
+              "record_id": record_id,
+              "proposal_id": f"pr-{pr_number}",
+              "timestamp": _timestamp(),
+              "reviewer": reviewer,
+              "decision": "approved",
+              "pr_number": int(pr_number),
+              "branch": branch,
+              "pr_title": pr_title,
+          }
+
+          record_path = APPROVED_DIR / f"{record_id}.json"
+          _write_json(record_path, record)
+          print(f"Approval record created: {record_path.name}")
+
+          # Append journal entry
+          journal = repo / "log" / "build-log.md"
+          if journal.exists():
+              now = datetime.datetime.utcnow()
+              entry = f"""
+          ---
+          ## {now.strftime('%Y-%m-%d')} — PR #{pr_number} Approved: {branch}
+
+          ### Date
+          {now.strftime('%Y-%m-%d')}
+
+          ### Source
+          `#provenance: github-actions`
+
+          ### Decision
+          PR **#{pr_number}** (`{branch}`) was approved by @{reviewer} and merged to main.
+
+          ### Reasoning
+          Human operator reviewed the Draft PR on GitHub and approved. GitHub Actions merged automatically.
+
+          ### Changes Made
+          - PR #{pr_number} merged via squash merge
+          - Branch `{branch}` merged to `main`
+          - Approval record created: `{record_path.name}`
+          - Journal entry appended
+
+          ### Lessons Learned
+          _No new lessons in this approval cycle._
+
+          ### Follow-Up Actions
+          None at this time.
+          """
+              with open(journal, "a") as f:
+                  f.write(entry)
+              print("Journal entry appended.")
+          PYEOF
+
+      # ── REJECTED ──────────────────────────────────────────
+      - name: Close PR (rejected)
+        if: steps.info.outputs.review_state == 'changes_requested'
+        run: |
+          PR_NUMBER="${{ steps.info.outputs.pr_number }}"
+
+          echo "Closing PR #$PR_NUMBER (changes requested)..."
+
+          # Close the PR with a comment
+          gh pr close "$PR_NUMBER" \
+            --comment "Closed by @${{ steps.info.outputs.reviewer }} — changes requested. Please revise and reopen." \
+            || echo "Failed to close PR (may already be closed)"
+
+          echo "PR #$PR_NUMBER closed."
+
+      - name: Create rejection record
+        if: steps.info.outputs.review_state == 'changes_requested'
+        run: |
+          python3 - <<'PYEOF'
+          import sys, pathlib, datetime, json
+
+          repo = pathlib.Path(".")
+          sys.path.insert(0, str(repo))
+          from approval_service import (
+              REJECTED_DIR, _next_id, _write_json, _timestamp
+          )
+
+          pr_number = "${{ steps.info.outputs.pr_number }}"
+          branch = "${{ steps.info.outputs.branch }}"
+          reviewer = "${{ steps.info.outputs.reviewer }}"
+          pr_title = "${{ steps.info.outputs.pr_title }}"
+
+          record_id = _next_id("_rec")
+          record = {
+              "record_id": record_id,
+              "proposal_id": f"pr-{pr_number}",
+              "timestamp": _timestamp(),
+              "reviewer": reviewer,
+              "decision": "rejected",
+              "pr_number": int(pr_number),
+              "branch": branch,
+              "pr_title": pr_title,
+              "rejection_reason": "Changes requested via GitHub PR review",
+          }
+
+          record_path = REJECTED_DIR / f"{record_id}.json"
+          _write_json(record_path, record)
+          print(f"Rejection record created: {record_path.name}")
+
+          # Append journal entry
+          journal = repo / "log" / "build-log.md"
+          if journal.exists():
+              now = datetime.datetime.utcnow()
+              entry = f"""
+          ---
+          ## {now.strftime('%Y-%m-%d')} — PR #{pr_number} Rejected: {branch}
+
+          ### Date
+          {now.strftime('%Y-%m-%d')}
+
+          ### Source
+          `#provenance: github-actions`
+
+          ### Decision
+          PR **#{pr_number}** (`{branch}`) was rejected by @{reviewer}. Changes requested.
+
+          ### Reasoning
+          Human operator reviewed the Draft PR on GitHub and requested changes. PR closed automatically.
+
+          ### Changes Made
+          - PR #{pr_number} closed
+          - Branch `{branch}` left intact (can be reopened)
+          - Rejection record created: `{record_path.name}`
+          - Journal entry appended
+
+          ### Lessons Learned
+          _Review rejection reason for improvements in next sprint._
+
+          ### Follow-Up Actions
+          - [ ] Address review feedback and create revised PR
+          """
+              with open(journal, "a") as f:
+                  f.write(entry)
+              print("Journal entry appended.")
+          PYEOF
+
+      - name: Commit records
+        if: steps.info.outputs.review_state == 'approved' || steps.info.outputs.review_state == 'changes_requested'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add approval/ log/build-log.md 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No approval records to commit."
+          else
+            git commit -m "chore: record PR review decision"
+            git push origin HEAD:main
+            echo "Records committed and pushed."
+          fi
