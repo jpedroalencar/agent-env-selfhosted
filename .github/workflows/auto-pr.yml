@@ -33,7 +33,7 @@ jobs:
           COMMITS=$(git rev-list --count origin/main...HEAD 2>/dev/null || echo "?")
           LAST_COMMIT=$(git log --oneline -1)
 
-          # Write body to file to avoid shell escaping issues
+          # Write body to file
           {
             echo "## Summary"
             echo ""
