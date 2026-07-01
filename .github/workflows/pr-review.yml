@@ -63,23 +63,20 @@ jobs:
 
           echo "Approving PR #$PR_NUMBER..."
 
-          # Squash merge to main
+          # Regular merge (preserves original commit authorship)
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git fetch origin main
           git checkout origin/main
-          git merge --squash "origin/$BRANCH" || {
-            echo "Merge conflict — cannot auto-merge"
-            exit 1
-          }
-
-          # Create merge commit
-          git commit -m "merge: PR #${PR_NUMBER} approved by @${{ steps.info.outputs.reviewer }}
+          git merge --no-ff "origin/$BRANCH" -m "merge: PR #${PR_NUMBER} approved by @${{ steps.info.outputs.reviewer }}
 
           Approved via GitHub PR review.
           Branch: ${BRANCH}
-          Reviewer: ${{ steps.info.outputs.reviewer }}"
+          Reviewer: ${{ steps.info.outputs.reviewer }}" || {
+            echo "Merge conflict — cannot auto-merge"
+            exit 1
+          }
 
           # Push to main
           git push origin HEAD:main
