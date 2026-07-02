@@ -1,171 +1,120 @@
 #!/usr/bin/env bash
-# Wrapper for Hermes Approval Service – approve a pending proposal.
-# Usage: ./approval-approve.sh [PROPOSAL_ID]
-# If no ID is provided, the most recent pending record is used.
-
-set -euo pipefail
-
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PYTHON_SCRIPT=$(cat <<'PYEOF'
-import sys, pathlib
-repo = pathlib.Path('$REPO_ROOT')
-sys.path.insert(0, str(repo))
-from approval_service import approve
-if len(sys.argv) > 1:
-    path = approve(proposal_id=sys.argv[1])
-else:
-    path = approve()
-print(path)
-PYEOF
-)
-python3 -c "$PYTHON_SCRIPT" "$@"
 # ==========================================================
-# approval-approve.sh — Approve pending proposal + push
+# approval-approve.sh — Approve a pending proposal
 # ==========================================================
+# Wrapper around approval_service Python module.
 #
 # Actions:
-#   1. Verify current approval package exists and is valid
-#   2. Execute git push
-#   3. Move package from pending/ to approved/
-#   4. Append engineering journal entry
+#   1. Verify package integrity
+#   2. Git push to remote
+#   3. Create approved record (JSON)
+#   4. Move package directory to approved/
+#   5. Append engineering journal entry
 #
 # Usage:
-#   scripts/approval-approve.sh [YYYY-MM-DD-NNN]
+#   scripts/approval-approve.sh [PROPOSAL_ID]
 #
-# If no package ID is given, approves the most recent
-# pending package.
-#
+# If no ID is given, approves the most recent pending package.
 # ==========================================================
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PENDING_DIR="$REPO_ROOT/approval/pending"
-APPROVED_DIR="$REPO_ROOT/approval/approved"
-JOURNAL="$REPO_ROOT/log/build-log.md"
 
-log() { echo "  [approval-approve] $*"; }
-die() { echo >&2 "  [approval-approve] FATAL: $*"; exit 1; }
+python3 - "$REPO_ROOT" "$@" <<'PYEOF'
+import sys, pathlib, subprocess, datetime
 
-# ---------------------------------------------------------
-# Find the target package
-# ---------------------------------------------------------
+repo = pathlib.Path(sys.argv[1])
+sys.path.insert(0, str(repo))
+from approval_service import (
+    approve, PENDING_DIR, APPROVED_DIR, PROPOSAL_ROOT,
+    _read_json, _find_pending_record, _most_recent_pending_id,
+    _timestamp
+)
 
-find_package() {
-    local specified_id="${1:-}"
+proposal_id = sys.argv[2] if len(sys.argv) > 2 else None
 
-    if [ -n "$specified_id" ]; then
-        if [ ! -d "$PENDING_DIR/$specified_id" ]; then
-            die "Package not found: $specified_id"
-        fi
-        echo "$specified_id"
-        return
-    fi
+# Find the pending package directory
+if proposal_id:
+    pkg_dir = PENDING_DIR / proposal_id
+    if not pkg_dir.exists():
+        print(f"ERROR: Package not found: {proposal_id}", file=sys.stderr)
+        sys.exit(1)
+else:
+    # Find most recent pending directory (not JSON files)
+    dirs = sorted(
+        [d for d in PENDING_DIR.iterdir() if d.is_dir()],
+        key=lambda d: d.stat().st_mtime,
+        reverse=True
+    )
+    if not dirs:
+        print("ERROR: No pending approval packages found.", file=sys.stderr)
+        sys.exit(1)
+    pkg_dir = dirs[0]
+    proposal_id = pkg_dir.name
 
-    # Find most recent pending package
-    local latest
-    latest="$(ls -1 "$PENDING_DIR" 2>/dev/null | sort -r | head -1)"
-    if [ -z "$latest" ]; then
-        die "No pending approval packages found."
-    fi
-    echo "$latest"
-}
+print(f"[approval-approve] Package: {proposal_id}")
 
-# ---------------------------------------------------------
 # Verify package integrity
-# ---------------------------------------------------------
+required_files = ["summary.md", "changed-files.md", "git-diff.patch", "proposal-link.txt"]
+missing = [f for f in required_files if not (pkg_dir / f).exists()]
+if missing:
+    print(f"ERROR: Package is incomplete. Missing: {', '.join(missing)}", file=sys.stderr)
+    sys.exit(1)
+print("[approval-approve] Package verified.")
 
-verify_package() {
-    local pkg_id="$1"
-    local pkg_dir="$PENDING_DIR/$pkg_id"
+# Git push
+print("[approval-approve] Pushing to remote...")
+result = subprocess.run(
+    ["git", "push", "origin", "HEAD"],
+    cwd=str(repo), capture_output=True, text=True
+)
+if result.returncode != 0:
+    print(f"ERROR: git push failed: {result.stderr}", file=sys.stderr)
+    sys.exit(1)
+print("[approval-approve] Push successful.")
 
-    log "Verifying package: ${pkg_id}"
+# Create approved record via the service
+from approval_service import _create_approval_record
+approved_path = _create_approval_record("approved", proposal_id)
+print(f"[approval-approve] Approved record: {approved_path.name}")
 
-    local required_files="summary.md changed-files.md git-diff.patch proposal-link.txt"
-    local missing=0
+# Move package directory to approved/
+approved_dir = APPROVED_DIR / proposal_id
+approved_dir.mkdir(parents=True, exist_ok=True)
+import shutil
+for item in pkg_dir.iterdir():
+    dest = approved_dir / item.name
+    if item.is_dir():
+        shutil.copytree(item, dest, dirs_exist_ok=True)
+    else:
+        shutil.copy2(item, dest)
+shutil.rmtree(pkg_dir)
+print(f"[approval-approve] Package moved to approval/approved/{proposal_id}/")
 
-    for f in $required_files; do
-        if [ ! -f "$pkg_dir/$f" ]; then
-            log "MISSING: $f"
-            missing=$((missing + 1))
-        else
-            log "  ✓ $f"
-        fi
-    done
-
-    if [ "$missing" -gt 0 ]; then
-        die "Package is incomplete (${missing} file(s) missing). Reject or revise instead."
-    fi
-
-    # Verify it's actually pending (exists in pending/)
-    if [ ! -d "$pkg_dir" ]; then
-        die "Package directory does not exist in pending/."
-    fi
-
-    log "Package verified."
-}
-
-# ---------------------------------------------------------
-# Execute git push
-# ---------------------------------------------------------
-
-execute_push() {
-    log "Pushing to remote..."
-    cd "$REPO_ROOT"
-    if git push origin HEAD 2>&1; then
-        log "Push successful."
-    else
-        die "git push failed. Package remains in pending/."
-    fi
-}
-
-# ---------------------------------------------------------
-# Move package to approved/
-# ---------------------------------------------------------
-
-move_to_approved() {
-    local pkg_id="$1"
-
-    log "Moving package to approved/..."
-    mkdir -p "$APPROVED_DIR"
-    mv "$PENDING_DIR/$pkg_id" "$APPROVED_DIR/$pkg_id"
-
-    if [ -d "$APPROVED_DIR/$pkg_id" ]; then
-        log "Package moved to approved/${pkg_id}"
-    else
-        die "Failed to move package. Check filesystem."
-    fi
-}
-
-# ---------------------------------------------------------
 # Append engineering journal entry
-# ---------------------------------------------------------
-
-append_journal() {
-    local pkg_id="$1"
-
-    log "Appending engineering journal entry..."
-
-    cat >> "$JOURNAL" <<EOF
-
+journal = repo / "log" / "build-log.md"
+if journal.exists():
+    now = datetime.datetime.utcnow()
+    entry = f"""
 ---
-## $(date +%Y-%m-%d) — Approval Package Approved: ${pkg_id}
+## {now.strftime('%Y-%m-%d')} — Approval Package Approved: {proposal_id}
 
 ### Date
-$(date +%Y-%m-%d)
+{now.strftime('%Y-%m-%d')}
 
 ### Source
-\`#provenance: approval-pipeline\`
+`#provenance: approval-pipeline`
 
 ### Decision
-Approval package **${pkg_id}** was approved and pushed to remote.
+Approval package **{proposal_id}** was approved and pushed to remote.
 
 ### Reasoning
-Human operator reviewed the proposal package and approved. Changes pushed via \`git push\`.
+Human operator reviewed the proposal package and approved. Changes pushed via `git push`.
 
 ### Changes Made
-- Package moved from \`approval/pending/${pkg_id}\` to \`approval/approved/${pkg_id}\`
-- \`git push\` executed successfully
+- Package moved from `approval/pending/{proposal_id}/` to `approval/approved/{proposal_id}/`
+- `git push` executed successfully
 - Journal entry appended
 
 ### Lessons Learned
@@ -173,32 +122,10 @@ _No new lessons in this approval cycle._
 
 ### Follow-Up Actions
 None at this time.
-EOF
+"""
+    with open(journal, "a") as f:
+        f.write(entry)
+    print("[approval-approve] Journal entry appended.")
 
-    log "Journal entry appended."
-}
-
-# ---------------------------------------------------------
-# Main
-# ---------------------------------------------------------
-
-main() {
-    local pkg_id
-    pkg_id="$(find_package "${1:-}")"
-
-    log "Engineering Approval Pipeline — Approve"
-    log "Package: ${pkg_id}"
-
-    verify_package  "$pkg_id"
-    execute_push
-    move_to_approved "$pkg_id"
-    append_journal  "$pkg_id"
-
-    log "==========================================="
-    log "APPROVED: ${pkg_id}"
-    log "Pushed to remote."
-    log "Package archived: approval/approved/${pkg_id}/"
-    log "==========================================="
-}
-
-main "$@"
+print(f"[approval-approve] APPROVED: {proposal_id}")
+PYEOF
