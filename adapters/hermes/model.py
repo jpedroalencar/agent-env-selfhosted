@@ -15,8 +15,6 @@ import os
 import subprocess
 import sys
 
-from pilot.dispatch.plan import ExecutionPlan
-
 
 def _get_api_key() -> str:
     """Read DEEPSEEK_API_KEY from ~/.hermes/.env."""
@@ -33,18 +31,11 @@ def _get_api_key() -> str:
     raise RuntimeError("DEEPSEEK_API_KEY not found in .env")
 
 
-def call_model(prompt: str, *, plan: ExecutionPlan, model: str = "deepseek-v4-pro") -> str:
+def call_model(prompt: str, *, model: str = "deepseek-v4-pro") -> str:
     """Call the DeepSeek model with a prompt. Returns the response text.
-
-    The ExecutionPlan is the single authoritative execution contract: every
-    model invocation must be governed by a validated plan. Calls without a
-    plan are rejected before any API request is made.
 
     Uses the Hermes venv's Python to access the OpenAI SDK.
     """
-    if not isinstance(plan, ExecutionPlan):
-        raise TypeError("call_model requires an ExecutionPlan (plan=...)")
-
     api_key = _get_api_key()
     venv_python = "/usr/local/lib/hermes-agent/venv/bin/python3"
 
