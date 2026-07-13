@@ -69,52 +69,8 @@ MESSAGES=$(git log --format='%s' origin/main..HEAD | tac)
 if [ -n "${1:-}" ]; then
     COMMIT_MSG="$1"
 else
-    # --- Infer Conventional-Commits type(scope) from the diff ---
-    HAS_TESTS=0; HAS_DOCS=0; HAS_CI=0; HAS_CODE=0; HAS_NEW=0
-    CHANGED=$(git diff --name-only origin/main...HEAD 2>/dev/null || true)
-    if git diff --name-only --diff-filter=A origin/main...HEAD 2>/dev/null | grep -q .; then HAS_NEW=1; fi
-    SCOPES=""
-    HAS_TESTS=0; HAS_DOCS=0; HAS_CI=0; HAS_CODE=0; HAS_NEW=0
-    while IFS= read -r f; do
-        [ -z "$f" ] && continue
-        case "$f" in
-            tests/*|*_test.py|test_*.py) HAS_TESTS=1 ;;
-            docs/*|*.md) HAS_DOCS=1 ;;
-            .github/*) HAS_CI=1 ;;
-            pilot/*|adapters/*) HAS_CODE=1 ;;
-        esac
-        case "$f" in
-            pilot/*) SCOPES="${SCOPES} platform" ;;
-            adapters/*) SCOPES="${SCOPES} adapter" ;;
-            .github/*) SCOPES="${SCOPES} ci" ;;
-            scripts/*) SCOPES="${SCOPES} scripts" ;;
-            docs/*|*.md) SCOPES="${SCOPES} docs" ;;
-        esac
-    done <<< "$CHANGED"
-    SCOPE=$(echo "$SCOPES" | tr ' ' '\n' \
-        | awk 'NF&&!seen[$0]++' \
-        | awk 'BEGIN{o["platform"]=1;o["adapter"]=2;o["ci"]=3;o["scripts"]=4;o["docs"]=5} {print (o[$0]?o[$0]:9)" "$0}' \
-        | sort -n | cut -d' ' -f2 | head -2 | paste -sd, -)
-
-    if [ "$HAS_TESTS" -eq 1 ] && [ "$HAS_CODE" -eq 0 ] && [ "$HAS_CI" -eq 0 ]; then
-        TYPE="test"
-    elif [ "$HAS_CI" -eq 1 ] && [ "$HAS_CODE" -eq 0 ] && [ "$HAS_DOCS" -eq 0 ]; then
-        TYPE="ci"
-    elif [ "$HAS_DOCS" -eq 1 ] && [ "$HAS_CODE" -eq 0 ] && [ "$HAS_CI" -eq 0 ]; then
-        TYPE="docs"
-    elif [ "$HAS_CODE" -eq 1 ] && [ "$HAS_NEW" -eq 1 ]; then
-        TYPE="feat"
-    else
-        TYPE="fix"
-    fi
-
-    if [ -z "$SCOPE" ]; then
-        COMMIT_MSG="${TYPE}: ${BRANCH}"
-    else
-        COMMIT_MSG="${TYPE}(${SCOPE}): ${BRANCH}"
-    fi
-    # Append the per-commit breakdown so the human can refine at review
-    COMMIT_MSG="${COMMIT_MSG}
+    # Auto-generate from commit messages
+    COMMIT_MSG="feat: sprint ${BRANCH##sprint/}
 
 Consolidated from $AHEAD commits:
 

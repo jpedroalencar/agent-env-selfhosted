@@ -18,6 +18,7 @@ routing:
     memory_tier: persistent
     knowledge_providers:
       - vault
+      - web
 
   stock_valuation:
     profile: financial-analyst
@@ -26,12 +27,14 @@ routing:
     memory_tier: persistent
     knowledge_providers:
       - vault
+      - web
 
   market_data:
     profile: financial-analyst
     skills: []
     memory_tier: working
-    knowledge_providers: []
+    knowledge_providers:
+      - web
 
   research:
     profile: research-analyst
@@ -39,18 +42,22 @@ routing:
     memory_tier: persistent
     knowledge_providers:
       - vault
+      - web
 
   fact_check:
     profile: research-analyst
     skills: []
     memory_tier: working
-    knowledge_providers: []
+    knowledge_providers:
+      - web
 
   competitive_intel:
     profile: research-analyst
     skills: []
     memory_tier: persistent
-    knowledge_providers: []
+    knowledge_providers:
+      - vault
+      - web
 
   code_change:
     profile: dev
