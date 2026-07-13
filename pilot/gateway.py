@@ -94,10 +94,21 @@ def handle_request(question: str, adapter: Optional[AgentAdapter] = None) -> dic
 
     # ── Step 6: Produce KnowledgeArtifacts from all providers via Context Orchestrator ──
     config_artifact = config.produce_artifact(intent)
-    # Run KnowledgeOrchestrator to collect artifacts from registered providers
+    # Run KnowledgeOrchestrator to collect artifacts from registered providers.
+    # Provider modules must be imported so they self-register in the registry
+    # before the orchestrator looks them up by name.
+    import pilot.knowledge.providers.memory  # noqa: F401  registers 'memory'
+    import pilot.knowledge.providers.vault  # noqa: F401  registers 'vault'
+    from pilot.provider_registry import list_providers
+    missing = [p for p in plan.knowledge_providers if p not in list_providers()]
+    if missing:
+        raise RuntimeError(
+            f"Unknown knowledge provider(s) in ExecutionPlan: {missing}. "
+            "Implement/register them or remove them from config/routing.yaml."
+        )
     from pilot.context.knowledge_orchestrator import run as orchestrator_run
     provider_artifacts = orchestrator_run(plan, intent, question)
-    # Apply ContextSelector (currently a no‑op) for future metadata‑first lazy loading
+    # Apply ContextSelector (currently a no-op) for future metadata-first lazy loading
     from pilot.context.context_selector import select_artifacts
     provider_artifacts = select_artifacts(plan, provider_artifacts)
     artifacts = [config_artifact] + provider_artifacts

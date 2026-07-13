@@ -55,6 +55,7 @@ User Request
 | **Knowledge Vault** | Curated knowledge artifacts consumed by Knowledge Providers during context assembly. 10 artifacts. Automated lookup, freshness, registration. |
 | **Backup & Recovery** | LXD snapshot backup with retention, restore, host validation evidence. |
 | **Telegram Interface** | Primary chat via Hermes Telegram gateway. Multi-session, multi-thread. |
+| **CLI Entry Point** | `python -m pilot --prompt "..."` runs the full pipeline end-to-end (the "plug"). `--mock` runs without API credits; `--json` emits the trace. |
 | **Multi-Provider LLM** | DeepSeek (primary) with fallback to OpenRouter. |
 | **Git Identity** | Author/Committer separation enforced by `scripts/git-commit.sh`. |
 
@@ -96,6 +97,30 @@ User Request
 ├── infra/              # Infrastructure config (future)
 ├── workspaces/         # Temporary (gitignored)
 └── .hermes/            # Operational logs (gitignored)
+```
+
+---
+
+## Run
+
+The Platform exposes a CLI entry point (the "plug") that runs a request through the full pipeline:
+
+```bash
+# Full run (requires a configured LLM provider + API key)
+python -m pilot --prompt "What is the capital of France?"
+
+# Mock run — exercises parse → classify → plan → knowledge → context → prompt
+# without consuming API credits (useful for verifying the pipeline)
+python -m pilot --prompt "Summarize the Q2 report" --mock
+
+# Emit the full pipeline trace as JSON
+python -m pilot --prompt "hello" --mock --json
+```
+
+Tests:
+
+```bash
+python3 -m pytest tests/ -q
 ```
 
 ---

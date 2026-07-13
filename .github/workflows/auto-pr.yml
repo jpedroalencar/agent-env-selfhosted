@@ -1,18 +1,26 @@
 # ============================================================
 # auto-pr.yml — Automatically create Draft PRs
 # ============================================================
-# Uses GitHub REST API directly (gh CLI has auth issues).
+# Uses the gh CLI (preinstalled on GitHub-hosted runners).
+# The PR body is written to a file and passed via --body-file to
+# avoid shell quoting / backtick command-substitution pitfalls.
+#
+# Triggers:
+#   - push to any branch except main
+#   - manual "Run workflow" (workflow_dispatch)
 
 name: Auto Draft PR
 
 on:
   push:
-    branches:
+    branches-ignore:
+      - main
+    tags-ignore:
       - '**'
-      - '!main'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -23,19 +31,80 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: false
 
       - name: Create or update Draft PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           BRANCH="${GITHUB_REF_NAME}"
-          REPO="${{ github.repository }}"
+          if [ -z "${BRANCH}" ] || [ "${BRANCH}" = "main" ]; then
+            echo "On '${BRANCH}' - skipping Draft PR creation."
+            exit 0
+          fi
+
+          echo "Branch: ${BRANCH}"
+          echo "Repository: ${{ github.repository }}"
+
+          # Ensure origin/main ref exists locally for diff stats
+          git fetch origin main:refs/remotes/origin/main || true
           STATS=$(git diff --stat origin/main...HEAD 2>/dev/null || echo "Unable to compute diff stats")
           COMMITS=$(git rev-list --count origin/main...HEAD 2>/dev/null || echo "?")
           LAST_COMMIT=$(git log --oneline -1)
 
-          # Build body
-          BODY=$(cat <<EOF
+          # --- Infer Conventional-Commits type(scope) from the diff ---
+          # Single-purpose branches get a precise type(scope); mixed branches
+          # get a consolidated title the human can edit at /squash time.
+          HAS_TESTS=0; HAS_DOCS=0; HAS_CI=0; HAS_CODE=0; HAS_NEW=0
+          CHANGED=$(git diff --name-only origin/main...HEAD 2>/dev/null || true)
+          if git diff --name-only --diff-filter=A origin/main...HEAD 2>/dev/null | grep -q .; then HAS_NEW=1; fi
+          SCOPES=""
+          HAS_TESTS=0; HAS_DOCS=0; HAS_CI=0; HAS_CODE=0; HAS_NEW=0
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              tests/*|*_test.py|test_*.py) HAS_TESTS=1 ;;
+              docs/*|*.md) HAS_DOCS=1 ;;
+              .github/*) HAS_CI=1 ;;
+              pilot/*|adapters/*) HAS_CODE=1 ;;
+            esac
+            case "$f" in
+              pilot/*) SCOPES="${SCOPES} platform" ;;
+              adapters/*) SCOPES="${SCOPES} adapter" ;;
+              .github/*) SCOPES="${SCOPES} ci" ;;
+              scripts/*) SCOPES="${SCOPES} scripts" ;;
+              docs/*|*.md) SCOPES="${SCOPES} docs" ;;
+            esac
+          done <<< "$CHANGED"
+          # de-dupe scopes; prefer code scopes (platform/adapter) over ci/docs
+          SCOPE=$(echo "$SCOPES" | tr ' ' '\n' \
+            | awk 'NF&&!seen[$0]++' \
+            | awk 'BEGIN{o["platform"]=1;o["adapter"]=2;o["ci"]=3;o["scripts"]=4;o["docs"]=5} {print (o[$0]?o[$0]:9)" "$0}' \
+            | sort -n | cut -d' ' -f2 | head -2 | paste -sd, -)
+
+          if [ "$HAS_TESTS" -eq 1 ] && [ "$HAS_CODE" -eq 0 ] && [ "$HAS_CI" -eq 0 ]; then
+            TYPE="test"
+          elif [ "$HAS_CI" -eq 1 ] && [ "$HAS_CODE" -eq 0 ] && [ "$HAS_DOCS" -eq 0 ]; then
+            TYPE="ci"
+          elif [ "$HAS_DOCS" -eq 1 ] && [ "$HAS_CODE" -eq 0 ] && [ "$HAS_CI" -eq 0 ]; then
+            TYPE="docs"
+          elif [ "$HAS_CODE" -eq 1 ] && [ "$HAS_NEW" -eq 1 ]; then
+            TYPE="feat"
+          else
+            TYPE="fix"
+          fi
+
+          if [ -z "$SCOPE" ]; then
+            TITLE="${TYPE}: ${BRANCH}"
+          else
+            TITLE="${TYPE}(${SCOPE}): ${BRANCH}"
+          fi
+          echo "Inferred PR title: ${TITLE}"
+
+          # Write the PR body to a file to avoid shell quoting issues
+          cat > pr_body.md <<EOF
           ## Summary
 
           Automated Draft PR for branch \`${BRANCH}\`.
@@ -53,30 +122,24 @@ jobs:
 
           ---
 
-          **To approve:** Click "Approve" → PR merges automatically.
-          **To reject:** Click "Request changes" → PR closes.
+          **To approve:** Click "Approve" -> PR merges automatically.
+          **To reject:** Click "Request changes" -> PR closes.
           EOF
-          )
 
-          # Check for existing PR
-          EXISTING=$(curl -s \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${REPO}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${BRANCH}" \
-            | python3 -c "import sys,json; prs=json.load(sys.stdin); print(next((p['number'] for p in prs if p.get('draft')), ''))" 2>/dev/null || echo "")
+          echo "Checking for an existing open PR on branch ${BRANCH}..."
+          EXISTING=$(gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number // empty' || echo "")
 
-          if [ -n "$EXISTING" ]; then
-            echo "Updating existing Draft PR #$EXISTING"
-            curl -s -X PATCH \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/pulls/${EXISTING}" \
-              -d "{\"title\":\"Draft: ${BRANCH}\",\"body\":$(echo "$BODY" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')}"
+          if [ -n "${EXISTING}" ]; then
+            echo "Updating existing Draft PR #${EXISTING}"
+            gh pr edit "${EXISTING}" --title "${TITLE}" --body-file pr_body.md
           else
-            echo "Creating new Draft PR for $BRANCH"
-            curl -s -X POST \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/pulls" \
-              -d "{\"title\":\"Draft: ${BRANCH}\",\"body\":$(echo "$BODY" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'),\"head\":\"${BRANCH}\",\"base\":\"main\",\"draft\":true}"
+            echo "Creating Draft PR for ${BRANCH}..."
+            gh pr create \
+              --title "${TITLE}" \
+              --body-file pr_body.md \
+              --base main \
+              --head "${BRANCH}" \
+              --draft
           fi
+
+          echo "Done."
